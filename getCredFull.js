@@ -105,10 +105,10 @@ TokDec.DecodeToken = function(a) {
         return JSON.parse(b);
     }
     
-if (!('gapi' in this && 'auth2' in this.gapi)) {
+if (!('gapi' in window && 'auth2' in window.gapi)) {
     alert("No Google Auth Library in this page, are you inside voice.google.com?");
 }
-gapi.auth2.authorize({
+window.gapi.auth2.authorize({
     "apiKey":"AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg",
     "clientId":"301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com",
     "prompt":"select_account",
