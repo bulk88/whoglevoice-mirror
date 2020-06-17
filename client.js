@@ -1,6 +1,66 @@
+function wvCopyToClipboard(text) {
+var input = document.createElement("input");
+input.setAttribute("value", typeof text == 'string' ? text : "test data "+String(new Date()));
+input.setAttribute("id", "mycopyfield");
+document.body.appendChild(input);
+input.select();
+input.setSelectionRange(0, 99999); /*For mobile devices*/
+try {
+var r = document.execCommand("copy");
+if(!r){throw('document.execCommand("copy") returned false');}
+} catch(e) {
+alert("Copy Failed: "+e);
+}
+document.body.removeChild(input);
+}
+
 function wipeAuthToken () {
     localStorage.removeItem('gvauthobj');
 }
+
+function drawLoginBar()
+{
+    var divLoginBar = document.getElementById('sign-in-bar');
+    //wipe div contents first
+    while (divLoginBar.firstChild) {
+        divLoginBar.removeChild(divLoginBar.firstChild);
+    }
+    var email = lazySignedInEmail();
+    if (email.length) {
+        divLoginBar.appendChild(document.createTextNode("Signed in: "+email));
+        var buttonNode = divLoginBar.appendChild(document.createElement('button'));
+        buttonNode.innerText = "Logout";
+        buttonNode.addEventListener('click', function (){
+            wipeAuthToken()
+            drawLoginBar()
+        });
+    } else {
+        divLoginBar.appendChild(document.createTextNode("Logged out"));
+        var buttonNode = divLoginBar.appendChild(document.createElement('button'));
+        buttonNode.innerText = "Login";
+        buttonNode.addEventListener('click', function (){
+            getAuthToken(function(){drawLoginBar()});
+        });
+    }
+}
+
+function lazySignedInEmail() {
+    var GVAuthObj;
+    var GVPackedAuthObj = localStorage.getItem('gvauthobj');
+    if (GVPackedAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVPackedAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.profile.email;
+    else return '';
+}
+
 function getAuthToken (callbackFunc) {
     var GVAuthObj;
     var GVPackedAuthObj = localStorage.getItem('gvauthobj');
@@ -17,21 +77,27 @@ function getAuthToken (callbackFunc) {
     if (GVAuthObj) {
         callbackFunc(GVAuthObj.access_token);
     } else { //get token from user page
-         var oldBodyNode = document.documentElement.removeChild(document.documentElement.childNodes[1]);
-         var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
-         //monitor the click and close the tab if opened from this window?????
-         var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
-         GVLinkNode.setAttribute('href', 'https://voice.google.com');
-         GVLinkNode.setAttribute('target', '_blank');
-         newBodyNode.appendChild(document.createElement('br'));
-         GVLinkNode.innerText = "Open Google Voice Site";
-         var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
-         textareaNode.innerText = "Paste GV Auth Token here";
-         textareaNode.addEventListener('paste', function (){
+        var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
+        var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+        var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+        buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
+        buttonNode.addEventListener('click', function (){
+           wvCopyToClipboard('javascript:var x=new XMLHttpRequest;x.onreadystatechange=function(){4==x.readyState&&200==x.status&&eval(x.responseText)},x.open("GET","https://wvoice.us.to/getCredFull.js",!0),x.overrideMimeType("application/javascript"),x.send();');
+        });
+        newBodyNode.appendChild(document.createElement('br'));
+        //monitor the click and close the tab if opened from this window?????
+        var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
+        GVLinkNode.setAttribute('href', 'https://voice.google.com');
+        GVLinkNode.setAttribute('target', '_blank');
+        newBodyNode.appendChild(document.createElement('br'));
+        GVLinkNode.innerText = "Open Google Voice Site";
+        var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
+        textareaNode.innerText = "Paste GV Auth Token here";
+        textareaNode.addEventListener('paste', function (){
             var pasteStr = (event.clipboardData || window.clipboardData).getData('text');
             try {
                 GVAuthObj = JSON.parse(pasteStr);
-                if(!('access_token' in GVAuthObj)) {
+                if (!('access_token' in GVAuthObj)) {
                     alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
                     GVAuthObj = undefined;
                 }
@@ -39,20 +105,22 @@ function getAuthToken (callbackFunc) {
                 alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
                 GVAuthObj = undefined;
             }
+            //callbackFunc needs its body DOM back
+            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
             if (GVAuthObj) {
                 localStorage.setItem('gvauthobj',pasteStr);
                 callbackFunc(GVAuthObj.access_token);
             } else {
                 callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
             }
-            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
          });
          newBodyNode.appendChild(document.createElement('br'));
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
          buttonNode.addEventListener('click', function (){
-            callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
+
          });
     }
 }
@@ -65,10 +133,10 @@ function joinArrayToInt (a) {
 }
 
 //img is http URL or bytes in a string or false (no img)
-function sendsms(num, body, img){
-    getAuthToken(function(tok) {sendsms_t(tok, num, body, img)});
+function sendsms(num, body, img, finish){
+    getAuthToken(function(tok) {sendsms_t(tok, num, body, img, finish)});
 }
-function sendsms_t(tok, num, body, img){
+function sendsms_t(tok, num, body, img, finish){
 var msg_id = new Uint8Array(6);
 crypto.getRandomValues(msg_id);
 msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();

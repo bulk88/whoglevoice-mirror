@@ -121,7 +121,7 @@ window.gapi.auth2.authorize({
             delete resp.id_token; //useless and very long
             var authstr = JSON.stringify(resp);
             //copy can only be fired from a onclick event, so temp wipe GV interface, and put up a button
-             var oldBodyNode = document.documentElement.removeChild(document.documentElement.childNodes[1]);
+             var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
              var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
              newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email));
              newBodyNode.appendChild(document.createElement('br'));
