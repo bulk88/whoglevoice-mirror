@@ -64,10 +64,11 @@ function joinArrayToInt (a) {
             }).join("");
 }
 
-function sendsms(num, body){
-    getAuthToken(function(tok) {sendsms_t(tok, num, body)});
+//img is http URL or bytes in a string or false (no img)
+function sendsms(num, body, img){
+    getAuthToken(function(tok) {sendsms_t(tok, num, body, img)});
 }
-function sendsms_t(tok, num, body){
+function sendsms_t(tok, num, body, img){
 var msg_id = new Uint8Array(6);
 crypto.getRandomValues(msg_id);
 msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
@@ -76,7 +77,45 @@ x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/se
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
+var imgPBArrStr = '';
+if (img) {
+    if (/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(img)) {
+        if(!/^https:\/\/lh3\.googleusercontent\.com/.test(img)) {
+            var err = "This IMG URL isn't from lh3.googleusercontent.com, "
+                +"GV will not accept it. Bad URL is\n\n"+img;
+            alert(err);
+            throw(err);
+        }
+//arg 4th of last array is a URL in GV web //"https://lh3.googleusercontent.com/-Satk2sZMdN8/XuRxp1iQ6HI/AAAAAAAAACJ/VVZfgqvXRd81qsLvHSeVH9_ZsKRQTY7awCLcBGApYHQ/s1820/disk%2Bfile.jpg"
+//must be a lh3.googleusercontent.com coming from Google Drive or Picasa, GV Web has a resizer
+//or anon Google Drive image feature that is used to POST upload images and generate
+//lh3.googleusercontent.com links, arg 4 can not be a random image URL on public internet
+//arg 2 in GV Android is a raw binary image uploaded in the POST, it is a BASE64 image in JSON Protobuf interface
+        imgPBArrStr = ',[1,null,null,"'+img+'"]';
+    } else {
+        img = btoa(img);
+        imgPBArrStr = ',[1,"'+img+'",null,null]';
+    }
+}
 x.onreadystatechange=function(){if(x.readyState==4){
-if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response)}}};
-x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']]');
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false)};
+}};
+x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
+}
+
+function mkContact(name,num,finish){
+    getAuthToken(function(tok) {mkContact_t(tok,name,num,finish)});
+}
+function mkContact_t(tok,name,num,finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json",1);
+x.setRequestHeader("Content-Type", "application/json");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false)};
+}};
+x.send('{"name":{"display_name":"'+name+' SA"},"phone":{"value":"+1'+num+'","type":""}}');
 }
