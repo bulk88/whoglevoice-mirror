@@ -185,5 +185,5 @@ x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false)};
 }};
-x.send('{"name":{"display_name":"'+name+' SA"},"phone":{"value":"+1'+num+'","type":""}}');
+x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":""}}');
 }
