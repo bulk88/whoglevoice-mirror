@@ -73,7 +73,7 @@ addEventListener('fetch', event => {
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 // The URL for the remote third party API you want to fetch from
 // but does not implement CORS
