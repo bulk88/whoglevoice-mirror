@@ -134,9 +134,9 @@ function joinArrayToInt (a) {
 
 //img is http URL or bytes in a string or false (no img)
 function sendsms(num, body, img, finish){
-    getAuthToken(function(tok) {sendsms_t(tok, num, body, img, finish)});
+    getAuthToken(function(tok) {sendsms_t(true, tok, num, body, img, finish)});
 }
-function sendsms_t(tok, num, body, img, finish){
+function sendsms_t(canReAuth, tok, num, body, img, finish){
 var msg_id = new Uint8Array(6);
 crypto.getRandomValues(msg_id);
 msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
@@ -166,6 +166,10 @@ if (img) {
     }
 }
 x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wipeAuthToken();
+        getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
+    }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false)};
 }};
@@ -173,17 +177,34 @@ x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgP
 }
 
 function mkContact(name,num,finish){
-    getAuthToken(function(tok) {mkContact_t(tok,name,num,finish)});
+    getAuthToken(function(tok) {mkContact_t(true,tok,name,num,finish)});
 }
-function mkContact_t(tok,name,num,finish){
+/*not sure what app I got this link this link from, but google's CORS headers only
+return true for CORS if Referer/Origin is voice.google.com */
+function mkContact_t(canReAuth,tok,name,num,finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json",1);
 x.setRequestHeader("Content-Type", "application/json");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wipeAuthToken();
+        getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
+    }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false)};
 }};
 x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":""}}');
+}
+
+function resp401Unauth(jstr) {
+    try {
+        var o = JSON.parse(jstr);
+        if(o.error.code == 401 && o.error.status == "UNAUTHENTICATED") {
+            return true;
+        }
+    } catch (e) {
+    }
+    return false;
 }
