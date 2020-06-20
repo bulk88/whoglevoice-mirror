@@ -1,16 +1,20 @@
 async function handleRequest(request) {
   const url = new URL(request.url)
   const apiurl = url.searchParams.get('apiurl')
+  var clientOrigin = request.headers.get('Origin')
   // Rewrite request to point to API url. This also makes the request mutable
   // so we can add the correct Origin header to make the API server think
   // that this request isn't cross-site.
   request = new Request(apiurl, request)
+  //FIX Bad request: Origin and Referer header don't match.
   request.headers.set('Origin', new URL(apiurl).origin)
+  request.headers.set('Referer', new URL(apiurl).origin)
   let response = await fetch(request)
   // Recreate the response so we can modify the headers
   response = new Response(response.body, response)
   // Set CORS headers
-  response.headers.set('Access-Control-Allow-Origin', url.origin)
+  response.headers.set('Access-Control-Allow-Origin', clientOrigin)
+  response.headers.set('Access-Control-Allow-Credentials', 'true')
   // Append to/Add Vary header so browser will cache response correctly
   response.headers.append('Vary', 'Origin')
   return response
@@ -26,8 +30,10 @@ function handleOptions(request) {
     // Handle CORS pre-flight request.
     // If you want to check the requested method + headers
     // you can do that here.
+    var respHeaders = corsHeaders;
+    respHeaders['Access-Control-Allow-Origin'] = request.headers.get('Origin')
     return new Response(null, {
-      headers: corsHeaders,
+      headers: respHeaders,
     })
   } else {
     // Handle standard OPTIONS request.
@@ -42,6 +48,8 @@ function handleOptions(request) {
 addEventListener('fetch', event => {
   const request = event.request
   const url = new URL(request.url)
+  // TODO We should filter that destination URL is a google domain
+  // so this lil worker isn't an open proxy :-/
   if (url.pathname.startsWith(proxyEndpoint)) {
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests
@@ -71,9 +79,10 @@ addEventListener('fetch', event => {
 // present on all responses to all CORS requests. In practice, this means
 // all responses to OPTIONS requests.
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Credentials': 'true',
+  'Vary': 'Origin',
 }
 // The URL for the remote third party API you want to fetch from
 // but does not implement CORS
