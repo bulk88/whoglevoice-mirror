@@ -105,9 +105,8 @@ TokDec.DecodeToken = function(a) {
         return JSON.parse(b);
     }
     
-if (!('gapi' in window && 'auth2' in window.gapi)) {
-    alert("No Google Auth Library in this page, are you inside voice.google.com?");
-}
+
+function wvHaveGAPIAuth2Lib() {
 window.gapi.auth2.authorize({
     "apiKey":"AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg",
     "clientId":"301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com",
@@ -141,3 +140,31 @@ window.gapi.auth2.authorize({
         }
     }
 );
+}
+
+function wvHandleClientLoad() {
+  // Load the API's client and auth2 modules.
+  // Call the initClient function after the modules load.
+  gapi.load('auth2', wvHaveGAPIAuth2Lib);
+}
+
+if (!('gapi' in window && 'auth2' in window.gapi)) {
+    if (location.hostname != "voice.google.com") {
+        alert("No Google Auth Library in this page, are you inside voice.google.com?");
+    }
+    // https://voice.google.com/about (not signed into GV home page)
+    // doesn't have auth lib loaded, so loaded it
+    var scriptElem = document.createElement("script");
+    scriptElem.setAttribute('src', "https://apis.google.com/js/api.js");
+    //CSP for api.js to be loaded
+    scriptElem.setAttribute('nonce', document.getElementsByTagName('script')[0].nonce
+        || document.getElementsByTagName('script')[0].getAttribute('nonce')
+        || alert("cant get nonce") || ((function () { throw "cant get nonce"; }())));
+    //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
+    scriptElem.addEventListener('load', function(){this.onload=function(){};wvHandleClientLoad()});
+    scriptElem.addEventListener('readystatechange', function(){if (this.readyState === 'complete') this.onload()});
+    var h = document.getElementsByTagName('head')[0];
+    h.appendChild(scriptElem);
+} else {
+    wvHaveGAPIAuth2Lib();
+}
