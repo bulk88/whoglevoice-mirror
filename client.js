@@ -197,6 +197,91 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":""}}');
 }
 
+//sourceNum MUST be a verified linked num in GV, can't be random or else
+//"code": 404,
+//  "message": "voice_error: {\"error_code\":\"NOT_FOUND\"}"
+function mkcall(sourceNum, destNum, finish){
+    getAuthToken(function(tok) {mkcall_t(true, tok, sourceNum, destNum, finish)});
+}
+function mkcall_t(canReAuth, tok, sourceNum, destNum, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {mkcall_t(false, tok, num, body, img, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false)};
+}};
+x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
+}
+
+//finish(err, resp)
+function getActInfo(finish){
+    getAuthToken(function(tok) {getActInfo_t(true, tok, finish)});
+}
+function getActInfo_t(canReAuth, tok, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/account/get?alt=json",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getActInfo_t(false, tok, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+x.send('[null, 1]');
+}
+
+//no error state, finish is never called if no number selected
+//finish(sourceNum)
+function getSourceNum(finish){
+    getActInfo(function(err,resp){
+    if (err == false) {
+        var phone_arr = resp.account.phones.linked_phone;
+        if (phone_arr.length > 1) {
+        var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
+        var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+        newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
+        newBodyNode.appendChild(document.createElement('br'));
+        var i;
+        for (i = 0; i < phone_arr.length; i++) {
+            var aNode = newBodyNode.appendChild(document.createElement('a'));
+            aNode.setAttribute('href', '#');
+            var num = phone_arr[i].phone_number.e164;
+            var match = /^\+1(.+)$/.exec(num);
+            aNode.innerText = match[1];
+            aNode.addEventListener('click', function (e){
+                document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+                finish(e.target.innerText);
+            });
+            newBodyNode.appendChild(document.createElement('br'));
+        }
+         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+         buttonNode.innerText = "Cancel/Return";
+         buttonNode.addEventListener('click', function (){
+            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+         });
+        } else if (phone_arr.length == 1) {
+            var num = phone_arr[0].phone_number.e164;
+            var match = /^\+1(.+)$/.exec(num);
+            finish(match[1]);
+        }
+        else {
+            alert("This account has no linked phone numbers for outgoing calls");
+        }
+    }
+    });
+}
+
 function resp401Unauth(jstr) {
     try {
         var o = JSON.parse(jstr);
