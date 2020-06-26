@@ -14,7 +14,7 @@ alert("Copy Failed: "+e);
 document.body.removeChild(input);
 }
 
-function wipeAuthToken () {
+function wvWipeAuthToken () {
     localStorage.removeItem('gvauthobj');
 }
 
@@ -31,7 +31,7 @@ function drawLoginBar()
         var buttonNode = divLoginBar.appendChild(document.createElement('button'));
         buttonNode.innerText = "Logout";
         buttonNode.addEventListener('click', function (){
-            wipeAuthToken()
+            wvWipeAuthToken()
             drawLoginBar()
         });
     } else {
@@ -161,13 +161,12 @@ if (img) {
 //arg 2 in GV Android is a raw binary image uploaded in the POST, it is a BASE64 image in JSON Protobuf interface
         imgPBArrStr = ',[1,null,null,"'+img+'"]';
     } else {
-        img = btoa(img);
         imgPBArrStr = ',[1,"'+img+'",null,null]';
     }
 }
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
-        wipeAuthToken();
+        wvWipeAuthToken();
         getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
     }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
@@ -189,7 +188,7 @@ x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
-        wipeAuthToken();
+        wvWipeAuthToken();
         getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
     }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
@@ -208,3 +207,24 @@ function resp401Unauth(jstr) {
     }
     return false;
 }
+
+//void function finish(err_obj_typ_JSON_str, response_str)
+function imgURLToB64Str(url,finish){
+var x=new XMLHttpRequest;
+x.open("GET","https://api.allorigins.win/raw?url="+encodeURIComponent(url),1);
+x.setRequestHeader("Content-Type", "image/*");
+x.overrideMimeType('text\/plain; charset=x-user-defined');
+x.responseType = 'arraybuffer';
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response, false);}
+    else {
+        //var codes = new Uint8Array(x.response);
+        //var bin = String.fromCharCode.apply(null, codes);
+        //var response = btoa(bin);
+        finish && finish(false,
+            btoa(String.fromCharCode.apply(null, new Uint8Array(x.response))));
+    }
+}};
+x.send();
+}
+
