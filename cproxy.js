@@ -79,9 +79,10 @@ addEventListener('fetch', event => {
 // present on all responses to all CORS requests. In practice, this means
 // all responses to OPTIONS requests.
 const corsHeaders = {
-  'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization,content-type',
   'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age': 3600,
   'Vary': 'Origin',
 }
 // The URL for the remote third party API you want to fetch from
