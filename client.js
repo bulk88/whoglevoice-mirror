@@ -205,10 +205,10 @@ x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":
 //sourceNum MUST be a verified linked num in GV, can't be random or else
 //"code": 404,
 //  "message": "voice_error: {\"error_code\":\"NOT_FOUND\"}"
-function mkcall(sourceNum, destNum, finish){
-    getAuthToken(function(tok) {mkcall_t(true, tok, sourceNum, destNum, finish)});
+function mkCallWithSrc(sourceNum, destNum, finish){
+    getAuthToken(function(tok) {mkCallWithSrc_t(true, tok, sourceNum, destNum, finish)});
 }
-function mkcall_t(canReAuth, tok, sourceNum, destNum, finish){
+function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
@@ -217,9 +217,10 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {mkcall_t(false, tok, num, body, img, finish)});
+        getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, num, body, img, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    //204 NO RESPONSE, 0 bytes is correct
+    if(x.status != 204) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false)};
 }};
 x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
@@ -284,6 +285,16 @@ function getSourceNum(finish){
             alert("This account has no linked phone numbers for outgoing calls");
         }
     }
+    });
+}
+
+//finish(err)
+//not called if no Source Num, will ask user with blocking UI if
+//Account has multiple source numbers, getting source number each time
+//is about 180 ms delay, oh well
+function mkCall(destNum, finish){
+    getSourceNum(function(sourceNum) {
+        mkCallWithSrc(sourceNum, destNum, finish);
     });
 }
 
