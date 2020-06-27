@@ -172,7 +172,12 @@ x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false)};
 }};
-x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
+//commented out encoding is GV Web typ, BUTTTT, it only works for old threads
+//on virgin threads GAPI returns
+//GV Web knows for virgin numbers to put tel num in array, tel num in array
+//always works virgin or old thread
+//x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
+x.send('[null,null,null,null,"'+body+'",null, ["+1'+num+'"], null,['+msg_id+']'+imgPBArrStr+']');
 }
 
 function mkContact(name,num,finish){
