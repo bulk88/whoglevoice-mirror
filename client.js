@@ -313,7 +313,6 @@ function resp401Unauth(jstr) {
 function imgURLToB64Str(url,finish){
 var x=new XMLHttpRequest;
 x.open("GET","https://api.allorigins.win/raw?url="+encodeURIComponent(url),1);
-x.setRequestHeader("Content-Type", "image/*");
 x.overrideMimeType('text\/plain; charset=x-user-defined');
 x.responseType = 'arraybuffer';
 x.onreadystatechange=function(){if(x.readyState==4){
