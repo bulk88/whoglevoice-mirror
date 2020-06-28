@@ -17,13 +17,14 @@ function hashChangeHandler () {
         var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
         buttonNode.wvnum = t;
         buttonNode.innerText = "Call";
-        buttonNode.addEventListener('click', function (event){
-            event.target.innerText = "Calling";
-            mkCall(event.target.wvnum, function(err){
+        buttonNode.addEventListener('click', function (evt){
+            evt = evt.target;
+            evt.innerText = "Calling";
+            mkCall(evt.wvnum, function(err){
                 if(err == false){
-                    event.target.innerText = "Called \u2714";
+                    evt.innerText = "Called \u2714";
                 } else {
-                    event.target.innerText = "Called \u2718";
+                    evt.innerText = "Called \u2718";
                 }
             });
         });
@@ -45,7 +46,7 @@ window.addEventListener('hashchange', hashChangeHandler, false);
 <br/>
 <img id="prv"/>
 <script>
-  var loadFile = function(event) {
+  var loadFile = function(evt) {
     var reader = new FileReader();
     reader.onload = function(){
       var output = document.getElementById('prv');
@@ -59,7 +60,7 @@ window.addEventListener('hashchange', hashChangeHandler, false);
       //sendsms("3475551234","bbbbb2222", b64Str);
       0;
     }
-    reader.readAsDataURL(event.target.files[0]);
+    reader.readAsDataURL(evt.target.files[0]);
   };
 </script>
 </body></html>

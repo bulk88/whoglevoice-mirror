@@ -93,8 +93,8 @@ function getAuthToken (callbackFunc) {
         GVLinkNode.innerText = "Open Google Voice Site";
         var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode.innerText = "Paste GV Auth Token here";
-        textareaNode.addEventListener('paste', function (){
-            var pasteStr = (event.clipboardData || window.clipboardData).getData('text');
+        textareaNode.addEventListener('paste', function (e){
+            var pasteStr = (e.clipboardData || event.clipboardData || window.clipboardData).getData('text');
             try {
                 GVAuthObj = JSON.parse(pasteStr);
                 if (!('access_token' in GVAuthObj)) {
