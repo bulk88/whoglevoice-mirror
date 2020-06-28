@@ -1,0 +1,65 @@
+<html><head><meta name="mobileoptimized" content="0"></head>
+<body>
+<script src="/client.js" type="text/javascript"></script>
+Welcome To Whogle Voice
+<div id='sign-in-bar'></div>
+<div id='buddy-bar'></div>
+<script>
+function hashChangeHandler () {
+    var t = location.hash;
+    var divBuddyBar = document.getElementById('buddy-bar');
+    while (divBuddyBar.firstChild) {
+        divBuddyBar.removeChild(divBuddyBar.firstChild);
+    }
+    if(t != '' && t != '#') {
+        t = t.substring(1); //strip front off '#', its now only USA area+7
+        divBuddyBar.appendChild(document.createTextNode(t+' '));
+        var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
+        buttonNode.wvnum = t;
+        buttonNode.innerText = "Call";
+        buttonNode.addEventListener('click', function (event){
+            event.target.innerText = "Calling";
+            mkCall(event.target.wvnum, function(err){
+                if(err == false){
+                    event.target.innerText = "Called \u2714";
+                } else {
+                    event.target.innerText = "Called \u2718";
+                }
+            });
+        });
+    } else {
+        divBuddyBar.appendChild(document.createTextNode("no num specified in url anchor"));
+    }
+}
+drawLoginBar();
+hashChangeHandler();
+window.addEventListener('hashchange', hashChangeHandler, false);
+</script>
+<textarea></textarea>
+<br/>
+<label for="ipk">Choose attachment:</label>
+<input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
+<button
+    onclick="document.getElementById('prv').removeAttribute('src'); document.getElementById('ipk').value=null;"
+>Clear Img</button>
+<br/>
+<img id="prv"/>
+<script>
+  var loadFile = function(event) {
+    var reader = new FileReader();
+    reader.onload = function(){
+      var output = document.getElementById('prv');
+      output.src = reader.result;
+      //var b64StartPos = reader.result.indexOf(',');
+      //if(b64StartPos == -1){
+      //  alert("Image selected could not be turned into a DATA URL");
+      //  throw("Image selected could not be turned into a DATA URL");
+      //}
+      //var b64Str = reader.result.substr(b64StartPos+1);
+      //sendsms("3475551234","bbbbb2222", b64Str);
+      0;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  };
+</script>
+</body></html>
