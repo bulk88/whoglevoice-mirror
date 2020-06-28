@@ -120,7 +120,6 @@ function getAuthToken (callbackFunc) {
          buttonNode.addEventListener('click', function (){
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
-
          });
     }
 }
@@ -131,6 +130,22 @@ function joinArrayToInt (a) {
                 return 1 < b.length ? b : "0" + b
             }).join("");
 }
+/* if you send too many BASE64 per time (???) to GV this happens
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "google_voice",
+    "reason": "RESOURCE_EXHAUSTED",
+    "message": "voice_error: {\"error_code\":\"RESOURCE_EXHAUSTED\",\"base64_format\":\"CAI=\",\"protojson_fava_format\":\"[2]\"}"
+   }
+  ],
+  "code": 429,
+  "message": "voice_error: {\"error_code\":\"RESOURCE_EXHAUSTED\",\"base64_format\":\"CAI=\",\"protojson_fava_format\":\"[2]\"}"
+ }
+}
+*/
+
 
 //img is http URL or bytes in a string or false (no img)
 function sendsms(num, body, img, finish){
@@ -217,7 +232,7 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, num, body, img, finish)});
+        getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
     //204 NO RESPONSE, 0 bytes is correct
     if(x.status != 204) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
@@ -248,7 +263,7 @@ x.send('[null, 1]');
 }
 
 //no error state, finish is never called if no number selected
-//finish(sourceNum)
+//finish(err, sourceNum)
 function getSourceNum(finish){
     getActInfo(function(err,resp){
     if (err == false) {
@@ -267,7 +282,7 @@ function getSourceNum(finish){
             aNode.innerText = match[1];
             aNode.addEventListener('click', function (e){
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
-                finish(e.target.innerText);
+                finish(false, e.target.innerText);
             });
             newBodyNode.appendChild(document.createElement('br'));
         }
@@ -279,11 +294,13 @@ function getSourceNum(finish){
         } else if (phone_arr.length == 1) {
             var num = phone_arr[0].phone_number.e164;
             var match = /^\+1(.+)$/.exec(num);
-            finish(match[1]);
+            finish(false, match[1]);
         }
         else {
             alert("This account has no linked phone numbers for outgoing calls");
         }
+    } else {
+        finish(err);
     }
     });
 }
@@ -293,8 +310,12 @@ function getSourceNum(finish){
 //Account has multiple source numbers, getting source number each time
 //is about 180 ms delay, oh well
 function mkCall(destNum, finish){
-    getSourceNum(function(sourceNum) {
-        mkCallWithSrc(sourceNum, destNum, finish);
+    getSourceNum(function(err, sourceNum) {
+        if (err == false) {
+            mkCallWithSrc(sourceNum, destNum, finish);
+        } else {
+            finish(err);
+        }
     });
 }
 
