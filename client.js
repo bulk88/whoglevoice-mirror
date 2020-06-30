@@ -87,14 +87,15 @@ function getAuthToken (callbackFunc) {
         newBodyNode.appendChild(document.createElement('br'));
         //monitor the click and close the tab if opened from this window?????
         var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
-        GVLinkNode.setAttribute('href', 'https://voice.google.com');
+        GVLinkNode.setAttribute('href', 'https://voice.google.com/about');
         GVLinkNode.setAttribute('target', '_blank');
         newBodyNode.appendChild(document.createElement('br'));
         GVLinkNode.innerText = "Open Google Voice Site";
         var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
-        textareaNode.innerText = "Paste GV Auth Token here";
-        textareaNode.addEventListener('paste', function (e){
-            var pasteStr = (e.clipboardData || event.clipboardData || window.clipboardData).getData('text');
+        textareaNode.placeholder = "Paste GV Auth Token here";
+        var gotAuthPasteCB = function (e){
+            alert('ty '+e.type+' inputtype '+e.inputType+ ' e t v "'+e.target.value+'"');
+            var pasteStr = (e.clipboardData || (event && event.clipboardData) || window.clipboardData).getData('text');
             try {
                 GVAuthObj = JSON.parse(pasteStr);
                 if (!('access_token' in GVAuthObj)) {
@@ -113,7 +114,9 @@ function getAuthToken (callbackFunc) {
             } else {
                 callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
             }
-         });
+         };
+         textareaNode.addEventListener('input', gotAuthPasteCB);
+         textareaNode.addEventListener('paste', gotAuthPasteCB);
          newBodyNode.appendChild(document.createElement('br'));
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
