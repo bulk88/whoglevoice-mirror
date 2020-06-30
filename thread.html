@@ -40,9 +40,7 @@ window.addEventListener('hashchange', hashChangeHandler, false);
 <br/>
 <label for="ipk">Choose attachment:</label>
 <input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
-<button
-    onclick="document.getElementById('prv').removeAttribute('src'); document.getElementById('ipk').value=null;"
->Clear Img</button>
+<button onclick="clearPrvImg()">Clear Img</button>
 <br/>
 <img id="prv"/>
 <script>
@@ -62,5 +60,18 @@ window.addEventListener('hashchange', hashChangeHandler, false);
     }
     reader.readAsDataURL(evt.target.files[0]);
   };
+function clearPrvImg() {
+    document.getElementById('ipk').value=null;
+    var i = document.getElementById('prv');
+    var s = i.nextSibling;
+    var p = i.parentNode;
+    p.removeChild(i).removeAttribute('src');
+    //ASOP but not Chrome requires cloneNode to get rid of the image
+    //on the image element, removing src attribute has no effect, setting src
+    //to empty string causes a "corrupt" image icon in ASOP, detach and reattach
+    //node doesn't remove the img, only cloneNode works (AKA new node)
+    p.insertBefore(i.cloneNode(), s);
+}
+
 </script>
 </body></html>
