@@ -34,8 +34,9 @@ function drawLoginBar()
 {
     var divLoginBar = document.getElementById('sign-in-bar');
     //wipe div contents first
-    while (divLoginBar.firstChild) {
-        divLoginBar.removeChild(divLoginBar.firstChild);
+    //https://jsperf.com/innerhtml-vs-removechild/15
+    while (divLoginBar.lastChild) {
+        divLoginBar.removeChild(divLoginBar.lastChild);
     }
     var email = lazySignedInEmail();
     if (email.length) {
@@ -279,7 +280,6 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null, 1]');
 }
 
-//no error state, finish is never called if no number selected
 //finish(err, sourceNum)
 function getSourceNum(finish){
     getActInfo(function(err,resp){
@@ -340,7 +340,7 @@ function mkCall(destNum, finish){
 
 function resp401Unauth(jstr) {
     try {
-        var jstr = JSON.parse(jstr);
+        jstr = JSON.parse(jstr);
         if(jstr.error.code == 401 && jstr.error.status == "UNAUTHENTICATED") {
             return true;
         }
@@ -358,13 +358,9 @@ x.responseType = 'arraybuffer';
 x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response, false);}
     else {
-        //var codes = new Uint8Array(x.response);
-        //var bin = String.fromCharCode.apply(null, codes);
-        //var response = btoa(bin);
         finish && finish(false,
             btoa(String.fromCharCode.apply(null, new Uint8Array(x.response))));
     }
 }};
 x.send();
 }
-

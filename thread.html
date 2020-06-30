@@ -8,8 +8,10 @@ Welcome To Whogle Voice
 function hashChangeHandler () {
     var t = location.hash;
     var divBuddyBar = document.getElementById('buddy-bar');
-    while (divBuddyBar.firstChild) {
-        divBuddyBar.removeChild(divBuddyBar.firstChild);
+
+    //https://jsperf.com/innerhtml-vs-removechild/15
+    while (divBuddyBar.lastChild) {
+        divBuddyBar.removeChild(divBuddyBar.lastChild);
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
@@ -69,14 +71,12 @@ function clearPrvImg() {
 }
 function sendUI(b) { //b button
     b = b.target;
-    var t = document.getElementById('buddy-bar');
-    t = t.firstChild.nodeValue;
+    var t = document.getElementById('buddy-bar').firstChild.nodeValue;
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
-    //if (1) {
         t == "no num specified in url anchor" && (t = '');
-        var b64;
-        if(b64 = document.getElementById('prv').src){
+        var b64 = document.getElementById('prv').src;
+        if(b64){
             var b64StartPos = b64.indexOf(',');
             if(b64StartPos == -1){
                 alert("Image selected could not be turned into a DATA URL");
