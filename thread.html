@@ -36,11 +36,14 @@ drawLoginBar();
 hashChangeHandler();
 window.addEventListener('hashchange', hashChangeHandler, false);
 </script>
-<textarea></textarea>
+<textarea id="msg" placeholder="Type outgoing msg here"></textarea>
+<br/>
+<button onclick="document.getElementById('msg').value=''">&nbsp;&#x2716;&nbsp;</button>
+<button onclick="send()">&nbsp;&#x2709;&nbsp;</button>
 <br/>
 <label for="ipk">Choose attachment:</label>
-<input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
 <button onclick="clearPrvImg()">Clear Img</button>
+<input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
 <br/>
 <img id="prv"/>
 <script>

@@ -57,11 +57,10 @@ function drawLoginBar()
 }
 
 function lazySignedInEmail() {
-    var GVAuthObj;
-    var GVPackedAuthObj = localStorage.getItem('gvauthobj');
-    if (GVPackedAuthObj) {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
         try {
-            GVAuthObj = JSON.parse(GVPackedAuthObj);
+            GVAuthObj = JSON.parse(GVAuthObj);
             if(! ('access_token' in GVAuthObj)) {
                 GVAuthObj = undefined;
             }
@@ -74,11 +73,10 @@ function lazySignedInEmail() {
 }
 
 function getAuthToken (callbackFunc) {
-    var GVAuthObj;
-    var GVPackedAuthObj = localStorage.getItem('gvauthobj');
-    if (GVPackedAuthObj) {
+    var GVAuthObj = localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
         try {
-            GVAuthObj = JSON.parse(GVPackedAuthObj);
+            GVAuthObj = JSON.parse(GVAuthObj);
             if(! ('access_token' in GVAuthObj)) {
                 GVAuthObj = undefined;
             }
@@ -309,6 +307,7 @@ function getSourceNum(finish){
          buttonNode.innerText = "Cancel/Return";
          buttonNode.addEventListener('click', function (){
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            finish("USER_CLICKED_CANCEL");
          });
         } else if (phone_arr.length == 1) {
             var num = phone_arr[0].phone_number.e164;
@@ -317,6 +316,7 @@ function getSourceNum(finish){
         }
         else {
             alert("This account has no linked phone numbers for outgoing calls");
+            finish("NO_LINKED_LINES_AVAILABLE");
         }
     } else {
         finish(err);
@@ -340,8 +340,8 @@ function mkCall(destNum, finish){
 
 function resp401Unauth(jstr) {
     try {
-        var o = JSON.parse(jstr);
-        if(o.error.code == 401 && o.error.status == "UNAUTHENTICATED") {
+        var jstr = JSON.parse(jstr);
+        if(jstr.error.code == 401 && jstr.error.status == "UNAUTHENTICATED") {
             return true;
         }
     } catch (e) {
