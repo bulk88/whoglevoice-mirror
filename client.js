@@ -94,7 +94,8 @@ function getAuthToken (callbackFunc) {
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
         buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
         buttonNode.addEventListener('click', function (evt){
-           wvCopyToClipboard('javascript:var x=new XMLHttpRequest;x.onreadystatechange=function(){4==x.readyState&&200==x.status&&eval(x.responseText)},x.open("GET","https://wvoice.us.to/getCredFull.js",!0),x.overrideMimeType("application/javascript"),x.send();',evt.target);
+        //http!!!! because Android 4.1.2 SSL too old to talk to github pages SSL
+           wvCopyToClipboard('javascript:var x=new XMLHttpRequest;x.onreadystatechange=function(){4==x.readyState&&200==x.status&&eval(x.responseText)},x.open("GET","http://wvoice.us.to/getCredFull.js",!0),x.overrideMimeType("application/javascript"),x.send();',evt.target);
         });
         newBodyNode.appendChild(document.createElement('br'));
         //monitor the click and close the tab if opened from this window?????
