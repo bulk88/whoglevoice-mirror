@@ -13,7 +13,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
-        divBuddyBar.appendChild(document.createTextNode(t+' '));
+        divBuddyBar.appendChild(document.createTextNode(t));
         var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
         buttonNode.wvnum = t;
         buttonNode.innerText = "Call";
@@ -39,7 +39,7 @@ window.addEventListener('hashchange', hashChangeHandler, false);
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>
 <button onclick="document.getElementById('msg').value=''">&nbsp;&#x2716;&nbsp;</button>
-<button onclick="send()">&nbsp;&#x2709;&nbsp;</button>
+<button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
 <br/>
 <label for="ipk">Choose attachment:</label>
 <button onclick="clearPrvImg()">Clear Img</button>
@@ -52,14 +52,6 @@ window.addEventListener('hashchange', hashChangeHandler, false);
     reader.onload = function(){
       var output = document.getElementById('prv');
       output.src = reader.result;
-      //var b64StartPos = reader.result.indexOf(',');
-      //if(b64StartPos == -1){
-      //  alert("Image selected could not be turned into a DATA URL");
-      //  throw("Image selected could not be turned into a DATA URL");
-      //}
-      //var b64Str = reader.result.substr(b64StartPos+1);
-      //sendsms("3475551234","bbbbb2222", b64Str);
-      0;
     }
     reader.readAsDataURL(evt.target.files[0]);
   };
@@ -75,6 +67,38 @@ function clearPrvImg() {
     //node doesn't remove the img, only cloneNode works (AKA new node)
     p.insertBefore(i.cloneNode(), s);
 }
-
+function sendUI(b) { //b button
+    b = b.target;
+    var t = document.getElementById('buddy-bar');
+    t = t.firstChild.nodeValue;
+    //for now if no number, "invalid argument" error from API
+    //if(t != "no num specified in url anchor"){
+    //if (1) {
+        t == "no num specified in url anchor" && (t = '');
+        var b64;
+        if(b64 = document.getElementById('prv').src){
+            var b64StartPos = b64.indexOf(',');
+            if(b64StartPos == -1){
+                alert("Image selected could not be turned into a DATA URL");
+                b64 = ''
+            } else {
+                b64 = b64.substr(b64StartPos+1);
+            }
+        }
+        b.innerText = "\xa0\u2709\u231B\xa0"; //hourglass mark
+        var msgElem = document.getElementById('msg');
+        sendsms(t,msgElem.value,b64,function(err){
+            if (err) {
+                b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
+            } else {
+                msgElem.value = '';
+                clearPrvImg();
+                b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
+            }
+        });
+    //} else { //no tel num given
+    //    b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
+    //}
+}
 </script>
 </body></html>
