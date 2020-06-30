@@ -1,15 +1,27 @@
-function wvCopyToClipboard(text) {
+/* triggerElement, UI element that user interacted with to trigger the
+   copy, it will be replaced with a text box if browser doesn't support
+   programmatic copy */
+function wvCopyToClipboard(text, triggerElem) {
+var r;
 var input = document.createElement("input");
-input.setAttribute("value", typeof text == 'string' ? text : "test data "+String(new Date()));
-input.setAttribute("id", "mycopyfield");
+input.value = text;
 document.body.appendChild(input);
 input.select();
 input.setSelectionRange(0, 99999); /*For mobile devices*/
 try {
-var r = document.execCommand("copy");
-if(!r){throw('document.execCommand("copy") returned false');}
+    r = document.execCommand("copy");
+    if(!r){
+        throw('document.execCommand("copy") returned false');
+    }
 } catch(e) {
-alert("Copy Failed: "+e);
+    alert("Copy Failed: "+e);
+    r = document.createElement("textarea");
+    r.value = text;
+    r = document.createElement("label").appendChild(r).parentNode;
+    r.insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),r.firstChild);
+    triggerElem.parentNode.insertBefore(r, triggerElem.nextSibling);
+    triggerElem.parentNode.removeChild(triggerElem);
+    r.lastChild.select();
 }
 document.body.removeChild(input);
 }
@@ -81,8 +93,8 @@ function getAuthToken (callbackFunc) {
         var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
         buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
-        buttonNode.addEventListener('click', function (){
-           wvCopyToClipboard('javascript:var x=new XMLHttpRequest;x.onreadystatechange=function(){4==x.readyState&&200==x.status&&eval(x.responseText)},x.open("GET","https://wvoice.us.to/getCredFull.js",!0),x.overrideMimeType("application/javascript"),x.send();');
+        buttonNode.addEventListener('click', function (evt){
+           wvCopyToClipboard('javascript:var x=new XMLHttpRequest;x.onreadystatechange=function(){4==x.readyState&&200==x.status&&eval(x.responseText)},x.open("GET","https://wvoice.us.to/getCredFull.js",!0),x.overrideMimeType("application/javascript"),x.send();',evt.target);
         });
         newBodyNode.appendChild(document.createElement('br'));
         //monitor the click and close the tab if opened from this window?????
@@ -94,8 +106,11 @@ function getAuthToken (callbackFunc) {
         var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode.placeholder = "Paste GV Auth Token here";
         var gotAuthPasteCB = function (e){
-            alert('ty '+e.type+' inputtype '+e.inputType+ ' e t v "'+e.target.value+'"');
-            var pasteStr = (e.clipboardData || (event && event.clipboardData) || window.clipboardData).getData('text');
+            var pasteStr =  e.type == 'input' ?
+                e.target.value /*Android Stock Browser 4.1.2 has no paste event, only input */
+                :((e.clipboardData /*newer browsers*/
+                || (event && event.clipboardData) /*psuedo IE window.event prop*/
+                || window.clipboardData).getData('text'));
             try {
                 GVAuthObj = JSON.parse(pasteStr);
                 if (!('access_token' in GVAuthObj)) {

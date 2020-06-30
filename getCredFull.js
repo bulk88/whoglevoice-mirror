@@ -1,22 +1,33 @@
 //A bookmarklet to run on voice.google.com
 //this can be minifield but is loaded by a stub for sanity
 
-function wvCopyToClipboard(text) {
+/* triggerElement, UI element that user interacted with to trigger the
+   copy, it will be replaced with a text box if browser doesn't support
+   programmatic copy */
+function wvCopyToClipboard(text, triggerElem) {
+var r;
 var input = document.createElement("input");
-input.setAttribute("value", typeof text == 'string' ? text : "test data "+String(new Date()));
-input.setAttribute("id", "mycopyfield");
+input.value = text;
 document.body.appendChild(input);
 input.select();
 input.setSelectionRange(0, 99999); /*For mobile devices*/
 try {
-var r = document.execCommand("copy");
-if(!r){throw('document.execCommand("copy") returned false');}
+    r = document.execCommand("copy");
+    if(!r){
+        throw('document.execCommand("copy") returned false');
+    }
 } catch(e) {
-alert("Copy Failed: "+e);
+    alert("Copy Failed: "+e);
+    r = document.createElement("textarea");
+    r.value = text;
+    r = document.createElement("label").appendChild(r).parentNode;
+    r.insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),r.firstChild);
+    triggerElem.parentNode.insertBefore(r, triggerElem.nextSibling);
+    triggerElem.parentNode.removeChild(triggerElem);
+    r.lastChild.select();
 }
 document.body.removeChild(input);
 }
-
 
 TokDec = {};
 TokDec.kh = {};
@@ -126,8 +137,8 @@ window.gapi.auth2.authorize({
              newBodyNode.appendChild(document.createElement('br'));
              var buttonNode = newBodyNode.appendChild(document.createElement('button'));
              buttonNode.innerText = "Click to Copy GV Auth Data";
-             buttonNode.addEventListener('click', function (){
-                wvCopyToClipboard(authstr);
+             buttonNode.addEventListener('click', function (evt){
+                wvCopyToClipboard(authstr,evt.target);
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
              });
              var buttonCancelNode = newBodyNode.appendChild(document.createElement('button'));
