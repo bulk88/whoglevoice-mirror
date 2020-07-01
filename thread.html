@@ -59,6 +59,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
+        getConvoUI(t);
         divBuddyBar.appendChild(document.createTextNode(t));
         var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
         buttonNode.wvnum = t;
@@ -74,14 +75,13 @@ function hashChangeHandler () {
                 }
             });
         });
-        getConvoUI(t);
     } else {
         divBuddyBar.appendChild(document.createTextNode("no num specified in url anchor"));
     }
 }
-drawLoginBar();
 hashChangeHandler();
 window.addEventListener('hashchange', hashChangeHandler, false);
+drawLoginBar();
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>
