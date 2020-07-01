@@ -33,6 +33,10 @@ function wvWipeAuthToken () {
 function drawLoginBar()
 {
     var divLoginBar = document.getElementById('sign-in-bar');
+//if IPL getConvoUI throws up login prompt, there is temporarily no login bar
+//bc html body swap, but answering the login prompt draws login bar again anyways
+//so this return is safe
+    if(!divLoginBar) return;
     //wipe div contents first
     //https://jsperf.com/innerhtml-vs-removechild/15
     while (divLoginBar.lastChild) {

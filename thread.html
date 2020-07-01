@@ -8,36 +8,37 @@ Welcome To Whogle Voice
 <script>
 function getConvoUI(t) {
     getThread(t, function(err,r){
-        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name +'-'
-        +r.thread.contact[0].phone_number.substring(2);
         var frag = document.createDocumentFragment();
         var i;
         for(i=0;i<r.thread.item.length; i++){
+            var p = document.createElement('p');
             var msgObj = r.thread.item[i];
-            var lc = frag.firstChild;
-            var p = frag.insertBefore(document.createElement('p'), lc);
             if (msgObj.mms_message) {
                 if (msgObj.mms_message.attachment.length != 1) {
                     alert('Error: trying to draw Picture message "'
                     +msgObj.message_text+'" but it has 0 or >1 attachments. IDK WTF this is.');
+                } else {
+                    var img = document.createElement('img'); //start img download ASAP
+                    img.onerror = threadImgAltLoader;
+                    img.src = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                    var a = document.createElement('a');
+                    //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
+    //0: {size_spec: "ORIGINAL", width: 11, height: 10}
+    //1: {size_spec: "S_128", width: 11, height: 10}
+    //2: {size_spec: "S_512", width: 11, height: 10}
+    //3: {size_spec: "S_1280", width: 11, height: 10}
+                    a.href = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                    a.target = '_blank';
+                    a.appendChild(img);
+                    p.appendChild(a);
                 }
-                var a = document.createElement('a');
-                //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
-//0: {size_spec: "ORIGINAL", width: 11, height: 10}
-//1: {size_spec: "S_128", width: 11, height: 10}
-//2: {size_spec: "S_512", width: 11, height: 10}
-//3: {size_spec: "S_1280", width: 11, height: 10}
-                a.href = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
-                a.target = '_blank';
-                var img = a.appendChild(document.createElement('img'));
-                img.src = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
-                img.onerror = threadImgAltLoader;
-                p.appendChild(a);
             }
-            //p.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
-            p.style= msgObj.is_artificial_error_message ?
-                "background-color:red;"
-                : 'outline:1px solid black;'
+            frag.insertBefore(p, frag.firstChild);
+            if(msgObj.is_artificial_error_message) {
+                p.style.backgroundColor = 'red'
+            } else {
+                p.style.outline = '1px solid black'
+            }
             p.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
             //an empty body MMS msg has as "plain text" content
             //"message_text": "MMS Received"
@@ -46,6 +47,8 @@ function getConvoUI(t) {
                 msgObj.mms_message ? msgObj.mms_message.text : msgObj.message_text
             ));
         }
+        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name +'-'
+        +r.thread.contact[0].phone_number.substring(2);
         document.getElementById('thread').appendChild(frag);
         });
 }
@@ -59,7 +62,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
-        getConvoUI(t);
+        getConvoUI(t);//get this req ASAP on wire before paints
         divBuddyBar.appendChild(document.createTextNode(t));
         var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
         buttonNode.wvnum = t;
