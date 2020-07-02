@@ -330,6 +330,7 @@ function getSourceNum(finish){
             var match = /^\+1(.+)$/.exec(num);
             aNode.innerText = match[1];
             aNode.addEventListener('click', function (e){
+                e.preventDefault();
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
                 finish(false, e.target.innerText);
             });
