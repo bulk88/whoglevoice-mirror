@@ -6,6 +6,7 @@ Welcome To Whogle Voice
 <div id='buddy-bar'></div>
 <div id='thread'></div>
 <script>
+var altImgLoaderWarn;
 function getConvoUI(t) {
     getThread(t, function(err,r){
         if (err) {
@@ -203,6 +204,13 @@ function threadImgAltLoader(e) {
             e.firstChild.src = e.href;
         }
     });
+    if(!altImgLoaderWarn){
+        id = document.createElement('div');
+        id.style.color = 'red';
+        id.textContent = 'Using the alternate slow image loader.';
+        document.body.insertBefore(id, document.getElementById('msg'));
+        altImgLoaderWarn = true;
+    }
 }
 </script>
 </body></html>
