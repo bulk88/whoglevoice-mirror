@@ -8,6 +8,7 @@ Welcome To Whogle Voice
 <script>
 function getConvoUI(t) {
     getThread(t, function(err,r){
+        var userIndex = lazySignedInUserIndex();
         var frag = document.createDocumentFragment();
         var i;
         for(i=0;i<r.thread.item.length; i++){
@@ -20,14 +21,20 @@ function getConvoUI(t) {
                 } else {
                     var img = document.createElement('img'); //start img download ASAP
                     img.onerror = threadImgAltLoader;
-                    img.src = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                    //"u/0" the 0 is sessionIndex, it separates simultanious logins into GV, 0 is most
+                    //common, second login is 1, this determines what google.com cookie
+                    //is used for voice.google.com images, if the browser
+                    //google.com cookie doesn't match the copy pasted creds (auth token)
+                    //then the alt image loader is used where the image is fetched
+                    //with a token used to get the chat log, not a cookie
+                    img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
                     var a = document.createElement('a');
                     //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
     //0: {size_spec: "ORIGINAL", width: 11, height: 10}
     //1: {size_spec: "S_128", width: 11, height: 10}
     //2: {size_spec: "S_512", width: 11, height: 10}
     //3: {size_spec: "S_1280", width: 11, height: 10}
-                    a.href = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                    a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
                     a.target = '_blank';
                     a.appendChild(img);
                     p.appendChild(a);
@@ -89,7 +96,7 @@ function hashChangeHandler () {
         divBuddyBar.appendChild(f);
     } else {
         divBuddyBar.appendChild(document.createElement('span'));
-        divBuddyBar.appendChild(document.createElement('span')).textContent ="no num specified in url anchor";
+        divBuddyBar.appendChild(document.createElement('span')).textContent = "no num specified in url anchor";
     }
 }
 hashChangeHandler();

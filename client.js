@@ -77,6 +77,23 @@ function lazySignedInEmail() {
     else return '';
 }
 
+
+function lazySignedInUserIndex() {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.session_state.extraQueryParams.authuser;
+    else throw "Not logged in.";
+}
+
 function getAuthToken (callbackFunc) {
     var GVAuthObj = localStorage.getItem('gvauthobj');
     if (GVAuthObj) {
