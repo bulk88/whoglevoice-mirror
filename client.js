@@ -56,7 +56,7 @@ function drawLoginBar()
         var buttonNode = divLoginBar.appendChild(document.createElement('button'));
         buttonNode.innerText = "Login";
         buttonNode.addEventListener('click', function (){
-            getAuthToken(function(){drawLoginBar()});
+            getAuthToken(function(){});
         });
     }
 }
@@ -150,6 +150,7 @@ function getAuthToken (callbackFunc) {
             } else {
                 callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
             }
+            drawLoginBar();
          };
          textareaNode.addEventListener('input', gotAuthPasteCB);
          textareaNode.addEventListener('paste', gotAuthPasteCB);
@@ -159,6 +160,7 @@ function getAuthToken (callbackFunc) {
          buttonNode.addEventListener('click', function (){
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
+            drawLoginBar();
          });
     }
 }
