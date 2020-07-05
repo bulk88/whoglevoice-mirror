@@ -237,10 +237,10 @@ x.send('[null,null,null,null,"'+body+'",null, ["+1'+num+'"], null,['+msg_id+']'+
 }
 
 //finish(err, resp)
-function getThread(num,finish){
-    getAuthToken(function(tok) {getThread_t(true, tok, num, finish)});
+function getThread(num,pagination_token,finish){
+    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish)});
 }
-function getThread_t(canReAuth, tok, num, finish){
+function getThread_t(canReAuth, tok, num, pagination_token, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
@@ -249,7 +249,7 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThread_t(false, tok, num, finish)});
+        getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish)});
     }
     if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false, JSON.parse(x.response))};
@@ -261,7 +261,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         //    a = u(a, 2, !0);
         //    return u(a, 3, !0)
         //};
-x.send('["t.+1'+num+'", 100, null, [null, true, true]]');
+x.send('["t.+1'+num+'", 100, '+(pagination_token?'"'+pagination_token+'"':'null')+', [null, true, true]]');
 }
 
 function mkContact(name,num,finish){

@@ -7,8 +7,8 @@ Welcome To Whogle Voice
 <div id='thread'></div>
 <script>
 var altImgLoaderWarn;
-function getConvoUI(t) {
-    getThread(t, function(err,r){
+function getConvoUI(t, pagination_token) {
+    getThread(t, pagination_token, function(err,r){
         if (err) {
             try {
                 r = JSON.parse(err);
@@ -67,12 +67,24 @@ function getConvoUI(t) {
             ));
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
+        if(r.thread.pagination_token){
+            p = document.createElement('button');
+            p.innerText = "\xa0Load More\xa0";
+            p.addEventListener('click', function (evt){
+                getConvoUI(location.hash.substring(1), r.thread.pagination_token);
+            });
+            frag.insertBefore(p, frag.firstChild);
         }
         var tdiv = document.getElementById('thread');
-        while (tdiv.lastChild) {
-            tdiv.removeChild(tdiv.lastChild);
+        if(pagination_token){
+            tdiv.replaceChild(frag, tdiv.firstChild);
+        } else {
+            while (tdiv.lastChild) {
+                tdiv.removeChild(tdiv.lastChild);
+            }
+            tdiv.appendChild(frag);
         }
-        tdiv.appendChild(frag);
+        }
         });
 }
 function hashChangeHandler () {
