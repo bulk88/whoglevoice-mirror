@@ -47,9 +47,12 @@ function getConvoUI(t) {
                 msgObj.mms_message ? msgObj.mms_message.text : msgObj.message_text
             ));
         }
-        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name +'-'
-        +r.thread.contact[0].phone_number.substring(2);
-        document.getElementById('thread').appendChild(frag);
+        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
+        var tdiv = document.getElementById('thread');
+        while (tdiv.lastChild) {
+            tdiv.removeChild(tdiv.lastChild);
+        }
+        tdiv.appendChild(frag);
         });
 }
 function hashChangeHandler () {
@@ -63,11 +66,15 @@ function hashChangeHandler () {
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
         getConvoUI(t);//get this req ASAP on wire before paints
-        divBuddyBar.appendChild(document.createTextNode(t));
-        var buttonNode = divBuddyBar.appendChild(document.createElement('button'));
-        buttonNode.wvnum = t;
-        buttonNode.innerText = "Call";
-        buttonNode.addEventListener('click', function (evt){
+        var f = document.createDocumentFragment();
+        f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
+        var e = document.createElement('span');
+        e.appendChild(document.createTextNode(t));
+        f.appendChild(e);
+        e = document.createElement('button');
+        e.wvnum = t;
+        e.innerText = "Call";
+        e.addEventListener('click', function (evt){
             evt = evt.target;
             evt.innerText = "Calling";
             mkCall(evt.wvnum, function(err){
@@ -78,8 +85,11 @@ function hashChangeHandler () {
                 }
             });
         });
+        f.appendChild(e);
+        divBuddyBar.appendChild(f);
     } else {
-        divBuddyBar.appendChild(document.createTextNode("no num specified in url anchor"));
+        divBuddyBar.appendChild(document.createElement('span'));
+        divBuddyBar.appendChild(document.createElement('span')).textContent ="no num specified in url anchor";
     }
 }
 hashChangeHandler();
@@ -90,6 +100,7 @@ drawLoginBar();
 <br/>
 <button onclick="document.getElementById('msg').value=''">&nbsp;&#x2716;&nbsp;</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+<button onclick="getConvoUI(location.hash.substring(1))">&nbsp;&#x25BD;&nbsp;</button>
 <br/>
 <label for="ipk">Choose attachment:</label>
 <button onclick="clearPrvImg()">Clear Img</button>
@@ -119,7 +130,7 @@ function clearPrvImg() {
 }
 function sendUI(b) { //b button
     b = b.target;
-    var t = document.getElementById('buddy-bar').firstChild.nodeValue;
+    var t = location.hash.substring(1);
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
         t == "no num specified in url anchor" && (t = '');
