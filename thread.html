@@ -9,6 +9,7 @@ Welcome To Whogle Voice
 var altImgLoaderWarn;
 function getConvoUI(t, pagination_token) {
     getThread(t, pagination_token, function(err,r){
+        var frag = document.createDocumentFragment();
         if (err) {
             try {
                 r = JSON.parse(err);
@@ -22,7 +23,6 @@ function getConvoUI(t, pagination_token) {
         } else {
         var urlre = /(?:(https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
         var userIndex = lazySignedInUserIndex();
-        var frag = document.createDocumentFragment();
         var i;
         var a;
         var img;
@@ -83,6 +83,7 @@ function getConvoUI(t, pagination_token) {
             });
             frag.insertBefore(p, frag.firstChild);
         }
+        }
         var tdiv = document.getElementById('thread');
         if(pagination_token){
             tdiv.replaceChild(frag, tdiv.firstChild);
@@ -91,7 +92,6 @@ function getConvoUI(t, pagination_token) {
                 tdiv.removeChild(tdiv.lastChild);
             }
             tdiv.appendChild(frag);
-        }
         }
         });
 }
@@ -113,18 +113,25 @@ function hashChangeHandler () {
         f.appendChild(e);
         e = document.createElement('button');
         e.wvnum = t;
-        e.innerText = "Call";
+        e.innerText = "\xa0Call\xa0";
         e.addEventListener('click', function (evt){
             evt = evt.target;
-            evt.innerText = "Calling";
+            evt.innerText = "\xa0Calling\xa0";
             mkCall(evt.wvnum, function(err){
                 if(err == false){
-                    evt.innerText = "Called \u2714";
+                    evt.innerText = "\xa0Called \u2714\xa0";
                 } else {
-                    evt.innerText = "Called \u2718";
+                    evt.innerText = "\xa0Called \u2718\xa0";
                 }
             });
         });
+        f.appendChild(e);
+        e = document.createElement('button');
+        e.innerText = "\xa0Bottom\u2B07\xa0";
+        e.addEventListener('click', function (evt){
+            var scrollingElement = (document.scrollingElement || document.body);
+            scrollingElement.scrollTop = scrollingElement.scrollHeight;}
+        );
         f.appendChild(e);
         divBuddyBar.appendChild(f);
     } else {
@@ -138,9 +145,11 @@ drawLoginBar();
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>
-<button onclick="document.getElementById('msg').value=''">&nbsp;&#x2716;&nbsp;</button>
+<button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+<button onclick="window.scrollTo(0,0)">&#x2800;&#x2B06;Top&#x2800;</button>
 <button onclick="getConvoUI(location.hash.substring(1))">&nbsp;&#x25BD;&nbsp;</button>
+
 <br/>
 <label for="ipk">Choose attachment:</label>
 <button onclick="clearPrvImg()">Clear Img</button>
