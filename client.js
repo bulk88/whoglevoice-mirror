@@ -213,6 +213,34 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null,null,null,null,"'+body+'",null, ["+1'+num+'"], null,['+msg_id+']'+imgPBArrStr+']');
 }
 
+//finish(err, resp)
+function getThread(num,finish){
+    getAuthToken(function(tok) {getThread_t(true, tok, num, finish)});
+}
+function getThread_t(canReAuth, tok, num, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getThread_t(false, tok, num, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+//100 is how many messages to get, after the 100 is pagenation token for loading next batch in chat log
+//last array purpose UNK, "uninit true true" is a const
+//          , dI = function() {
+        //    var a = new bI;
+        //    a = u(a, 2, !0);
+        //    return u(a, 3, !0)
+        //};
+x.send('["t.+1'+num+'", 100, null, [null, true, true]]');
+}
+
 function mkContact(name,num,finish){
     getAuthToken(function(tok) {mkContact_t(true,tok,name,num,finish)});
 }
@@ -363,4 +391,36 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
 }};
 x.send();
+}
+
+//size is a number between 1 and 4 typically,
+//1 original size, 4 "biggest reduced(desktop-ish)", 2 smallest img (2G internet)
+//finish(err, no_prefix_b64str_resp)
+function attachIDtoB64(id, size, finish){
+    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, finish)});
+}
+function attachIDtoB64_t(canReAuth, tok, id, size, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {
+        if(finish){
+            var b64 = JSON.parse(x.response).image_content.content;
+            //GAPI returns a "url safe b64" string that is not allowed in
+            //data URLs, not reg b64, convert to reg b64
+            b64 = b64.replace(/-/g, "+"); // 62nd char of encoding
+            b64 = b64.replace(/_/g, "/"); // 63rd char of encoding
+            finish(false, b64);
+        }
+    }
+}};
+x.send('["'+id+'",'+size+',1]');
 }

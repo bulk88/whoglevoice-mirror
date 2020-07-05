@@ -4,7 +4,51 @@
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <div id='buddy-bar'></div>
+<div id='thread'></div>
 <script>
+function getConvoUI(t) {
+    getThread(t, function(err,r){
+        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name +'-'
+        +r.thread.contact[0].phone_number.substring(2);
+        var frag = document.createDocumentFragment();
+        var i;
+        for(i=0;i<r.thread.item.length; i++){
+            var msgObj = r.thread.item[i];
+            var lc = frag.firstChild;
+            var p = frag.insertBefore(document.createElement('p'), lc);
+            if (msgObj.mms_message) {
+                if (msgObj.mms_message.attachment.length != 1) {
+                    alert('Error: trying to draw Picture message "'
+                    +msgObj.message_text+'" but it has 0 or >1 attachments. IDK WTF this is.');
+                }
+                var a = document.createElement('a');
+                //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
+//0: {size_spec: "ORIGINAL", width: 11, height: 10}
+//1: {size_spec: "S_128", width: 11, height: 10}
+//2: {size_spec: "S_512", width: 11, height: 10}
+//3: {size_spec: "S_1280", width: 11, height: 10}
+                a.href = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                a.target = '_blank';
+                var img = a.appendChild(document.createElement('img'));
+                img.src = 'https://voice.google.com/u/0/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                img.onerror = threadImgAltLoader;
+                p.appendChild(a);
+            }
+            //p.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
+            p.style= msgObj.is_artificial_error_message ?
+                "background-color:red;"
+                : 'outline:1px solid black;'
+            p.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
+            //an empty body MMS msg has as "plain text" content
+            //"message_text": "MMS Received"
+            //just always use MMS specific body if MMS
+            p.appendChild(document.createTextNode(
+                msgObj.mms_message ? msgObj.mms_message.text : msgObj.message_text
+            ));
+        }
+        document.getElementById('thread').appendChild(frag);
+        });
+}
 function hashChangeHandler () {
     var t = location.hash;
     var divBuddyBar = document.getElementById('buddy-bar');
@@ -30,6 +74,7 @@ function hashChangeHandler () {
                 }
             });
         });
+        getConvoUI(t);
     } else {
         divBuddyBar.appendChild(document.createTextNode("no num specified in url anchor"));
     }
@@ -99,6 +144,32 @@ function sendUI(b) { //b button
     //} else { //no tel num given
     //    b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
     //}
+}
+
+function threadImgAltLoader(e) {
+    //err event to img tag
+    e = e.target;
+    //stop infinite recursion on img tag
+    e.onerror = undefined;
+    //get anchor tag
+    e = e.parentNode;
+    var id = e.href;
+    //get original id (scope/closure/leakage control), this func nvr sup 2 b
+    //called anyways bc user supposed 2 have right cookies for right account
+    //attached to google.com cookie store, if 2 diff browsers or incognito used
+    //this alt loader will be loading all the pics tho
+    id = id.substring(id.lastIndexOf('/')+1,id.lastIndexOf('?'));
+    //use max quality/size aka 1 just like direct links primary method
+    attachIDtoB64(id, 1, function(errTwo, r){
+        //broken on newer Chrome, opens blank window
+        //no top level navigation to data URL, TODO blob URL
+        if (!errTwo) {
+//let user save to disk or zoom in/out on it if they want thru anchor tag
+            e.href = 'data:image/jpeg;base64,'+r;
+            //apply to image tag
+            e.firstChild.src = e.href;
+        }
+    });
 }
 </script>
 </body></html>
