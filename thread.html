@@ -8,6 +8,17 @@ Welcome To Whogle Voice
 <script>
 function getConvoUI(t) {
     getThread(t, function(err,r){
+        if (err) {
+            try {
+                r = JSON.parse(err);
+                if(r.error.code == 404
+                    && r.error.message == 'voice_error: {"error_code":"NOT_FOUND"}') {
+                    frag.textContent = "Thread not found. Send the first Message."
+                }
+            } catch (e) {
+            alert("Error getting thread:\n\n"+err);
+            }
+        } else {
         var userIndex = lazySignedInUserIndex();
         var frag = document.createDocumentFragment();
         var i;
@@ -55,6 +66,7 @@ function getConvoUI(t) {
             ));
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
+        }
         var tdiv = document.getElementById('thread');
         while (tdiv.lastChild) {
             tdiv.removeChild(tdiv.lastChild);

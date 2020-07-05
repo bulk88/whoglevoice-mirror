@@ -249,7 +249,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThread_t(false, tok, num, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 //100 is how many messages to get, after the 100 is pagenation token for loading next batch in chat log
