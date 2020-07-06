@@ -7,7 +7,7 @@ Welcome To Whogle Voice
 <div id='thread'></div>
 <script>
 var altImgLoaderWarn;
-function getConvoUI(t, pagination_token) {
+function getConvoUI(t, pagination_token, finish) {
     getThread(t, pagination_token, function(err,r){
         var frag = document.createDocumentFragment();
         if (err) {
@@ -73,6 +73,9 @@ function getConvoUI(t, pagination_token) {
             } else {
                 p.appendChild(a);
             }
+            if(i==0) { //used for new msg poll
+                p.mid = msgObj.id;
+            }
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
         if(r.thread.pagination_token){
@@ -93,8 +96,44 @@ function getConvoUI(t, pagination_token) {
             }
             tdiv.appendChild(frag);
         }
+        finish && finish();
         });
 }
+
+//15 seconds high speed, 15 slow
+var pollDelay = [1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,3000,3000,3000,3000,3000];
+var pollDelayIdx = 0;
+var pollLastTimer;
+
+function nextPollLoop () {
+    var t = pollDelay[pollDelayIdx];
+    if( pollDelayIdx < pollDelay.length) {
+        t = pollDelay[pollDelayIdx++];
+    } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
+        t = 5000;
+    }
+    pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
+        var t = document.getElementById('thread');
+        if (t) { //if login prompt there is no thread element
+            //if have new messge, compare server newest msg ID to client side
+            if(r.substr(24,40) != t.lastChild.mid){
+                //bug will wipe load mores on top, count nodes & use as input?
+                getConvoUI(location.hash.substring(1), 0, nextFastPollLoop);
+            } else { // nothing new slowly decay poll
+                nextPollLoop();
+            }
+        } else { //sloppy, we are doing I/O waiting for user to login.... TODO
+            nextFastPollLoop();
+        }
+    })}, t);
+}
+
+function nextFastPollLoop() {
+    clearTimeout(pollLastTimer);
+    pollDelayIdx = 0;
+    nextPollLoop();
+}
+
 function hashChangeHandler () {
     var t = location.hash;
     var divBuddyBar = document.getElementById('buddy-bar');
@@ -142,6 +181,7 @@ function hashChangeHandler () {
 hashChangeHandler();
 window.addEventListener('hashchange', hashChangeHandler, false);
 drawLoginBar();
+nextPollLoop();
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>
@@ -202,7 +242,7 @@ function sendUI(b) { //b button
                 msgElem.value = '';
                 clearPrvImg();
                 b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
-                getConvoUI(t);
+                getConvoUI(t, 0, nextFastPollLoop);
             }
         });
     //} else { //no tel num given

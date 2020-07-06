@@ -237,19 +237,19 @@ x.send('[null,null,null,null,"'+body+'",null, ["+1'+num+'"], null,['+msg_id+']'+
 }
 
 //finish(err, resp)
-function getThread(num,pagination_token,finish){
-    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish)});
+function getThread(num,pagination_token,finish,items){
+    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish,items)});
 }
-function getThread_t(canReAuth, tok, num, pagination_token, finish){
+function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
-x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish)});
+        getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish,items)});
     }
     if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false, JSON.parse(x.response))};
@@ -261,7 +261,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         //    a = u(a, 2, !0);
         //    return u(a, 3, !0)
         //};
-x.send('["t.+1'+num+'", 100, '+(pagination_token?'"'+pagination_token+'"':'null')+', [null, true, true]]');
+x.send('["t.+1'+num+'", '+(items?items:100)+', '+(pagination_token?'"'+pagination_token+'"':'null')+', [null, true, true]]');
 }
 
 function mkContact(name,num,finish){
@@ -295,7 +295,7 @@ function mkCallWithSrc(sourceNum, destNum, finish){
 function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
-x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -317,7 +317,7 @@ function getActInfo(finish){
 function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/account/get?alt=json",1);
-x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -426,7 +426,7 @@ function attachIDtoB64(id, size, finish){
 function attachIDtoB64_t(canReAuth, tok, id, size, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
-x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -447,4 +447,110 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
 }};
 x.send('["'+id+'",'+size+',1]');
+}
+
+/*reference, use protobuf for smaller wire size because is called on
+ timers/polling
+ [[[[1,535,5],[4,0,0],[2,155,5],[3,380,0],[6,78,0],[5,5,0]]]]
+
+{
+ "info": {
+  "view_info": [
+   {
+    "view": "ALL_THREADS",
+    "total_thread_count": 535,
+    "unread_thread_count": 5
+   },
+   {
+    "view": "VOICEMAIL_AND_RECORDING_THREADS",
+    "total_thread_count": 0,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "TEXT_THREADS",
+    "total_thread_count": 155,
+    "unread_thread_count": 5
+   },
+   {
+    "view": "CALL_THREADS",
+    "total_thread_count": 380,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "ALL_ARCHIVED_THREADS",
+    "total_thread_count": 78,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "ALL_SPAM_THREADS",
+    "total_thread_count": 5,
+    "unread_thread_count": 0
+   }
+  ]
+ }
+}
+*/
+
+/* even tho the data struct ultra small, useless for getting per thread updates
+   bc this only changes its numbers if a thread goes from read to unread
+   I see multiple "race" problems if mark read isn't atomic
+//finish(err, resp)
+function getThdInfo(finish){
+    getAuthToken(function(tok) {getThdInfo_t(true, tok, finish)});
+}
+function getThdInfo_t(canReAuth, tok, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/threadinginfo/get?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getThdInfo_t(false, tok, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+x.send('[]');
+}
+
+//multiple new txts on 1 thread do not retrigger, uhhh, figure out how messages
+//r marked read
+var lastPollRes = [2,0,0];
+function pollme () {
+getThdInfo(function(e,r){
+    r = r[0][0][2];
+    if( lastPollRes && r[1] == lastPollRes[1] && r[2] == lastPollRes[2]) {
+    return;
+    }
+    alert("got a message");
+    lastPollRes = r;
+});
+}
+*/
+
+//finish(err, resp), resp is newest message ID on server, compare it to newest
+//message ID on user's screen if to redraw/full refetch, uses protobuf for size
+//reasons
+function chkNewMsg(num, finish){
+    getAuthToken(function(tok) {chkNewMsg_t(true, tok, num, finish)});
+}
+function chkNewMsg_t(canReAuth, tok, num, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    //404 thread doesnt exist, 0 is timeout/network failure
+    //401 no credentials, dont reauth, too annoying popups
+    if(x.status != 200) {
+        x.status == 404 || x.status == 0 || x.status == 401
+            || alert("status: "+x.status+"\nresp:"+x.response);
+        finish && finish(x.response);
+    }
+    else {finish && finish(false,x.response)};
+}};
+x.send('["t.+1'+num+'",1]');
 }
