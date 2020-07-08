@@ -15,15 +15,15 @@ docs/CNAME : CNAME
 
 docs/getCredFull.js : getCredFull.js
 	copy /y getCredFull.js "$@"
-	uglifyjs "$@" -o "$@"
+	uglifyjs -m toplevel -m eval --keep-fnames "$@" -o "$@"
 
 docs/getCredStub.js : getCredStub.js
 	copy /y getCredStub.js "$@"
-	uglifyjs "$@" -o "$@"
+	uglifyjs -m toplevel -m eval --keep-fnames "$@" -o "$@"
 
 docs/client.js : client.js
 	copy /y client.js "$@"
-	uglifyjs "$@" -o "$@"
+	uglifyjs -m toplevel -m eval --keep-fnames "$@" -o "$@"
 	
 #dev tool target, set F= on cmd line
 mini:

