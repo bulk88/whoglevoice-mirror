@@ -15,7 +15,7 @@ docs/CNAME : CNAME
 
 docs/getCredFull.js : getCredFull.js
 	copy /y getCredFull.js "$@"
-	uglifyjs -m toplevel -m eval --keep-fnames "$@" -o "$@"
+	uglifyjs -m toplevel -m eval "$@" -o "$@"
 
 docs/getCredStub.js : getCredStub.js
 	copy /y getCredStub.js "$@"
