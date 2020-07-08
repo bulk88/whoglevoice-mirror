@@ -1,12 +1,10 @@
-<html><head><meta name="mobileoptimized" content="0" charset=utf-8></head>
+<html><head><script src="client.js" type="text/javascript"></script>
+<meta name="mobileoptimized" content="0" charset=utf-8></head>
 <body>
-<script src="client.js" type="text/javascript"></script>
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <div id='threadList'></div>
 <script>
-    drawLoginBar();
-
 //finish(err, resp)
 function getThreadList(finish){
     getAuthToken(function(tok) {getThreadList_t(true, tok, finish)});
@@ -22,7 +20,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThreadList_t(false, tok, finish)});
     }
-    if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 
@@ -42,7 +40,9 @@ x.onreadystatechange=function(){if(x.readyState==4){
  //arg 3 is how many text messages you want from each number, 0 or more
  //arg 4 unk
  //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
-x.send('[2, 100, 1, null, null, [null, true, true]]');
+//extra struct elements not needed
+//x.send('[2, 100, 1, null, null, [null, true, true]]');
+x.send('[2, 100, 1]');
 }
 
 
@@ -77,6 +77,7 @@ getThreadList(function(e,r){
         tdiv.appendChild(frag);
     }
 });
+    drawLoginBar();
 
 </script>
 </body></html>
