@@ -2,6 +2,7 @@
   "collapseBooleanAttributes": true,
   "collapseWhitespace": true,
   "html5": true,
+  "decodeEntities": true,
   "removeAttributeQuotes": true,
   "removeComments": true,
   "removeEmptyAttributes": true,
