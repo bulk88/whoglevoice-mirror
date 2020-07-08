@@ -1,7 +1,7 @@
 <html><head><meta name="mobileoptimized" content="0"></head>
 <body>
 <script src="client.js" type="text/javascript"></script>
-Welcome To Whogle Voice
+Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 <div id='sign-in-bar'></div>
 <div id='buddy-bar'></div>
 <div id='thread'></div>
@@ -185,6 +185,7 @@ nextPollLoop();
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>
+<button onclick="history.back()">&#x25C0;Back</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
 <button onclick="window.scrollTo(0,0)">&#x2800;&#x2B06;Top&#x2800;</button>

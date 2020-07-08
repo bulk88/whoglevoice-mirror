@@ -3,8 +3,80 @@
 <script src="client.js" type="text/javascript"></script>
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
-<a href="thread.html">Thread View (alpha)</a>
+<div id='threadList'></div>
 <script>
     drawLoginBar();
+
+//finish(err, resp)
+function getThreadList(finish){
+    getAuthToken(function(tok) {getThreadList_t(true, tok, finish)});
+}
+function getThreadList_t(canReAuth, tok, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt=json",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getThreadList_t(false, tok, finish)});
+    }
+    if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+
+//x.send('[1, 10, 15, null, "v1-0-1594212530956000", [null, true, true]]');
+//arg 1 is thread types, call or sms to return, 0 invalid arg err,
+// 2 is SMS only, 1 is SMS and calls 3 is calls only, 4 is bizzare tiny version
+//info only struct,  5 is spam folder texts, 6 is archive folder texts
+//7 is invalid arg
+//arg 2 is how many of the you want, how many numbers {
+ // "id": "t.+13475551234",
+ // "read": true,
+ // "view": [
+ //  "ALL_THREADS",
+ //  "TEXT_THREADS"
+ // ]
+ //},
+ //arg 3 is how many text messages you want from each number, 0 or more
+ //arg 4 unk
+ //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
+x.send('[2, 100, 1, null, null, [null, true, true]]');
+}
+
+
+getThreadList(function(e,r){
+    var frag = document.createDocumentFragment();
+    if (!e) {
+        var i;
+        for(i=0;i<r.thread.length; i++){
+            var p = document.createElement('div');
+            var thd = r.thread[i];
+            var msgObj = thd.item[0];
+            frag.appendChild(p);
+            if(msgObj.is_artificial_error_message) {
+                p.style.backgroundColor = 'red'
+            } else {
+                p.style.outline = '1px solid black'
+            }
+            var n = p.appendChild(document.createElement('div'));
+            n.align = 'left';
+            n = n.appendChild(document.createElement('a'));
+            n.href = 'thread.html#'+msgObj.contact.phone_number.substring(2);
+            n.textContent = msgObj.contact.name;
+            n = p.appendChild(document.createElement('div'));
+            n.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
+            n.textContent = msgObj.mms_message ? '[IMG]'+msgObj.mms_message.text : msgObj.message_text;
+        }
+        var tdiv = document.getElementById('threadList');
+
+        while (tdiv.lastChild) {
+            tdiv.removeChild(tdiv.lastChild);
+        }
+        tdiv.appendChild(frag);
+    }
+});
+
 </script>
 </body></html>
