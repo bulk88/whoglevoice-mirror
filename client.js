@@ -521,10 +521,10 @@ x.send();
 //size is a number between 1 and 4 typically,
 //1 original size, 4 "biggest reduced(desktop-ish)", 2 smallest img (2G internet)
 //finish(err, no_prefix_b64str_resp)
-function attachIDtoB64(id, size, finish){
-    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, finish)});
+function attachIDtoB64(id, size, isvid, finish){
+    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, isvid, finish)});
 }
-function attachIDtoB64_t(canReAuth, tok, id, size, finish){
+function attachIDtoB64_t(canReAuth, tok, id, size, isvid, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
@@ -533,12 +533,13 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, finish)});
+        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, isvid, finish)});
     }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {
         if(finish){
-            var b64 = JSON.parse(x.response).image_content.content;
+            var b64 = JSON.parse(x.response);
+            b64 = b64.video_content?b64.video_content.content:b64.image_content.content;
             //GAPI returns a "url safe b64" string that is not allowed in
             //data URLs, not reg b64, convert to reg b64
             b64 = b64.replace(/-/g, "+"); // 62nd char of encoding
@@ -547,7 +548,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         }
     }
 }};
-x.send('["'+id+'",'+size+',1]');
+x.send('["'+id+'",'+size+','+(isvid?'null,[1,[null,null,null,null,0,null,1]]]':'1]'));
 }
 
 /*reference, use protobuf for smaller wire size because is called on

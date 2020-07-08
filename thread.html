@@ -34,26 +34,39 @@ function getConvoUI(t, pagination_token, finish) {
                     alert('Error: trying to draw Picture message "'
                     +msgObj.message_text+'" but it has 0 or >1 attachments. IDK WTF this is.');
                 } else {
-                    img = document.createElement('img'); //start img download ASAP
-                    img.onerror = threadImgAltLoader;
-                    //"u/0" the 0 is sessionIndex, it separates simultanious logins into GV, 0 is most
-                    //common, second login is 1, this determines what google.com cookie
-                    //is used for voice.google.com images, if the browser
-                    //google.com cookie doesn't match the copy pasted creds (auth token)
-                    //then the alt image loader is used where the image is fetched
-                    //with a token used to get the chat log, not a cookie
-                    img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
-                    img.style.maxWidth = "100%";
-                    a = document.createElement('a');
-                    //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
-    //0: {size_spec: "ORIGINAL", width: 11, height: 10}
-    //1: {size_spec: "S_128", width: 11, height: 10}
-    //2: {size_spec: "S_512", width: 11, height: 10}
-    //3: {size_spec: "S_1280", width: 11, height: 10}
-                    a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
-                    a.target = '_blank';
-                    a.appendChild(img);
-                    p.appendChild(a);
+                    if(msgObj.mms_message.attachment[0].media_type == "VIDEO") {
+                        img = p.appendChild(document.createElement('video'));
+                        img.onerror = threadImgAltLoader;
+                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+msgObj.mms_message.attachment[0].id+'?m=content';
+                        img.controls = true;
+                        img.style.maxWidth = "100%";
+                        a = p.appendChild(document.createElement('a'));
+                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+msgObj.mms_message.attachment[0].id+'?m=content';
+                        a.target = '_blank';
+                        a.textContent = "Download Video";
+                    } else {
+                        img = document.createElement('img'); //start img download ASAP
+                        img.onerror = threadImgAltLoader;
+//"u/0" the 0 is sessionIndex, it separates simultanious logins into GV, 0 is most
+//common, second login is 1, this determines what google.com cookie
+//is used for voice.google.com images, if the browser
+//google.com cookie doesn't match the copy pasted creds (auth token)
+//then the alt image loader is used where the image is fetched
+//with a token used to get the chat log, not a cookie
+                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                        img.style.maxWidth = "100%";
+                        a = document.createElement('a');
+//GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
+//0: {size_spec: "ORIGINAL", width: 11, height: 10}
+//1: {size_spec: "S_128", width: 11, height: 10}
+//2: {size_spec: "S_512", width: 11, height: 10}
+//3: {size_spec: "S_1280", width: 11, height: 10}
+                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                        a.target = '_blank';
+                        a.appendChild(img);
+                        p.appendChild(a);
+                    }
+
                 }
             }
             frag.insertBefore(p, frag.firstChild);
@@ -114,7 +127,7 @@ function nextPollLoop () {
     }
     pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
         var t = document.getElementById('thread');
-        if (t) { //if login prompt there is no thread element
+        if (t && t.lastChild) { //if login prompt there is no thread element
             //if have new messge, compare server newest msg ID to client side
             if(r.substr(24,40) != t.lastChild.mid){
                 //bug will wipe load mores on top, count nodes & use as input?
@@ -252,27 +265,38 @@ function sendUI(b) { //b button
 }
 
 function threadImgAltLoader(e) {
+    var id;
     //err event to img tag
     e = e.target;
     //stop infinite recursion on img tag
     e.onerror = undefined;
-    //get anchor tag
-    e = e.parentNode;
-    var id = e.href;
+    var isvid = e.nodeName == 'VIDEO';
+    if (isvid) {
+        id = e.src;
+    } else {
+        //get anchor tag
+        e = e.parentNode;
+        id = e.href;
+    }
     //get original id (scope/closure/leakage control), this func nvr sup 2 b
     //called anyways bc user supposed 2 have right cookies for right account
     //attached to google.com cookie store, if 2 diff browsers or incognito used
     //this alt loader will be loading all the pics tho
     id = id.substring(id.lastIndexOf('/')+1,id.lastIndexOf('?'));
     //use max quality/size aka 1 just like direct links primary method
-    attachIDtoB64(id, 1, function(errTwo, r){
+    attachIDtoB64(id, isvid ? 4:1, isvid, function(errTwo, r){
         //broken on newer Chrome, opens blank window
         //no top level navigation to data URL, TODO blob URL
         if (!errTwo) {
+            if (e.nodeName == 'VIDEO') {
+                e.src = 'data:video/mp4;base64,'+r;
+                //download me link
+                e.nextElementSibling.href = 'data:video/mp4;base64,'+r;
+            } else {
 //let user save to disk or zoom in/out on it if they want thru anchor tag
-            e.href = 'data:image/jpeg;base64,'+r;
-            //apply to image tag
-            e.firstChild.src = e.href;
+                e.href = 'data:image/jpeg;base64,'+r;
+                //apply to image tag
+                e.firstChild.src = e.href;
             /*ASOP doesn't have addEventHandler() method on tags
             e.firstChild.addEventHandler('load', function() {
                 var scrollingElement = (document.scrollingElement || document.body);
@@ -281,11 +305,12 @@ function threadImgAltLoader(e) {
             //ASOP scroll problem bc it recalculates pre-img load bottom of page
             //then doesn't slide down page once pics load and they are big and
             //leaves user in middle of the thread
-            if(!('addEventHandler'in e.firstChild)) {
-                setTimeout(function(){
-                    var scrollingElement = (document.scrollingElement || document.body);
-                    scrollingElement.scrollTop = scrollingElement.scrollHeight;
-                },100);
+                if(!('addEventHandler'in e.firstChild)) {
+                    setTimeout(function(){
+                        var scrollingElement = (document.scrollingElement || document.body);
+                        scrollingElement.scrollTop = scrollingElement.scrollHeight;
+                    },100);
+                }
             }
         }
     });
