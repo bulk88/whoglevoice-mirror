@@ -2,7 +2,7 @@
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
 function wvCopyToClipboard(text, triggerElem) {
-var r;
+var success;
 var input = document.createElement("input");
 input.value = text;
 document.body.appendChild(input);
@@ -13,6 +13,7 @@ try {
     if(!r){
         throw('document.execCommand("copy") returned false');
     }
+    success = 1;
 } catch(e) {
     alert("Copy Failed: "+e);
     r = document.createElement("textarea");
@@ -24,6 +25,7 @@ try {
     r.lastChild.select();
 }
 document.body.removeChild(input);
+return success;
 }
 
 function wvWipeAuthToken () {
@@ -275,6 +277,17 @@ function joinArrayToInt (a) {
 }
 */
 
+
+/*polyfill for Opera 12*/
+crypto = window.crypto ||
+  window.msCrypto || {
+    getRandomValues: function(array) {
+      for (var i = 0, l = array.length; i < l; i++) {
+        array[i] = Math.floor(Math.random() * 256);
+      }
+      return array;
+    }
+  };
 
 //img is http URL or bytes in a string or false (no img)
 function sendsms(num, body, img, finish){

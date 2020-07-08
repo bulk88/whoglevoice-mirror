@@ -5,6 +5,7 @@
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
 function wvCopyToClipboard(text, triggerElem) {
+var success;
 var r;
 var input = document.createElement("input");
 input.value = text;
@@ -16,6 +17,7 @@ try {
     if(!r){
         throw('document.execCommand("copy") returned false');
     }
+    success = 1;
 } catch(e) {
     alert("Copy Failed: "+e);
     r = document.createElement("textarea");
@@ -27,6 +29,7 @@ try {
     r.lastChild.select();
 }
 document.body.removeChild(input);
+return success;
 }
 
 TokDec = {};
@@ -138,8 +141,9 @@ window.gapi.auth2.authorize({
              var buttonNode = newBodyNode.appendChild(document.createElement('button'));
              buttonNode.innerText = "Click to Copy GV Auth Data";
              buttonNode.addEventListener('click', function (evt){
-                wvCopyToClipboard(authstr,evt.target);
-                document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+                if(wvCopyToClipboard(authstr,evt.target)) {
+                    document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+                }
              });
              var buttonCancelNode = newBodyNode.appendChild(document.createElement('button'));
              buttonCancelNode.innerText = "Cancel/Return";
