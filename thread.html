@@ -272,6 +272,20 @@ function threadImgAltLoader(e) {
             e.href = 'data:image/jpeg;base64,'+r;
             //apply to image tag
             e.firstChild.src = e.href;
+            /*ASOP doesn't have addEventHandler() method on tags
+            e.firstChild.addEventHandler('load', function() {
+                var scrollingElement = (document.scrollingElement || document.body);
+                scrollingElement.scrollTop = scrollingElement.scrollHeight;
+            }); */
+            //ASOP scroll problem bc it recalculates pre-img load bottom of page
+            //then doesn't slide down page once pics load and they are big and
+            //leaves user in middle of the thread
+            if(!('addEventHandler'in e.firstChild)) {
+                setTimeout(function(){
+                    var scrollingElement = (document.scrollingElement || document.body);
+                    scrollingElement.scrollTop = scrollingElement.scrollHeight;
+                },100);
+            }
         }
     });
     if(!altImgLoaderWarn){
