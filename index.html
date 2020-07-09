@@ -3,6 +3,7 @@
 <body>
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
+<button onclick='getThreadListUI(event)'>&#x2800&#x25BD;&#x2800;</button>
 <div id='threadList'></div>
 <script>
 //finish(err, resp)
@@ -48,20 +49,22 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[2, 100, 1]');
 }
 
-
+function getThreadListUI(evt) {
+evt = evt.target;
+evt.innerText ="\xa0\u25BD\u231B\xa0";
 getThreadList(function(e,r){
-    var frag = document.createDocumentFragment();
     if (!e) {
+        var frag = document.createDocumentFragment();
         var i;
-        for(i=0;i<r.thread.length; i++){
+        r = r.thread;
+        for(i=0;i<r.length; i++){
             var p = document.createElement('div');
-            var thd = r.thread[i];
-            var msgObj = thd.item[0];
+            var msgObj = r[i].item[0];
             frag.appendChild(p);
             if(msgObj.is_artificial_error_message) {
-                p.style.backgroundColor = 'red'
+                p.style.backgroundColor = 'red';
             } else {
-                p.style.outline = '1px solid black'
+                p.style.outline = '1px solid black';
             }
             var n = p.appendChild(document.createElement('div'));
             n.align = 'left';
@@ -78,9 +81,14 @@ getThreadList(function(e,r){
             tdiv.removeChild(tdiv.lastChild);
         }
         tdiv.appendChild(frag);
+        evt.innerText ="\xa0\u25BD\u2714\xa0";//Good mark
+    } else {
+        evt.innerText ="\xa0\u25BD\u2718\xa0";//X mark
     }
 });
-    drawLoginBar();
+}
 
+    getThreadListUI({target:{innerText: 0}});
+    drawLoginBar();
 </script>
 </body></html>
