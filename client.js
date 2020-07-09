@@ -164,6 +164,19 @@ function getAuthToken (callbackFunc) {
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          });
+         if(navigator.clipboard) { /* old browser or HTTPS failure */
+            buttonNode = newBodyNode.appendChild(document.createElement('button'));
+            buttonNode.innerText = "Paste";
+            buttonNode.addEventListener('click', function (evt){
+                navigator.clipboard.readText()
+                .then(function(text){/*fake DOM element*/
+                    gotAuthPasteCB({type: 'input', target: {value: text}});
+                })
+                .catch(function(/*err*/){ /*cancel button, less bytes code rare path*/
+                    evt.target.previousSibling.click();
+                });
+            });
+         }
     }
 }
 // Production steps of ECMA-262, Edition 5, 15.4.4.19
@@ -493,8 +506,10 @@ function mkCall(destNum, finish){
 
 function resp401Unauth(jstr) {
     try {
-        jstr = JSON.parse(jstr);
-        if(jstr.error.code == 401 && jstr.error.status == "UNAUTHENTICATED") {
+        jstr = JSON.parse(jstr).error;
+        if(jstr && jstr.code == 401
+            && (jstr.status == "UNAUTHENTICATED"
+                || jstr.message == "Invalid Credentials")) {
             return true;
         }
     } catch (e) {

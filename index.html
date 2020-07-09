@@ -20,7 +20,10 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThreadList_t(false, tok, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {
+        x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
+        finish && finish(x.response||1); /* opera 12 for 401 has empty x.response, mk fake error */
+    }
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 
