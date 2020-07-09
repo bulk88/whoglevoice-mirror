@@ -553,13 +553,13 @@ x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
     else {
         if(finish){
-            var b64 = JSON.parse(x.response);
-            b64 = b64.video_content?b64.video_content.content:b64.image_content.content;
+            x = JSON.parse(x.response);
+            x = x.video_content?x.video_content.content:x.image_content.content;
             //GAPI returns a "url safe b64" string that is not allowed in
             //data URLs, not reg b64, convert to reg b64
-            b64 = b64.replace(/-/g, "+"); // 62nd char of encoding
-            b64 = b64.replace(/_/g, "/"); // 63rd char of encoding
-            finish(false, b64);
+            x = x.replace(/-/g, "+"); // 62nd char of encoding
+            x = x.replace(/_/g, "/"); // 63rd char of encoding
+            finish(false, x);
         }
     }
 }};
