@@ -2,7 +2,7 @@
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
 function wvCopyToClipboard(text, triggerElem) {
-var success;
+var success,r;
 var input = document.createElement("input");
 input.value = text;
 document.body.appendChild(input);
@@ -111,7 +111,8 @@ function getAuthToken (callbackFunc) {
     if (GVAuthObj) {
         callbackFunc(GVAuthObj.access_token);
     } else { //get token from user page
-        var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
+        var oldBodyNode = document.body;
+        oldBodyNode && document.documentElement.removeChild(oldBodyNode);
         var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
         buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
@@ -145,7 +146,8 @@ function getAuthToken (callbackFunc) {
                 GVAuthObj = undefined;
             }
             //callbackFunc needs its body DOM back
-            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
+            :document.documentElement.removeChild(newBodyNode);
             if (GVAuthObj) {
                 localStorage.setItem('gvauthobj',pasteStr);
                 callbackFunc(GVAuthObj.access_token);
@@ -160,7 +162,8 @@ function getAuthToken (callbackFunc) {
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
          buttonNode.addEventListener('click', function (){
-            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
+            :document.documentElement.removeChild(newBodyNode);
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          });
@@ -496,11 +499,9 @@ function getSourceNum(finish){
 //is about 180 ms delay, oh well
 function mkCall(destNum, finish){
     getSourceNum(function(err, sourceNum) {
-        if (err == false) {
-            mkCallWithSrc(sourceNum, destNum, finish);
-        } else {
-            finish(err);
-        }
+        err ?
+            finish(err)
+            : mkCallWithSrc(sourceNum, destNum, finish);
     });
 }
 

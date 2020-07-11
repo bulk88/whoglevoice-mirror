@@ -1,11 +1,7 @@
 <html><head><script src="client.js" type="text/javascript"></script>
-<meta name="mobileoptimized" content="0" charset=utf-8></head>
-<body>
-Welcome To Whogle Voice
-<div id='sign-in-bar'></div>
-<!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='getThreadListUI(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
 <script>
+var didEarlyFetch;
+
 //finish(err, resp)
 function getThreadList(finish){
     getAuthToken(function(tok) {getThreadList_t(true, tok, finish)});
@@ -87,17 +83,31 @@ getThreadList(function(e,r){
     }
 });
 }
+if(lazySignedInEmail()){
+    didEarlyFetch = 1;
+    getThreadListUI({target:{innerText: 0}});
+}
+</script>
+<meta name="mobileoptimized" content="0" charset=utf-8></head>
+<body>
+Welcome To Whogle Voice
+<div id='sign-in-bar'></div>
+<!--all 1 line on purpose, dont add newlines-->
+<button style="width:3.5em;text-align:left;" onclick='getThreadListUI(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
+<script>
     if (navigator.clipboard) {
         var e = document.body.insertBefore(document.createElement('button'), document.getElementById('threadList'));
         e.innerText = '\u2800Paste\u2800';
         e.onclick  = function (evt){
             navigator.clipboard.readText()
             .then(function(t){
-                window.location = 'thread.html#'+t;
+                window.location = 'thread.html#'+t.replace(/\D/g,"");
             })
         };
     }
-    getThreadListUI({target:{innerText: 0}});
+
     drawLoginBar();
+/*if not logged in, the conditional paste button can't render/JS throw error missing node */
+didEarlyFetch || getThreadListUI({target:{innerText: 0}});
 </script>
 </body></html>
