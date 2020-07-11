@@ -4,7 +4,7 @@ first: all
 
 docs/index.html : index.html minify_config.json
 	copy /y index.html "$@"
-	html-minifier.cmd -c minify_config.json --minify-js -o "$@" "$@"
+	html-minifier.cmd -c minify_config.json -o "$@" "$@"
 
 docs/thread.html : thread.html minify_config.json
 	copy /y thread.html "$@"

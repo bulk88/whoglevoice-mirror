@@ -1,6 +1,6 @@
 <html><head><script src="client.js" type="text/javascript"></script>
 <script>
-var didEarlyFetch;
+var d;/*didEarlyFetch*/
 
 //finish(err, resp)
 function getThreadList(finish){
@@ -44,8 +44,8 @@ x.onreadystatechange=function(){if(x.readyState==4){
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
 x.send('[2, 100, 1]');
 }
-
-function getThreadListUI(evt) {
+/*getThreadListUI(evt)*/
+function g(evt) {
 evt = evt.target;
 evt.innerText ="\xa0\u25BD\u231B";
 getThreadList(function(e,r){
@@ -84,8 +84,8 @@ getThreadList(function(e,r){
 });
 }
 if(lazySignedInEmail()){
-    didEarlyFetch = 1;
-    getThreadListUI({target:{innerText: 0}});
+    d = 1;
+    g({target:{innerText: 0}});
 }
 </script>
 <meta name="mobileoptimized" content="0" charset=utf-8></head>
@@ -93,8 +93,9 @@ if(lazySignedInEmail()){
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='getThreadListUI(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
+<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
 <script>
+(function(){ /*var e can't be global*/
     if (navigator.clipboard) {
         var e = document.body.insertBefore(document.createElement('button'), document.getElementById('threadList'));
         e.innerText = '\u2800Paste\u2800';
@@ -107,7 +108,8 @@ Welcome To Whogle Voice
     }
 
     drawLoginBar();
+})();
 /*if not logged in, the conditional paste button can't render/JS throw error missing node */
-didEarlyFetch || getThreadListUI({target:{innerText: 0}});
+d || g({target:{innerText: 0}});
 </script>
 </body></html>
