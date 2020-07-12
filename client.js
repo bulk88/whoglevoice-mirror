@@ -342,7 +342,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 //commented out encoding is GV Web typ, BUTTTT, it only works for old threads
@@ -368,7 +368,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish,items)});
     }
-    if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 //100 is how many messages to get, after the 100 is pagenation token for loading next batch in chat log
@@ -397,7 +397,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":""}}');
@@ -421,7 +421,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
     //204 NO RESPONSE, 0 bytes is correct
-    if(x.status != 204) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 204) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
@@ -442,7 +442,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getActInfo_t(false, tok, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 x.send('[null,1]');
@@ -525,7 +525,7 @@ x.open("GET","https://api.allorigins.win/raw?url="+encodeURIComponent(url),1);
 x.overrideMimeType('text\/plain; charset=x-user-defined');
 x.responseType = 'arraybuffer';
 x.onreadystatechange=function(){if(x.readyState==4){
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response, false);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
         finish && finish(false,
             btoa(String.fromCharCode.apply(null, new Uint8Array(x.response))));
@@ -551,7 +551,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, isvid, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
         if(finish){
             x = JSON.parse(x.response);
@@ -627,7 +627,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThdInfo_t(false, tok, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 x.send('[]');
@@ -666,7 +666,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {
         x.status == 404 || x.status == 0 || x.status == 401
             || alert("status: "+x.status+"\nresp:"+x.response);
-        finish && finish(x.response);
+        finish && finish(x.response||-1);
     }
     else {finish && finish(false,x.response)};
 }};
