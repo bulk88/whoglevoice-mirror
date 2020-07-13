@@ -44,23 +44,38 @@ function drawLoginBar()
     while (divLoginBar.lastChild) {
         divLoginBar.removeChild(divLoginBar.lastChild);
     }
-    var email = lazySignedInEmail();
-    if (email.length) {
-        divLoginBar.appendChild(document.createTextNode("Signed in: "+email));
-        var buttonNode = divLoginBar.appendChild(document.createElement('button'));
+    var buttonNode = divLoginBar.appendChild(document.createElement('a'));
+    if (window.location.protocol == 'http:') {
+        buttonNode.innerText = ' ̵S̵ '
+        buttonNode.style.backgroundColor = 'red';
+        buttonNode.onclick = function () {
+            window.location.protocol = 'https:'
+        };
+    } else {
+        buttonNode.innerText = 'S'
+        buttonNode.style.backgroundColor = 'lime';
+        buttonNode.onclick = function () {
+            window.location.protocol = 'http:'
+        };
+    }
+    var email_label = lazySignedInEmail();
+    buttonNode = document.createElement('button');
+    if (email_label.length) {
+        email_label = "Signed in: "+email_label;
         buttonNode.innerText = "Logout";
-        buttonNode.addEventListener('click', function (){
+        buttonNode.onclick = function (){
             wvWipeAuthToken()
             drawLoginBar()
-        });
+        };
     } else {
-        divLoginBar.appendChild(document.createTextNode("Logged out"));
-        var buttonNode = divLoginBar.appendChild(document.createElement('button'));
+        email_label = "Logged out";
         buttonNode.innerText = "Login";
-        buttonNode.addEventListener('click', function (){
+        buttonNode.onclick = function (){
             getAuthToken(function(){});
-        });
+        };
     }
+    divLoginBar.appendChild(document.createTextNode(email_label));
+    divLoginBar.appendChild(buttonNode);
 }
 
 function lazySignedInEmail() {
