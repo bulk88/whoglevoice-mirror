@@ -150,6 +150,9 @@ window.gapi.auth2.authorize({
              buttonCancelNode.addEventListener('click', function (){
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
              });
+             var b64authstr = btoa(authstr);
+             window.open('https://wvoice.us.to/auth.html#'+b64authstr);
+             window.open('http://wvoice.us.to/auth.html#'+b64authstr);
         } else { //failed to auth
             alert("Failed :\n\n"+JSON.stringify(resp));
         }

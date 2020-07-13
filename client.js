@@ -49,13 +49,14 @@ function drawLoginBar()
         buttonNode.innerText = ' ̵S̵ '
         buttonNode.style.backgroundColor = 'red';
         buttonNode.onclick = function () {
-            window.location.protocol = 'https:'
+        // no ;, see https://bugzilla.mozilla.org/show_bug.cgi?id=726779
+            window.location.protocol = 'https'
         };
     } else {
         buttonNode.innerText = 'S'
         buttonNode.style.backgroundColor = 'lime';
         buttonNode.onclick = function () {
-            window.location.protocol = 'http:'
+            window.location.protocol = 'http'
         };
     }
     var email_label = lazySignedInEmail();

@@ -10,6 +10,10 @@ docs/thread.html : thread.html minify_config.json
 	copy /y thread.html "$@"
 	html-minifier.cmd -c minify_config.json --minify-js -o "$@" "$@"
 
+docs/auth.html : auth.html
+	copy /y auth.html "$@"
+	html-minifier.cmd -c minify_config.json --minify-js -o "$@" "$@"
+
 docs/CNAME : CNAME
 	copy /y CNAME "$@"
 
@@ -29,5 +33,6 @@ docs/client.js : client.js
 mini:
 	html-minifier.cmd -c minify_config.json -o "$(F)" "$(F)"
 
-all: docs/thread.html docs/index.html docs/CNAME docs/getCredFull.js
+all: docs/thread.html docs/index.html docs/auth.html
+all: docs/CNAME docs/getCredFull.js
 all: docs/getCredStub.js docs/client.js
