@@ -576,7 +576,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     else {
         if(finish){
             x = JSON.parse(x.response);
-            x = x.video_content?x.video_content.content:x.image_content.content;
+            x = x.video_content?x.video_content.content:x.vcard_content?x.vcard_content.content:x.image_content.content;
             //GAPI returns a "url safe b64" string that is not allowed in
             //data URLs, not reg b64, convert to reg b64
             x = x.replace(/-/g, "+"); // 62nd char of encoding
