@@ -371,7 +371,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
 //GV Web knows for virgin numbers to put tel num in array, tel num in array
 //always works virgin or old thread
 //x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
-x.send('[null,null,null,null,"'+body+'",null,["+1'+num+'"],null,['+msg_id+']'+imgPBArrStr+']');
+x.send('[null,null,null,null,'+JSON.stringify(body)+',null,["+1'+num+'"],null,['+msg_id+']'+imgPBArrStr+']');
 }
 
 //finish(err, resp)
@@ -421,7 +421,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
-x.send('{"name":{"display_name":"'+name+'"},"phone":{"value":"+1'+num+'","type":""}}');
+x.send('{"name":{"display_name":'+JSON.stringify(name)+'},"phone":{"value":"+1'+num+'","type":""}}');
 }
 
 //sourceNum MUST be a verified linked num in GV, can't be random or else
