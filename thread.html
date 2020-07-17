@@ -24,24 +24,24 @@ function getConvoUI(t, pagination_token, finish) {
         var urlre = /(?:(https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
         var userIndex = lazySignedInUserIndex();
         var i;
+        var n;
+        var m;
         var a;
         var img;
         for(i=0;i<r.thread.item.length; i++){
             var p = document.createElement('p');
             var msgObj = r.thread.item[i];
             if (msgObj.mms_message) {
-                if (msgObj.mms_message.attachment.length != 1) {
-                    alert('Error: trying to draw Picture message "'
-                    +msgObj.message_text+'" but it has 0 or >1 attachments. IDK WTF this is.');
-                } else {
-                    if(msgObj.mms_message.attachment[0].media_type == "VIDEO") {
+                for(n=0;n<msgObj.mms_message.attachment.length;n++){
+                    m=msgObj.mms_message.attachment[n];
+                    if(m.media_type == "VIDEO") {
                         img = p.appendChild(document.createElement('video'));
                         img.onerror = threadImgAltLoader;
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+msgObj.mms_message.attachment[0].id+'?m=content';
+                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         img.controls = true;
                         img.style.maxWidth = "100%";
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+msgObj.mms_message.attachment[0].id+'?m=content';
+                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         a.target = '_blank';
                         a.textContent = "Download Video";
                     } else {
@@ -53,7 +53,7 @@ function getConvoUI(t, pagination_token, finish) {
 //google.com cookie doesn't match the copy pasted creds (auth token)
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
                         img.style.maxWidth = "100%";
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
@@ -61,12 +61,11 @@ function getConvoUI(t, pagination_token, finish) {
 //1: {size_spec: "S_128", width: 11, height: 10}
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
-                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+msgObj.mms_message.attachment[0].id+'?s=1';
+                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
                         a.target = '_blank';
                         a.appendChild(img);
                         p.appendChild(a);
                     }
-
                 }
             }
             frag.insertBefore(p, frag.firstChild);
