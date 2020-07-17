@@ -196,6 +196,11 @@ function getAuthToken (callbackFunc) {
                 });
             });
          }
+         window.addEventListener("message", function (e){
+            if(e.origin == "https://voice.google.com") {
+                gotAuthPasteCB({type: 'input', target: {value: e.data}});
+            }
+         }, false);
     }
 }
 // Production steps of ECMA-262, Edition 5, 15.4.4.19

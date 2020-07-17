@@ -153,6 +153,14 @@ window.gapi.auth2.authorize({
              var b64authstr = btoa(authstr);
              window.open('https://wvoice.us.to/auth.html#'+b64authstr);
              window.open('http://wvoice.us.to/auth.html#'+b64authstr);
+             b64authstr = new URL(document.referrer).origin;
+             if (b64authstr == "https://wvoice.us.to"
+                 || b64authstr == "http://wvoice.us.to"
+                 || b64authstr == "https://localhost"
+                 || b64authstr == "http://localhost"){
+                window.opener.postMessage(authstr,b64authstr);
+             }
+
         } else { //failed to auth
             alert("Failed :\n\n"+JSON.stringify(resp));
         }
