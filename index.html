@@ -96,7 +96,8 @@ Welcome To Whogle Voice
 <script>
 (function(){ /*var e can't be global*/
     if (navigator.clipboard) {
-        var e = document.body.insertBefore(document.createElement('button'), document.getElementById('threadList'));
+        var e = document;
+        e = e.body.insertBefore(e.createElement('button'), e.getElementById('threadList'));
         e.innerText = '\u2800Paste\u2800';
         e.onclick  = function (){
             navigator.clipboard.readText()

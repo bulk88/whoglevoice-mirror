@@ -202,7 +202,7 @@ function hashChangeHandler () {
     }
 }
 hashChangeHandler();
-window.onhashchange = hashChangeHandler;
+onhashchange = hashChangeHandler;
 drawLoginBar();
 nextPollLoop();
 </script>
@@ -224,8 +224,7 @@ nextPollLoop();
   var loadFile = function(evt) {
     var reader = new FileReader();
     reader.onload = function(){
-      var output = document.getElementById('prv');
-      output.src = reader.result;
+      document.getElementById('prv').src = reader.result;
     }
     reader.readAsDataURL(evt.target.files[0]);
   };
@@ -332,7 +331,7 @@ function threadImgAltLoader(e) {
         id.style.color = 'red';
         id.textContent = 'Using the alternate slow image loader.';
         document.body.insertBefore(id, document.getElementById('msg'));
-        altImgLoaderWarn = true;
+        altImgLoaderWarn = 1;
     }
 }
 </script>
