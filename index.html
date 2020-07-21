@@ -19,9 +19,9 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
     if(x.status != 200) {
         x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
-        finish && finish(x.response||-1); /* opera 12 for 401 has empty x.response, mk fake error */
+        finish(x.response||-1); /* opera 12 for 401 has empty x.response, mk fake error */
     }
-    else {finish && finish(false, JSON.parse(x.response))};
+    else {finish(false, JSON.parse(x.response))};
 }};
 
 //x.send('[1, 10, 15, null, "v1-0-1594212530956000", [null, true, true]]');
@@ -42,7 +42,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
  //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
 //extra struct elements not needed
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
-x.send('[2, 100, 1]');
+x.send('[2,100,1]');
 }
 /*getThreadListUI(evt)*/
 function g(evt) {
@@ -51,9 +51,8 @@ evt.innerText ="\xa0\u25BD\u231B";
 getThreadList(function(e,r){
     if (!e) {
         var frag = document.createDocumentFragment();
-        var i;
         r = r.thread;
-        for(i=0;i<r.length; i++){
+        for(var i=0;i<r.length; i++){
             var p = document.createElement('div');
             var msgObj = r[i].item[0];
             frag.appendChild(p);
@@ -99,7 +98,7 @@ Welcome To Whogle Voice
     if (navigator.clipboard) {
         var e = document.body.insertBefore(document.createElement('button'), document.getElementById('threadList'));
         e.innerText = '\u2800Paste\u2800';
-        e.onclick  = function (evt){
+        e.onclick  = function (){
             navigator.clipboard.readText()
             .then(function(t){
                 window.location = 'thread.html#'+t.replace(/\D/g,"");
