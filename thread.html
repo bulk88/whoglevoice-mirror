@@ -110,14 +110,16 @@ function getConvoUI(t, pagination_token, finish) {
             };
         }
         }
-        var tdiv = document.getElementById('thread');
-        if(pagination_token){
-            tdiv.replaceChild(frag, tdiv.firstChild);
-        } else {
-            while (tdiv.lastChild) {
-                tdiv.removeChild(tdiv.lastChild);
+        if(frag.childNodes.length) { //if error but not drawable msg leave screen intact
+            var tdiv = document.getElementById('thread');
+            if(pagination_token){
+                tdiv.replaceChild(frag, tdiv.firstChild);
+            } else {
+                while (tdiv.lastChild) {
+                    tdiv.removeChild(tdiv.lastChild);
+                }
+                tdiv.appendChild(frag);
             }
-            tdiv.appendChild(frag);
         }
         finish && finish();
         });
