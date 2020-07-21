@@ -7,7 +7,10 @@ Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 <div id='thread'></div>
 <script>
 var altImgLoaderWarn;
-function getConvoUI(t, pagination_token, finish) {
+function getConvoUI(evt, pagination_token, finish) {
+    var t = location.hash.substring(1);
+    evt = evt.target;
+    evt.innerText ="\xa0\u25BD\u231B";
     getThread(t, pagination_token, function(err,r){
         var frag = document.createDocumentFragment();
         if (err) {
@@ -20,7 +23,9 @@ function getConvoUI(t, pagination_token, finish) {
             } catch (e) {
             alert("Error getting thread:\n\n"+err);
             }
-        } else {
+            evt.innerText ="\xa0\u25BD\u2718";//X mark
+        }
+        else {
         var urlre = /(?:(https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
         var userIndex = lazySignedInUserIndex();
         var i;
@@ -100,13 +105,14 @@ function getConvoUI(t, pagination_token, finish) {
             if(i==0) { //used for new msg poll
                 p.mid = msgObj.id;
             }
+            evt.innerText ="\xa0\u25BD\u2714";//Good mark
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
         if(r.thread.pagination_token){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.innerText = "\xa0Load More\xa0";
             p.onclick = function (evt){
-                getConvoUI(location.hash.substring(1), r.thread.pagination_token);
+                getConvoUI(evt, r.thread.pagination_token);
             };
         }
         }
@@ -143,7 +149,7 @@ function nextPollLoop () {
             //if have new messge, compare server newest msg ID to client side
             if(r.substr(24,40) != t.lastChild.mid){
                 //bug will wipe load mores on top, count nodes & use as input?
-                getConvoUI(location.hash.substring(1), 0, nextFastPollLoop);
+                getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
             } else { // nothing new slowly decay poll
                 nextPollLoop();
             }
@@ -169,7 +175,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
-        getConvoUI(t);//get this req ASAP on wire before paints
+        getConvoUI({target:{innerText: 0}});//get this req ASAP on wire before paints
         var f = document.createDocumentFragment();
         f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
         var e = document.createElement('span');
@@ -214,7 +220,7 @@ nextPollLoop();
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
 <button onclick="window.scrollTo(0,0)">&#x2800;&#x2B06;Top&#x2800;</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
-<button onclick="getConvoUI(location.hash.substring(1))">&nbsp;&#x25BD;&nbsp;</button>
+<button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button>
 
 <br/>
 <label for="ipk">Choose attachment:</label>
@@ -267,7 +273,7 @@ function sendUI(b) { //b button
                 msgElem.value = '';
                 clearPrvImg();
                 b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
-                getConvoUI(t, 0, nextFastPollLoop);
+                getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
             }
         });
     //} else { //no tel num given
