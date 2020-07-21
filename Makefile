@@ -28,11 +28,14 @@ docs/getCredStub.js : getCredStub.js
 docs/client.js : client.js
 	copy /y client.js "$@"
 	uglifyjs -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
-	
+
+docs/favicon.ico : WV_Logo.png
+	copy /y WV_Logo.png "$@"
+
 #dev tool target, set F= on cmd line
 mini:
 	html-minifier.cmd -c minify_config.json -o "$(F)" "$(F)"
 
 all: docs/thread.html docs/index.html docs/auth.html
-all: docs/CNAME docs/getCredFull.js
-all: docs/getCredStub.js docs/client.js
+all: docs/CNAME docs/getCredFull.js 
+all: docs/getCredStub.js docs/client.js docs/favicon.ico
