@@ -259,27 +259,28 @@ function sendUI(b) { //b button
     clearTimeout(pollLastTimer);
     b = b.target;
     var t = location.hash.substring(1);
+    var b64StartPos_msgElem;
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
         t == "no num specified in url anchor" && (t = '');
         var b64 = document.getElementById('prv').src;
         if(b64){
-            var b64StartPos = b64.indexOf(',');
-            if(b64StartPos == -1){
+            b64StartPos_msgElem = b64.indexOf(',');
+            if(b64StartPos_msgElem == -1){
                 alert("Image selected could not be turned into a DATA URL");
                 b64 = ''
             } else {
-                b64 = b64.substr(b64StartPos+1);
+                b64 = b64.substr(b64StartPos_msgElem+1);
             }
         }
         b.innerText = "\xa0\u2709\u231B\xa0"; //hourglass mark
-        var msgElem = document.getElementById('msg');
-        sendsms(t,msgElem.value,b64,function(err){
+        b64StartPos_msgElem = document.getElementById('msg');
+        sendsms(t,b64StartPos_msgElem.value,b64,function(err){
             if (err) {
                 b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
                 nextPollLoop();
             } else {
-                msgElem.value = '';
+                b64StartPos_msgElem.value = '';
                 clearPrvImg();
                 b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
                 getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
