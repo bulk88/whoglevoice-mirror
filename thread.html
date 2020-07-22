@@ -137,33 +137,37 @@ function getConvoUI(evt, pagination_token, finish) {
 var pollDelay = [2000,2000,2000,2500,2500,2500,2500,2500];
 var pollDelayIdx = 0;
 var pollLastTimer;
+var pollMaxLoop = 0;
 
 function nextPollLoop () {
-    var t = pollDelay[pollDelayIdx];
-    if( pollDelayIdx < pollDelay.length) {
-        t = pollDelay[pollDelayIdx++];
-    } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
-        t = 6000;
-    }
-    pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
-        var t = document.getElementById('thread');
-        if (t && t.lastChild) { //if login prompt there is no thread element
-            //if have new messge, compare server newest msg ID to client side
-            if(r.substr(24,40) != t.lastChild.mid){
-                //bug will wipe load mores on top, count nodes & use as input?
-                getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
-            } else { // nothing new slowly decay poll
-                nextPollLoop();
-            }
-        } else { //sloppy, we are doing I/O waiting for user to login.... TODO
-            nextFastPollLoop();
+    if (pollMaxLoop++ < 18) { //abt 1 min
+        var t = pollDelay[pollDelayIdx];
+        if( pollDelayIdx < pollDelay.length) {
+            t = pollDelay[pollDelayIdx++];
+        } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
+            t = 6000;
         }
-    })}, t);
+        pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
+            var t = document.getElementById('thread');
+            if (t && t.lastChild) { //if login prompt there is no thread element
+                //if have new messge, compare server newest msg ID to client side
+                if(r.substr(24,40) != t.lastChild.mid){
+                    //bug will wipe load mores on top, count nodes & use as input?
+                    getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
+                } else { // nothing new slowly decay poll
+                    nextPollLoop();
+                }
+            } else { //sloppy, we are doing I/O waiting for user to login.... TODO
+                nextFastPollLoop();
+            }
+        })}, t);
+    }
 }
 
 function nextFastPollLoop() {
     clearTimeout(pollLastTimer);
     pollDelayIdx = 0;
+    pollMaxLoop = 0;
     nextPollLoop();
 }
 
