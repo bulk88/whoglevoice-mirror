@@ -143,7 +143,7 @@ function nextPollLoop () {
     if( pollDelayIdx < pollDelay.length) {
         t = pollDelay[pollDelayIdx++];
     } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
-        t = 5000;
+        t = 6000;
     }
     pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
         var t = document.getElementById('thread');

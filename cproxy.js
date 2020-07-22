@@ -9,9 +9,23 @@ async function handleRequest(request) {
   //FIX Bad request: Origin and Referer header don't match.
   request.headers.set('Origin', new URL(apiurl).origin)
   request.headers.set('Referer', new URL(apiurl).origin)
+  request.headers.set('Host', new URL(apiurl).host)
   let response = await fetch(request)
+  /*for (i of response.headers.entries()) {
+  console.log(i);}*/
+  //console.log(new Map(request.headers))
+  //console.log(new Map(response.headers))
   // Recreate the response so we can modify the headers
   response = new Response(response.body, response)
+  if(response.headers.get('Content-Type') ==
+    "application/json+protobuf; charset=UTF-8") {
+    response.headers.set('Content-Type', "application/json; charset=UTF-8");
+    }
+  response.headers.delete("Content-Security-Policy");
+  response.headers.delete("X-Content-Type-Options");
+  response.headers.delete("X-Frame-Options");
+  response.headers.delete("X-XSS-Protection");
+//console.log(new Map(response.headers))
   // Set CORS headers
   response.headers.set('Access-Control-Allow-Origin', clientOrigin)
   response.headers.set('Access-Control-Allow-Credentials', 'true')
