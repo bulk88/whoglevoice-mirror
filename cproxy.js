@@ -1,15 +1,17 @@
 async function handleRequest(request) {
   const url = new URL(request.url)
-  const apiurl = url.searchParams.get('apiurl')
+  let apiurl = url.searchParams.get('apiurl')
   var clientOrigin = request.headers.get('Origin')
   // Rewrite request to point to API url. This also makes the request mutable
   // so we can add the correct Origin header to make the API server think
   // that this request isn't cross-site.
   request = new Request(apiurl, request)
+  apiurl = new URL(apiurl);
   //FIX Bad request: Origin and Referer header don't match.
-  request.headers.set('Origin', new URL(apiurl).origin)
-  request.headers.set('Referer', new URL(apiurl).origin)
-  request.headers.set('Host', new URL(apiurl).host)
+  let h = request.headers;
+  h.set('Origin', apiurl.origin)
+  h.set('Referer',apiurl.origin)
+  h.set('Host', apiurl.host)
   let response = await fetch(request)
   /*for (i of response.headers.entries()) {
   console.log(i);}*/
@@ -17,35 +19,44 @@ async function handleRequest(request) {
   //console.log(new Map(response.headers))
   // Recreate the response so we can modify the headers
   response = new Response(response.body, response)
-  if(response.headers.get('Content-Type') ==
+  h = response.headers;
+  if(h.get('Content-Type') ==
     "application/json+protobuf; charset=UTF-8") {
-    response.headers.set('Content-Type', "application/json; charset=UTF-8");
+    h.set('Content-Type', "application/json; charset=UTF-8");
     }
-  response.headers.delete("Content-Security-Policy");
-  response.headers.delete("X-Content-Type-Options");
-  response.headers.delete("X-Frame-Options");
-  response.headers.delete("X-XSS-Protection");
+  h.delete("Content-Security-Policy");
+  h.delete("X-Content-Type-Options");
+  h.delete("X-Frame-Options");
+  h.delete("X-XSS-Protection");
+  h.delete("Pragma");
 //console.log(new Map(response.headers))
   // Set CORS headers
-  response.headers.set('Access-Control-Allow-Origin', clientOrigin)
-  response.headers.set('Access-Control-Allow-Credentials', 'true')
+  h.set('Access-Control-Allow-Origin', clientOrigin)
+  h.set('Access-Control-Allow-Credentials', 'true')
   // Append to/Add Vary header so browser will cache response correctly
-  response.headers.append('Vary', 'Origin')
+  h.append('Vary', 'Origin')
+  //POST can't be cached by any browser, these headers are garbage
+  if (request.method == 'POST') {
+    h.delete("Cache-Control");
+    h.delete("Expires");
+    h.delete("Vary");
+  }
   return response
 }
 function handleOptions(request) {
   // Make sure the necesssary headers are present
   // for this to be a valid pre-flight request
+  request = request.headers;
   if (
-    request.headers.get('Origin') !== null &&
-    request.headers.get('Access-Control-Request-Method') !== null &&
-    request.headers.get('Access-Control-Request-Headers') !== null
+    request.get('Origin') !== null &&
+    request.get('Access-Control-Request-Method') !== null &&
+    request.get('Access-Control-Request-Headers') !== null
   ) {
     // Handle CORS pre-flight request.
     // If you want to check the requested method + headers
     // you can do that here.
     var respHeaders = corsHeaders;
-    respHeaders['Access-Control-Allow-Origin'] = request.headers.get('Origin')
+    respHeaders['Access-Control-Allow-Origin'] = request.get('Origin')
     return new Response(null, {
       headers: respHeaders,
     })
