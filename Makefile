@@ -32,10 +32,14 @@ docs/client.js : client.js
 docs/favicon.ico : WV_Logo.png
 	copy /y WV_Logo.png "$@"
 
+docs/cproxy.js : cproxy.js
+	copy /y cproxy.js "$@"
+	terser -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
+
 #dev tool target, set F= on cmd line
 mini:
 	html-minifier.cmd -c minify_config.json -o "$(F)" "$(F)"
 
 all: docs/thread.html docs/index.html docs/auth.html
-all: docs/CNAME docs/getCredFull.js 
+all: docs/CNAME docs/getCredFull.js docs/cproxy.js
 all: docs/getCredStub.js docs/client.js docs/favicon.ico
