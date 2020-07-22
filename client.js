@@ -682,7 +682,7 @@ function chkNewMsg(num, finish){
 }
 function chkNewMsg_t(canReAuth, tok, num, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=protojson",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
