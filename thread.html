@@ -187,28 +187,26 @@ function hashChangeHandler () {
         var e = document.createElement('span');
         e.appendChild(document.createTextNode(t));
         f.appendChild(e);
-        e = document.createElement('button');
+        e = f.appendChild(document.createElement('button'));
         e.wvnum = t;
         e.innerText = "\xa0Call\xa0";
         e.onclick = function (evt){
             evt = evt.target;
             evt.innerText = "\xa0Calling\xa0";
             mkCall(evt.wvnum, function(err){
-                if(err == false){
-                    evt.innerText = "\xa0Called \u2714\xa0";
-                } else {
+                if(err){
                     evt.innerText = "\xa0Called \u2718\xa0";
+                } else {
+                    evt.innerText = "\xa0Called \u2714\xa0";
                 }
             });
         };
-        f.appendChild(e);
-        e = document.createElement('button');
+        e = f.appendChild(document.createElement('button'));
         e.innerText = "\xa0Bottom\u2B07\xa0";
-        e.onclick = function (evt){
-            var scrollingElement = (document.scrollingElement || document.body);
+        e.onclick = function (scrollingElement){
+            scrollingElement = (document.scrollingElement || document.body);
             scrollingElement.scrollTop = scrollingElement.scrollHeight;
         };
-        f.appendChild(e);
         divBuddyBar.appendChild(f);
     } else {
         divBuddyBar.appendChild(document.createElement('span'));
