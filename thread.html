@@ -139,13 +139,14 @@ var pollDelayIdx = 0;
 var pollLastTimer;
 var pollMaxLoop = 0;
 
-function nextPollLoop () {
+function nextPollLoop (t) {
     if (pollMaxLoop++ < 18) { //abt 1 min
-        var t = pollDelay[pollDelayIdx];
-        if( pollDelayIdx < pollDelay.length) {
-            t = pollDelay[pollDelayIdx++];
-        } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
-            t = 6000;
+        if (!t) {
+            if( pollDelayIdx < pollDelay.length) {
+                t = pollDelay[pollDelayIdx++];
+            } else { //TODO after 1 min stop all IO and give visual mark to user for manual refresh??? battery!!!
+                t = 6000;
+            }
         }
         pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
             var t = document.getElementById('thread');
@@ -213,10 +214,10 @@ function hashChangeHandler () {
         divBuddyBar.appendChild(document.createElement('span')).textContent = "no num specified in url anchor";
     }
 }
-hashChangeHandler();
-onhashchange = hashChangeHandler;
+(onhashchange = hashChangeHandler)();
 drawLoginBar();
-nextPollLoop();
+nextPollLoop(5000); /*loading page virgin got a refresh automatic
+ dont hit the GAPI rate throttler */
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here"></textarea>
 <br/>

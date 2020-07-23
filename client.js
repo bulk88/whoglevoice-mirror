@@ -188,7 +188,7 @@ function getAuthToken (callbackFunc) {
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          });
-         if(navigator.clipboard) { /* old browser or HTTPS failure */
+         if(navigator.clipboard && navigator.clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
             buttonNode.innerText = "Paste";
             buttonNode.addEventListener('click', function (evt){
