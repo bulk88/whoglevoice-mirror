@@ -338,10 +338,18 @@ crypto = window.crypto ||
 function sendsms(num, body, img, finish){
     getAuthToken(function(tok) {sendsms_t(true, tok, num, body, img, finish)});
 }
-function sendsms_t(canReAuth, tok, num, body, img, finish){
-var msg_id = new Uint8Array(6);
-crypto.getRandomValues(msg_id);
-msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
+var sendsms_t = (function (){
+/*anti replay/msg dedup if network errors, body was sent, but resp had CORS or timeout */
+var lastNum, lastBody, lastImg, msg_id;
+return function (canReAuth, tok, num, body, img, finish){
+if (num != lastNum || body != lastBody || img != lastImg) {
+    lastNum = num;
+    lastBody = body;
+    lastImg = img;
+    msg_id = new Uint8Array(6);
+    crypto.getRandomValues(msg_id);
+    msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
+}
 var x=new XMLHttpRequest;
 x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
@@ -380,7 +388,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
 //always works virgin or old thread
 //x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
 x.send('[null,null,null,null,'+JSON.stringify(body)+',null,["+1'+num+'"],null,['+msg_id+']'+imgPBArrStr+']');
-}
+}})();
 
 //finish(err, resp)
 function getThread(num,pagination_token,finish,items){
