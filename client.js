@@ -150,6 +150,11 @@ function getAuthToken (callbackFunc) {
         GVLinkNode.innerText = "Open Google Voice Site";
         var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode.placeholder = "Paste GV Auth Token here";
+        var wvMsgEvtCB = function (e) {
+            if(e.origin == "https://voice.google.com") {
+                gotAuthPasteCB({type: 'input', target: {value: e.data}});
+            }
+        };
         var gotAuthPasteCB = function (e){
             var pasteStr =  e.type == 'input' ?
                 e.target.value /*Android Stock Browser 4.1.2 has no paste event, only input */
@@ -169,6 +174,7 @@ function getAuthToken (callbackFunc) {
             //callbackFunc needs its body DOM back
             oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
             :document.documentElement.removeChild(newBodyNode);
+            window.removeEventListener("message", wvMsgEvtCB, false);
             if (GVAuthObj) {
                 localStorage.setItem('gvauthobj',pasteStr);
                 callbackFunc(GVAuthObj.access_token);
@@ -185,6 +191,7 @@ function getAuthToken (callbackFunc) {
          buttonNode.addEventListener('click', function (){
             oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
             :document.documentElement.removeChild(newBodyNode);
+            window.removeEventListener("message", wvMsgEvtCB, false);
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          });
@@ -201,11 +208,7 @@ function getAuthToken (callbackFunc) {
                 });
             });
          }
-         window.addEventListener("message", function (e){
-            if(e.origin == "https://voice.google.com") {
-                gotAuthPasteCB({type: 'input', target: {value: e.data}});
-            }
-         }, false);
+         window.addEventListener("message", wvMsgEvtCB, false);
     }
 }
 // Production steps of ECMA-262, Edition 5, 15.4.4.19

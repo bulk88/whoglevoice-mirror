@@ -110,11 +110,12 @@ function getConvoUI(evt, pagination_token, finish) {
             evt.innerText ="\xa0\u25BD\u2714";//Good mark
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
-        if(r.thread.pagination_token){
+        if(img = r.thread.pagination_token){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.innerText = "\xa0Load More\xa0";
+            p.wvpgtok = img;
             p.onclick = function (evt){
-                getConvoUI(evt, r.thread.pagination_token);
+                getConvoUI(evt, evt.target.wvpgtok);
             };
         }
         }
