@@ -95,7 +95,7 @@ Welcome To Whogle Voice
 <button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
 <script>
 (function(){ /*var e can't be global*/
-    if (navigator.clipboard) {
+        if(navigator.clipboard && navigator.clipboard.readText) { /* old browser or HTTPS failure */
         var e = document;
         e = e.body.insertBefore(e.createElement('button'), e.getElementById('threadList'));
         e.innerText = '\u2800Paste\u2800';
