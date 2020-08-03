@@ -29,9 +29,7 @@ return success;
 }
 
 function wvWipeAuthToken (logout) {
-    logout ?
-        localStorage.removeItem('wvCurAcnt')
-        :localStorage.setItem('wvCurAcnt',lazySignedInEmail());
+    localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
     localStorage.removeItem('gvauthobj');
 }
 
@@ -148,8 +146,8 @@ function getAuthToken (callbackFunc) {
         GVLinkNode.setAttribute('target', '_blank');
         newBodyNode.appendChild(document.createElement('br'));
         GVLinkNode.innerText = "Open Google Voice Site";
-        var textareaNode = newBodyNode.appendChild(document.createElement('textarea'));
-        textareaNode.placeholder = "Paste GV Auth Token here";
+        var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
+        textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
             if(e.origin == "https://voice.google.com") {
                 gotAuthPasteCB({type: 'input', target: {value: e.data}});
@@ -183,8 +181,8 @@ function getAuthToken (callbackFunc) {
             }
             drawLoginBar();
          };
-         textareaNode.addEventListener('input', gotAuthPasteCB);
-         textareaNode.addEventListener('paste', gotAuthPasteCB);
+         textareaNode_clipboard_clipboard.addEventListener('input', gotAuthPasteCB);
+         textareaNode_clipboard_clipboard.addEventListener('paste', gotAuthPasteCB);
          newBodyNode.appendChild(document.createElement('br'));
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
@@ -195,11 +193,11 @@ function getAuthToken (callbackFunc) {
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          });
-         if(navigator.clipboard && navigator.clipboard.readText) { /* old browser or HTTPS failure */
+         if((textareaNode_clipboard_clipboard = navigator.clipboard) && (textareaNode_clipboard_clipboard = textareaNode_clipboard_clipboard.readText)) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
             buttonNode.innerText = "Paste";
             buttonNode.addEventListener('click', function (evt){
-                navigator.clipboard.readText()
+                textareaNode_clipboard_clipboard()
                 .then(function(text){/*fake DOM element*/
                     gotAuthPasteCB({type: 'input', target: {value: text}});
                 })
