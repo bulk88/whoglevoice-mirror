@@ -7,11 +7,11 @@ Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 <div id='thread'></div>
 <script>
 var altImgLoaderWarn;
-function getConvoUI(evt, pagination_token, finish) {
+function getConvoUI(evt, paginationToken, finish) {
     var t = location.hash.substring(1);
     evt = evt.target;
     evt.innerText ="\xa0\u25BD\u231B";
-    getThread(t, pagination_token, function(err,r){
+    getThread(t, paginationToken, function(err,r){
         var frag = document.createDocumentFragment();
         if (err) {
             try {
@@ -36,10 +36,10 @@ function getConvoUI(evt, pagination_token, finish) {
         for(i=0;i<r.thread.item.length; i++){
             var p = document.createElement('p');
             var msgObj = r.thread.item[i];
-            if (msgObj.mms_message) {
-                for(n=0;n<msgObj.mms_message.attachment.length;n++){
-                    m=msgObj.mms_message.attachment[n];
-                    if(m.media_type == "VIDEO") {
+            if (msgObj.mmsMessage) {
+                for(n=0;n<msgObj.mmsMessage.attachment.length;n++){
+                    m=msgObj.mmsMessage.attachment[n];
+                    if(m.mediaType == "VIDEO") {
                         img = p.appendChild(document.createElement('video'));
                         img.onerror = threadImgAltLoader;
                         img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
@@ -49,7 +49,7 @@ function getConvoUI(evt, pagination_token, finish) {
                         a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         a.target = '_blank';
                         a.textContent = "Download Video";
-                    } else if (m.media_type == "VCARD") {
+                    } else if (m.mediaType == "VCARD") {
                         img = p.appendChild(document.createElement('img'));
                         img.style.width = "0px";
                         img.style.height = "0px";
@@ -86,18 +86,18 @@ function getConvoUI(evt, pagination_token, finish) {
                 }
             }
             frag.insertBefore(p, frag.firstChild);
-            if(msgObj.is_artificial_error_message) {
+            if(msgObj.isArtificialErrorMessage) {
                 p.style.backgroundColor = 'red'
             } else {
                 p.style.outline = '1px solid black'
             }
-            p.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
-            img = new Date(Number(msgObj.start_time));
+            p.align = msgObj.type == "smsIn" ? 'left' : 'right';
+            img = new Date(Number(msgObj.startTime));
             //an empty body MMS msg has as "plain text" content
             //"message_text": "MMS Received"
             //just always use MMS specific body if MMS
             a = document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'-'
-                +(msgObj.mms_message ? msgObj.mms_message.text : msgObj.message_text));
+                +(msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText));
             img = a.textContent;
             if (img.match(urlre)) {
                 p.innerHTML = img.replace(urlre, '<a href="$&" target="_blank" rel="noreferrer">$&</a>');
@@ -110,7 +110,7 @@ function getConvoUI(evt, pagination_token, finish) {
             evt.innerText ="\xa0\u25BD\u2714";//Good mark
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
-        if(img = r.thread.pagination_token){
+        if(img = r.thread.paginationToken){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.innerText = "\xa0Load More\xa0";
             p.wvpgtok = img;
@@ -121,7 +121,7 @@ function getConvoUI(evt, pagination_token, finish) {
         }
         if(frag.childNodes.length) { //if error but not drawable msg leave screen intact
             var tdiv = document.getElementById('thread');
-            if(pagination_token){
+            if(paginationToken){
                 tdiv.replaceChild(frag, tdiv.firstChild);
             } else {
                 while (tdiv.lastChild) {

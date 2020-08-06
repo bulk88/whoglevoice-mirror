@@ -53,10 +53,11 @@ getThreadList(function(e,r){
         var frag = document.createDocumentFragment();
         r = r.thread;
         for(var i=0;i<r.length; i++){
+            //p=paragraph
             var p = document.createElement('div');
             var msgObj = r[i].item[0];
             frag.appendChild(p);
-            if(msgObj.is_artificial_error_message) {
+            if(msgObj.isArtificialErrorMessage) {
                 p.style.backgroundColor = 'red';
             } else {
                 p.style.outline = '1px solid black';
@@ -64,11 +65,11 @@ getThreadList(function(e,r){
             var n = p.appendChild(document.createElement('div'));
             n.align = 'left';
             n = n.appendChild(document.createElement('a'));
-            n.href = 'thread.html#'+msgObj.contact.phone_number.substring(2);
+            n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
             n.textContent = msgObj.contact.name;
             n = p.appendChild(document.createElement('div'));
-            n.align = msgObj.type == "SMS_IN" ? 'left' : 'right';
-            n.textContent = msgObj.mms_message ? '[IMG]'+msgObj.mms_message.text : msgObj.message_text;
+            n.align = msgObj.type == "smsIn" ? 'left' : 'right';
+            n.textContent = msgObj.mmsMessage ? '[IMG]'+msgObj.mmsMessage.text : msgObj.messageText;
         }
         var tdiv = document.getElementById('threadList');
 
