@@ -349,7 +349,7 @@ if (num != lastNum || body != lastBody || img != lastImg) {
     msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
 }
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
@@ -394,7 +394,7 @@ function getThread(num,pagination_token,finish,items){
 }
 function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
@@ -446,7 +446,7 @@ function mkCallWithSrc(sourceNum, destNum, finish){
 }
 function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
@@ -468,7 +468,7 @@ function getActInfo(finish){
 }
 function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/account/get?alt=json",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/account/get?alt=json"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
@@ -577,7 +577,7 @@ function attachIDtoB64(id, size, isvid, finish){
 }
 function attachIDtoB64_t(canReAuth, tok, id, size, isvid, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;

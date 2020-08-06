@@ -8,7 +8,7 @@ function getThreadList(finish){
 }
 function getThreadList_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt=json",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt=json"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
