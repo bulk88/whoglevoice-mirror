@@ -186,8 +186,9 @@ function hashChangeHandler () {
         getConvoUI({target:{innerText: 0}});//get this req ASAP on wire before paints
         var f = document.createDocumentFragment();
         f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
-        var e = document.createElement('span');
-        e.appendChild(document.createTextNode(t));
+        var e = document.createElement('a');
+        e.innerText = t;
+        e.href = 'https://www.telcodata.us/search-area-code-exchange-detail?npa='+t.substr(0,3)+'&exchange='+t.substr(3,3);
         f.appendChild(e);
         e = f.appendChild(document.createElement('button'));
         e.wvnum = t;
