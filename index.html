@@ -3,10 +3,10 @@
 var d;/*didEarlyFetch*/
 
 //finish(err, resp)
-function getThreadList(finish){
-    getAuthToken(function(tok) {getThreadList_t(true, tok, finish)});
+function getThreadList(paginationToken, finish){
+    getAuthToken(function(tok) {getThreadList_t(true, tok, paginationToken, finish)});
 }
-function getThreadList_t(canReAuth, tok, finish){
+function getThreadList_t(canReAuth, tok, paginationToken, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt=json"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
@@ -15,7 +15,7 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThreadList_t(false, tok, finish)});
+        getAuthToken(function(tok) {getThreadList_t(false, tok, paginationToken, finish)});
     }
     if(x.status != 200) {
         x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
@@ -38,19 +38,27 @@ x.onreadystatechange=function(){if(x.readyState==4){
  // ]
  //},
  //arg 3 is how many text messages you want from each number, 0 or more
- //arg 4 unk
+ //arg 4 pagenation token, "15XXXX" timestamp string type or null
  //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
 //extra struct elements not needed
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
-x.send('[2,100,1]');
+x.send('[2,100,1'+(paginationToken?',"'+paginationToken+'"]':']'));
 }
 /*getThreadListUI(evt)*/
-function g(evt) {
+function g(paginationToken, evt) {
 evt = evt.target;
 evt.innerText ="\xa0\u25BD\u231B";
-getThreadList(function(e,r){
-    if (!e) {
+getThreadList(paginationToken,function(e_moreBut,r){
+    if (!e_moreBut) {
         var frag = document.createDocumentFragment();
+        if (r.paginationToken) {
+            e_moreBut = document.createElement('button');
+            e_moreBut.innerText = "\xa0Load More\xa0";
+            e_moreBut.wvpgtok = r.paginationToken;
+            e_moreBut.onclick = function (evt){
+                g(evt.target.wvpgtok, evt);
+            };
+        }
         r = r.thread;
         for(var i=0;i<r.length; i++){
             //p=paragraph
@@ -71,12 +79,16 @@ getThreadList(function(e,r){
             n.align = msgObj.type == "smsIn" ? 'left' : 'right';
             n.textContent = msgObj.mmsMessage ? '[IMG]'+msgObj.mmsMessage.text : msgObj.messageText;
         }
+        e_moreBut && frag.appendChild(e_moreBut);
         var tdiv = document.getElementById('threadList');
-
-        while (tdiv.lastChild) {
-            tdiv.removeChild(tdiv.lastChild);
+        if (paginationToken) {
+            tdiv.replaceChild(frag, tdiv.lastChild);
+        } else {
+            while (tdiv.lastChild) {
+                tdiv.removeChild(tdiv.lastChild);
+            }
+            tdiv.appendChild(frag);
         }
-        tdiv.appendChild(frag);
         evt.innerText ="\xa0\u25BD\u2714";//Good mark
     } else {
         evt.innerText ="\xa0\u25BD\u2718";//X mark
@@ -85,7 +97,7 @@ getThreadList(function(e,r){
 }
 if(lazySignedInEmail()){
     d = 1;
-    g({target:{innerText: 0}});
+    g(0,{target:{innerText: 0}});
 }
 </script>
 <meta name="mobileoptimized" content="0" charset=utf-8></head>
@@ -93,7 +105,7 @@ if(lazySignedInEmail()){
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
+<button style="width:3.5em;text-align:left;" onclick='g(0,event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
 <script>
 (function(){ /*var e can't be global*/
         if(navigator.clipboard && navigator.clipboard.readText) { /* old browser or HTTPS failure */

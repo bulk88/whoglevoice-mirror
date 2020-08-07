@@ -413,7 +413,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         //    a = u(a, 2, !0);
         //    return u(a, 3, !0)
         //};
-x.send('["t.+1'+num+'",'+(items?items:100)+','+(pagination_token?'"'+pagination_token+'"':'null')+']');
+x.send('["t.+1'+num+'",'+(items?items:100)+(pagination_token?',"'+pagination_token+'"]':']'));
 }
 
 function mkContact(name,num,finish){
@@ -428,6 +428,7 @@ x.setRequestHeader("Content-Type", "application/json");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
+debugger;
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
         getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
