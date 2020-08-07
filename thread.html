@@ -220,7 +220,7 @@ drawLoginBar();
 nextPollLoop(5000); /*loading page virgin got a refresh automatic
  dont hit the GAPI rate throttler */
 </script>
-<textarea id="msg" placeholder="Type outgoing msg here"></textarea>
+<textarea id="msg" placeholder="Type outgoing msg here" style="width:100%"></textarea>
 <br/>
 <button onclick="history.back()">&#x25C0;Back</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
@@ -352,5 +352,26 @@ function threadImgAltLoader(e) {
         altImgLoaderWarn = 1;
     }
 }
+
+//https://codepen.io/shshaw/details/azzvBv
+// Adapted from georgepapadakis.me/demo/expanding-textarea.html
+(function(){
+    var t = document.getElementById('msg');
+    var resize = function(t) {
+      t.style.height = 'auto';
+      t.style.overflow = 'hidden'; // Ensure scrollbar doesn't interfere with the true height of the text.
+      t.style.height = (t.scrollHeight + t.offset ) + 'px';
+      t.style.overflow = '';
+    };
+
+    t.offset = !window.opera ? (t.offsetHeight - t.clientHeight) : (t.offsetHeight + parseInt(window.getComputedStyle(t, null).getPropertyValue('border-top-width')));
+
+    resize(t);
+
+    t.oninput = function() { resize(t); };
+    t.onmouseup = function() { resize(t); }; // set height after user resize
+})();
+
+
 </script>
 </body></html>

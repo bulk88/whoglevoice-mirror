@@ -455,8 +455,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
-    //204 NO RESPONSE, 0 bytes is correct
-    if(x.status != 204) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
@@ -487,7 +486,7 @@ x.send('[null,1]');
 function getSourceNum(finish){
     getActInfo(function(err,resp){
     if (err == false) {
-        var phone_arr = resp.account.phones.linked_phone;
+        var phone_arr = resp.account.phones.linkedPhone;
         if (phone_arr.length > 1) {
         var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
         var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
@@ -497,7 +496,7 @@ function getSourceNum(finish){
         for (i = 0; i < phone_arr.length; i++) {
             var aNode = newBodyNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '#');
-            var num = phone_arr[i].phone_number.e164;
+            var num = phone_arr[i].phoneNumber.e164;
             var match = /^\+1(.+)$/.exec(num);
             aNode.innerText = match[1];
             aNode.addEventListener('click', function (e){
@@ -514,7 +513,7 @@ function getSourceNum(finish){
             finish("USER_CLICKED_CANCEL");
          });
         } else if (phone_arr.length == 1) {
-            var num = phone_arr[0].phone_number.e164;
+            var num = phone_arr[0].phoneNumber.e164;
             var match = /^\+1(.+)$/.exec(num);
             finish(false, match[1]);
         }
@@ -590,7 +589,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     else {
         if(finish){
             x = JSON.parse(x.response);
-            x = x.video_content?x.video_content.content:x.vcard_content?x.vcard_content.content:x.image_content.content;
+            x = x.videoContent?x.videoContent.content:x.vcardContent?x.vcardContent.content:x.imageContent.content;
             //GAPI returns a "url safe b64" string that is not allowed in
             //data URLs, not reg b64, convert to reg b64
             x = x.replace(/-/g, "+"); // 62nd char of encoding
