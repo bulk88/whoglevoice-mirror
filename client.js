@@ -133,10 +133,10 @@ function getAuthToken (callbackFunc) {
         var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
         buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
-        buttonNode.addEventListener('click', function (evt){
+        buttonNode.onclick = function (evt){
         //http!!!! because Android 4.1.2 SSL too old to talk to github pages SSL
            wvCopyToClipboard('javascript:var e=new XMLHttpRequest;e.onreadystatechange=function(){4==e.readyState&&200==e.status&&eval(e.responseText)};e.open("GET","https://wvoice.us.to/getCredFull.js",!0);e.overrideMimeType("application/javascript");e.send();',evt.target);
-        });
+        };
         newBodyNode.appendChild(document.createElement('br'));
         //monitor the click and close the tab if opened from this window?????
         var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
@@ -181,22 +181,22 @@ function getAuthToken (callbackFunc) {
             }
             drawLoginBar();
          };
-         textareaNode_clipboard_clipboard.addEventListener('input', gotAuthPasteCB);
-         textareaNode_clipboard_clipboard.addEventListener('paste', gotAuthPasteCB);
+         textareaNode_clipboard_clipboard.oninput = gotAuthPasteCB;
+         textareaNode_clipboard_clipboard.onpaste = gotAuthPasteCB;
          newBodyNode.appendChild(document.createElement('br'));
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
-         buttonNode.addEventListener('click', function (){
+         buttonNode.onclick = function (){
             oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
             :document.documentElement.removeChild(newBodyNode);
             window.removeEventListener("message", wvMsgEvtCB, false);
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
-         });
+         };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && (textareaNode_clipboard_clipboard = textareaNode_clipboard_clipboard.readText)) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
             buttonNode.innerText = "Paste";
-            buttonNode.addEventListener('click', function (evt){
+            buttonNode.onclick = function (evt){
                 textareaNode_clipboard_clipboard()
                 .then(function(text){/*fake DOM element*/
                     gotAuthPasteCB({type: 'input', target: {value: text}});
@@ -204,9 +204,9 @@ function getAuthToken (callbackFunc) {
                 .catch(function(/*err*/){ /*cancel button, less bytes code rare path*/
                     evt.target.previousSibling.click();
                 });
-            });
+            };
          }
-         window.addEventListener("message", wvMsgEvtCB, false);
+         window.onmessage = wvMsgEvtCB;
     }
 }
 // Production steps of ECMA-262, Edition 5, 15.4.4.19
@@ -499,19 +499,19 @@ function getSourceNum(finish){
             var num = phone_arr[i].phoneNumber.e164;
             var match = /^\+1(.+)$/.exec(num);
             aNode.innerText = match[1];
-            aNode.addEventListener('click', function (e){
+            aNode.onclick = function (e){
                 e.preventDefault();
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
                 finish(false, e.target.innerText);
-            });
+            };
             newBodyNode.appendChild(document.createElement('br'));
         }
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
-         buttonNode.addEventListener('click', function (){
+         buttonNode.onclick = function (){
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
             finish("USER_CLICKED_CANCEL");
-         });
+        };
         } else if (phone_arr.length == 1) {
             var num = phone_arr[0].phoneNumber.e164;
             var match = /^\+1(.+)$/.exec(num);
