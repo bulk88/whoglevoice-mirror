@@ -36,7 +36,9 @@ function getConvoUI(evt, paginationToken, finish) {
         for(i=0;i<r.thread.item.length; i++){
             var p = document.createElement('p');
             var msgObj = r.thread.item[i];
-            if (msgObj.mmsMessage) {
+            /*some texts have a media-less mmsMessage obj with only text that
+            duplicates the plaint text part of the text*/
+            if (msgObj.mmsMessage && msgObj.mmsMessage.attachment) {
                 for(n=0;n<msgObj.mmsMessage.attachment.length;n++){
                     m=msgObj.mmsMessage.attachment[n];
                     if(m.mediaType == "VIDEO") {
