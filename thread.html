@@ -98,8 +98,8 @@ function getConvoUI(evt, paginationToken, finish) {
             //an empty body MMS msg has as "plain text" content
             //"message_text": "MMS Received"
             //just always use MMS specific body if MMS
-            a = document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'-'
-                +(msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText));
+            a = document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'- '
+                +(msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText)+' ');
             img = a.textContent;
             if (img.match(urlre)) {
                 p.innerHTML = img.replace(urlre, '<a href="$&" target="_blank" rel="noreferrer">$&</a>');
