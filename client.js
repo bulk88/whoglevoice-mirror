@@ -381,7 +381,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
     }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-    else {finish && finish(false)};
+    else {finish && finish(false, JSON.parse(x.response))};
 }};
 //commented out encoding is GV Web typ, BUTTTT, it only works for old threads
 //on virgin threads GAPI returns

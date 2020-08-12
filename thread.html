@@ -24,6 +24,7 @@ function getConvoUI(evt, paginationToken, finish) {
             alert("Error getting thread:\n\n"+err);
             }
             evt.innerText ="\xa0\u25BD\u2718";//X mark
+            finish && finish(err);
         }
         else {
         var urlre = /(?:(https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
@@ -125,7 +126,7 @@ function getConvoUI(evt, paginationToken, finish) {
                 tdiv.appendChild(frag);
             }
         }
-        finish && finish();
+        finish && finish(false, r);
         });
 }
 
@@ -271,15 +272,35 @@ function sendUI(b) { //b button
         }
         b.innerText = "\xa0\u2709\u231B\xa0"; //hourglass mark
         b64StartPos_msgElem = document.getElementById('msg');
-        sendsms(t,b64StartPos_msgElem.value,b64,function(err){
+        sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
             if (err) {
                 b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
                 nextPollLoop();
             } else {
-                b64StartPos_msgElem.value = '';
-                clearPrvImg();
+                var latestOutPostHash= r[2];
                 b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
-                getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
+                getConvoUI({target:{innerText: 0}}, 0, function (err, r) {
+                   if (!err) {
+                        //sometimes proxy drops outgoing msgs IDK why, retry auto
+                        //but with same our side rando msg ID to prevent duplicate
+                        //messages, see sendsms logic for rando msg ID generation
+                        if(r.thread.item[0].id != latestOutPostHash) {
+                            alert("Warning: sent outgoing message , server confirmed, but not in chat log");
+                            sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
+                                if (!err) {
+                                    b64StartPos_msgElem.value = '';
+                                    clearPrvImg();
+                                    nextFastPollLoop();
+                                }
+                            });
+                        } else {
+                            b64StartPos_msgElem.value = '';
+                            clearPrvImg();
+                            nextFastPollLoop();
+                        }
+                   }
+                }
+                );
             }
         });
     //} else { //no tel num given
