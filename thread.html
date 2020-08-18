@@ -65,7 +65,7 @@ function getConvoUI(evt, paginationToken, finish) {
 //google.com cookie doesn't match the copy pasted creds (auth token)
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
+                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=2';
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
 //0: {size_spec: "ORIGINAL", width: 11, height: 10}
@@ -73,10 +73,11 @@ function getConvoUI(evt, paginationToken, finish) {
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
                         a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
+                        a.onclick = imgLoaderClick;
                         a.appendChild(img);
                         p.appendChild(a);
                     }
-                    img.style.maxWidth = "100%";
+                    img.style.width = "100%";
                     img.onerror = threadImgAltLoader;
                     a.target = '_blank';
                 }
@@ -288,8 +289,6 @@ function sendUI(b) { //b button
                             alert("Warning: sent outgoing message , server confirmed, but not in chat log");
                             sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
                                 if (!err) {
-                                    b64StartPos_msgElem.value = '';
-                                    clearPrvImg();
                                     nextFastPollLoop();
                                 }
                             });
@@ -306,6 +305,24 @@ function sendUI(b) { //b button
     //} else { //no tel num given
     //    b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
     //}
+}
+function threadImgAltLoaderClick (e) {
+    e.preventDefault();
+    //err event to a tag, .target is the img tag
+    e = e.currentTarget;
+    //max quality 1 for image if tapped
+    attachIDtoB64(e.wv_id, 1, 0, function(errTwo, r){
+        if (!errTwo) {
+            e.onclick = undefined;
+            e.href = 'data:image/jpeg;base64,'+r;
+            e.firstChild.src = e.href;
+        }
+    });
+};
+function imgLoaderClick (e) {
+    e.preventDefault();
+    e.target.src = e.currentTarget.href;
+    e.currentTarget.onclick = undefined;
 }
 
 function threadImgAltLoader(e) {
@@ -329,8 +346,8 @@ function threadImgAltLoader(e) {
     var lastPos = id.lastIndexOf('?');
     if(lastPos == -1){lastPos = undefined}; //vcard has no url arguments
     id = id.substring(id.lastIndexOf('/')+1,lastPos);
-    //use max quality/size aka 1 just like direct links primary method
-    attachIDtoB64(id, isvid ? 4:1, isvid, function(errTwo, r){
+    //use smallest quality/size aka 2 just like direct links primary method
+    attachIDtoB64(id, isvid ? 4:2, isvid, function(errTwo, r){
         //broken on newer Chrome, opens blank window
         //no top level navigation to data URL, TODO blob URL
         if (!errTwo) {
@@ -341,9 +358,10 @@ function threadImgAltLoader(e) {
                 e.nextElementSibling.href = r;
             } else {
 //let user save to disk or zoom in/out on it if they want thru anchor tag
-                e.href = 'data:image/jpeg;base64,'+r;
+                e.wv_id = id;
+                e.onclick = threadImgAltLoaderClick;
                 //apply to image tag
-                e.firstChild.src = e.href;
+                e.firstChild.src = 'data:image/jpeg;base64,'+r;
             /*ASOP doesn't have addEventHandler() method on tags
             e.firstChild.addEventHandler('load', function() {
                 var scrollingElement = (document.scrollingElement || document.body);
@@ -362,10 +380,10 @@ function threadImgAltLoader(e) {
         }
     });
     if(!altImgLoaderWarn){
-        id = document.createElement('div');
-        id.style.color = 'red';
-        id.textContent = 'Using the alternate slow image loader.';
-        document.body.insertBefore(id, document.getElementById('msg'));
+        lastPos = document.createElement('div');
+        lastPos.style.color = 'red';
+        lastPos.textContent = 'Using the alternate slow image loader.';
+        document.body.insertBefore(lastPos, document.getElementById('msg'));
         altImgLoaderWarn = 1;
     }
 }
