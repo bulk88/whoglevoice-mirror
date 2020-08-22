@@ -459,6 +459,8 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
+    //TODO add 404 means sourceNum is invalid/changed/not linked/not on server
+    //anymore auto fetch from network source num list again and reissue the call
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
@@ -486,55 +488,73 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null,1]');
 }
 
+function getSourceNumUI(phone_arr, finish) {
+    if (phone_arr.length > 1) {
+    var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
+    var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+    newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
+    newBodyNode.appendChild(document.createElement('br'));
+    var i;
+    for (i = 0; i < phone_arr.length; i++) {
+        var aNode = newBodyNode.appendChild(document.createElement('a'));
+        aNode.setAttribute('href', '#');
+        var num = phone_arr[i].phoneNumber.e164;
+        var match = /^\+1(.+)$/.exec(num);
+        aNode.innerText = match[1];
+        aNode.onclick = function (e){
+            e.preventDefault();
+            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            finish(false, e.target.innerText);
+        };
+        newBodyNode.appendChild(document.createElement('br'));
+    }
+     var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+     buttonNode.innerText = "Cancel/Return";
+     buttonNode.onclick = function (){
+        document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+        finish("USER_CLICKED_CANCEL");
+    };
+    }
+    else if (phone_arr.length == 1) {
+        var num = phone_arr[0].phoneNumber.e164;
+        var match = /^\+1(.+)$/.exec(num);
+        finish(false, match[1]);
+    }
+    else {
+        alert("This account has no linked phone numbers for outgoing calls");
+        finish("NO_LINKED_LINES_AVAILABLE");
+    }
+}
 //finish(err, sourceNum)
 function getSourceNum(finish){
-    getActInfo(function(err,resp){
-    if (err == false) {
-        var phone_arr = resp.account.phones.linkedPhone;
-        if (phone_arr.length > 1) {
-        var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
-        var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
-        newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
-        newBodyNode.appendChild(document.createElement('br'));
-        var i;
-        for (i = 0; i < phone_arr.length; i++) {
-            var aNode = newBodyNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', '#');
-            var num = phone_arr[i].phoneNumber.e164;
-            var match = /^\+1(.+)$/.exec(num);
-            aNode.innerText = match[1];
-            aNode.onclick = function (e){
-                e.preventDefault();
-                document.documentElement.replaceChild(oldBodyNode, newBodyNode);
-                finish(false, e.target.innerText);
-            };
-            newBodyNode.appendChild(document.createElement('br'));
-        }
-         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-         buttonNode.innerText = "Cancel/Return";
-         buttonNode.onclick = function (){
-            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
-            finish("USER_CLICKED_CANCEL");
-        };
-        } else if (phone_arr.length == 1) {
-            var num = phone_arr[0].phoneNumber.e164;
-            var match = /^\+1(.+)$/.exec(num);
-            finish(false, match[1]);
-        }
-        else {
-            alert("This account has no linked phone numbers for outgoing calls");
-            finish("NO_LINKED_LINES_AVAILABLE");
-        }
-    } else {
-        finish(err);
+    var phone_arr;
+    try {
+        phone_arr = JSON.parse(localStorage.getItem('gvauthobj')).linkedPhone;
+    } catch (e) {
+        phone_arr = undefined;
     }
-    });
+    if(phone_arr) { /* warning cache doesn't deal with settings changes, changed
+    once an hour by token relogin*/
+        getSourceNumUI(phone_arr, finish);
+    }
+    else {
+        getActInfo(function(err,resp){
+        if (err) {
+            finish(err);
+        } else {
+            phone_arr = resp.account.phones.linkedPhone;
+            err = JSON.parse(localStorage.getItem('gvauthobj'));
+            err.linkedPhone = phone_arr;
+            localStorage.setItem('gvauthobj', JSON.stringify(err));
+            getSourceNumUI(phone_arr, finish);
+        }
+        });
+    }
 }
 
 //finish(err)
 //not called if no Source Num, will ask user with blocking UI if
-//Account has multiple source numbers, getting source number each time
-//is about 180 ms delay, oh well
+//Account has multiple source numbers
 function mkCall(destNum, finish){
     getSourceNum(function(err, sourceNum) {
         err ?
@@ -710,4 +730,42 @@ x.onreadystatechange=function(){if(x.readyState==4){
     else {finish && finish(false,x.response)};
 }};
 x.send('["t.+1'+num+'",1]');
+}
+
+function getProxyNumWithSrc(sourceNum, destNum, finish){
+    getAuthToken(function(tok) {getProxyNumWithSrc_t(true, tok, sourceNum, destNum, finish)});
+}
+function getProxyNumWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
+var x=new XMLHttpRequest;
+//x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json"),1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.withCredentials=1;
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getProxyNumWithSrc_t(false, tok, sourceNum, destNum, finish)});
+    }
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false,x.response)};
+}};
+/*last field     "message": "Invalid value at 'request' (BOOL), Invalid value '2' for bool field. Allowed values are either 0 or 1.",
+last field is cacheable flag, if 1 then proxy num can be called ONCE.
+After that using it again make
+makes a "could not complete your call" voice message, GV server in
+experiments returns same number over and over for uncacheable 1 time use for a
+particular destination number, but calling that proxy num without doing the web
+request first to enable the num causes the verbal voice fail message
+
+the one time use number is different from the cacheable number, each destination
+num seems to get a very numerically close but different one time use number
+
+cacheable proxy numbers are random zip codes
+
+one time use JSON call takes 150-250 ms
+
+cacheable proxy number JSON call takes 500-800 ms *EEK*
+*/
+x.send('[[["phnnmbr","+1'+destNum+'"]],null,["phnnmbr","+1'+sourceNum+'"],null,1]');
 }
