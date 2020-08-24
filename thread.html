@@ -173,6 +173,8 @@ function nextFastPollLoop() {
     nextPollLoop();
 }
 
+function dirRadio(evt) {localStorage.setItem('wvCallDir', evt.target.value)}
+
 function hashChangeHandler () {
     var t = location.hash;
     var divBuddyBar = document.getElementById('buddy-bar');
@@ -190,13 +192,26 @@ function hashChangeHandler () {
         e.innerText = t;
         e.href = 'https://www.telcodata.us/search-area-code-exchange-detail?npa='+t.substr(0,3)+'&exchange='+t.substr(3,3);
         f.appendChild(e);
+        var d = localStorage.getItem('wvCallDir')|0;//make null 0
+        var a = [' In','Out On','Out Off'];
+        for(var dl in a){
+            dl|=0; //is a string in debugger
+            e = f.appendChild(document.createElement('label'));
+            e.textContent = a[dl];
+            e = e.appendChild(document.createElement('input'));
+            e.type = 'radio';
+            e.name = 'd';
+            e.value = dl;
+            e.onchange = dirRadio;
+            e.checked = d == dl;
+        }
         e = f.appendChild(document.createElement('button'));
         e.wvnum = t;
         e.innerText = "\xa0Call\xa0";
         e.onclick = function (evt){
             evt = evt.target;
             evt.innerText = "\xa0Calling\xa0";
-            mkCall(evt.wvnum, function(err){
+            mkCall(evt, evt.wvnum, localStorage.getItem('wvCallDir'), function(err){
                 if(err){
                     evt.innerText = "\xa0Called \u2718\xa0";
                 } else {

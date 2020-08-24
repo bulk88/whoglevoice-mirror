@@ -488,7 +488,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null,1]');
 }
 
-function getSourceNumUI(phone_arr, finish) {
+function getSourceNumUI(phone_arr, primaryDid, finish) {
     if (phone_arr.length > 1) {
     var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
     var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
@@ -504,7 +504,7 @@ function getSourceNumUI(phone_arr, finish) {
         aNode.onclick = function (e){
             e.preventDefault();
             document.documentElement.replaceChild(oldBodyNode, newBodyNode);
-            finish(false, e.target.innerText);
+            finish(false, e.target.innerText, primaryDid);
         };
         newBodyNode.appendChild(document.createElement('br'));
     }
@@ -518,24 +518,27 @@ function getSourceNumUI(phone_arr, finish) {
     else if (phone_arr.length == 1) {
         var num = phone_arr[0].phoneNumber.e164;
         var match = /^\+1(.+)$/.exec(num);
-        finish(false, match[1]);
+        finish(false, match[1], primaryDid);
     }
     else {
         alert("This account has no linked phone numbers for outgoing calls");
         finish("NO_LINKED_LINES_AVAILABLE");
     }
 }
-//finish(err, sourceNum)
+//finish(err, sourceNum, acntNum)
 function getSourceNum(finish){
     var phone_arr;
+    var primaryDid;
     try {
         phone_arr = JSON.parse(localStorage.getItem('gvauthobj')).linkedPhone;
+        primaryDid = phone_arr.primaryDid;
+        phone_arr = phone_arr.linkedPhone;
     } catch (e) {
         phone_arr = undefined;
     }
     if(phone_arr) { /* warning cache doesn't deal with settings changes, changed
     once an hour by token relogin*/
-        getSourceNumUI(phone_arr, finish);
+        getSourceNumUI(phone_arr, primaryDid, finish);
     }
     else {
         getActInfo(function(err,resp){
@@ -543,10 +546,12 @@ function getSourceNum(finish){
             finish(err);
         } else {
             phone_arr = resp.account.phones.linkedPhone;
+            primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
             err = JSON.parse(localStorage.getItem('gvauthobj'));
             err.linkedPhone = phone_arr;
+            err.primaryDid = primaryDid;
             localStorage.setItem('gvauthobj', JSON.stringify(err));
-            getSourceNumUI(phone_arr, finish);
+            getSourceNumUI(phone_arr, primaryDid, finish);
         }
         });
     }
@@ -555,13 +560,37 @@ function getSourceNum(finish){
 //finish(err)
 //not called if no Source Num, will ask user with blocking UI if
 //Account has multiple source numbers
-function mkCall(destNum, finish){
-    getSourceNum(function(err, sourceNum) {
-        err ?
-            finish(err)
-            : mkCallWithSrc(sourceNum, destNum, finish);
+//dir=direction, 0 incoming, 1 outwards online, 2 outwards offline (no data)
+function mkCall(elem, destNum, dir, finish){
+    getSourceNum(function(err, sourceNum, acntNum) {
+    err ?
+    finish(err)
+        : dir == 2 ?
+        //TODO offline call MUST supress source num dialog, we only need acnt num
+        mkOfflineCall(elem, acntNum, destNum, finish)
+            : dir ?
+            getProxyNumWithSrc(sourceNum, destNum, function (err, r) {
+                if (err) {
+                    finish(err);
+                }
+                else {
+                    var t = r.proxyNumber.proxyNumber.e164;
+                    t = /^\+1(.+)$/.exec(t)[1];
+                    window.location = 'tel:'+t;
+                    finish(false);
+                }
+            })
+                : mkCallWithSrc(sourceNum, destNum, finish);
     });
 }
+
+function mkOfflineCall(elem, acntNum, destNum, finish) {
+    var t = acntNum+'P2'+destNum+'#';
+    wvCopyToClipboard(t, elem);
+    window.location = 'tel:';
+    finish(false);
+}
+
 
 function resp401Unauth(jstr) {
     try {
@@ -748,7 +777,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         getAuthToken(function(tok) {getProxyNumWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
     if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-    else {finish && finish(false,x.response)};
+    else {finish && finish(false,JSON.parse(x.response))};
 }};
 /*last field     "message": "Invalid value at 'request' (BOOL), Invalid value '2' for bool field. Allowed values are either 0 or 1.",
 last field is cacheable flag, if 1 then proxy num can be called ONCE.
