@@ -1,7 +1,13 @@
 CACHE MANIFEST
-# v Mon Sep 14 12:49:34 2020
+# v Mon Aug 24 14:42:53 2020
+
+CACHE:
 index.html
 thread.html
 auth.html
 client.js
 getCredFull.js
+favicon.ico
+
+NETWORK:
+*

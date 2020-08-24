@@ -37,7 +37,7 @@ docs/cproxy.js : cproxy.js
 	terser -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
 
 docs/ac.appcache : docs/index.html docs/thread.html docs/auth.html
-docs/ac.appcache : docs/client.js docs/getCredFull.js
+docs/ac.appcache : docs/client.js docs/getCredFull.js docs/favicon.ico
 	perl -e"use File::Slurp; \
 	my $$f = read_file('docs/ac.appcache', { binmode => ':raw' }); \
 	$$f =~  s/# v .+/\"# v \".localtime()/e;\
