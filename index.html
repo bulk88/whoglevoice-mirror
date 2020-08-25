@@ -1,4 +1,6 @@
-<html manifest="ac.appcache"><head><script src="client.js" type="text/javascript"></script>
+<html manifest="ac.appcache"><head><meta name="mobileoptimized" content="0" charset=utf-8></head>
+<link rel="preconnect" href="https://cp.wvoice.workers.dev">
+<script src="client.js" type="text/javascript"></script>
 <script>
 var d;/*didEarlyFetch*/
 
@@ -47,9 +49,12 @@ x.send('[2,100,1'+(paginationToken?',"'+paginationToken+'"]':']'));
 /*getThreadListUI(evt)*/
 function g(paginationToken, evt) {
 evt = evt.target;
-evt.innerText ="\xa0\u25BD\u231B";
+evt.innerText ="\xa0\u25BD\u231B";     /*err*/
 getThreadList(paginationToken,function(e_moreBut,r){
-    if (!e_moreBut) {
+    if (e_moreBut) {
+        evt.innerText ="\xa0\u25BD\u2718";//X mark
+    }
+    else {
         var frag = document.createDocumentFragment();
         if (r.paginationToken) {
             e_moreBut = document.createElement('button');
@@ -90,8 +95,6 @@ getThreadList(paginationToken,function(e_moreBut,r){
             tdiv.appendChild(frag);
         }
         evt.innerText ="\xa0\u25BD\u2714";//Good mark
-    } else {
-        evt.innerText ="\xa0\u25BD\u2718";//X mark
     }
 });
 }
@@ -100,7 +103,6 @@ if(lazySignedInEmail()){
     g(0,{target:{innerText: 0}});
 }
 </script>
-<meta name="mobileoptimized" content="0" charset=utf-8></head>
 <body>
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
