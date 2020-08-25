@@ -196,11 +196,11 @@ function getAuthToken (callbackFunc) {
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          };
-         if((textareaNode_clipboard_clipboard = navigator.clipboard) && (textareaNode_clipboard_clipboard = textareaNode_clipboard_clipboard.readText)) { /* old browser or HTTPS failure */
+         if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
             buttonNode.innerText = "Paste";
             buttonNode.onclick = function (evt){
-                textareaNode_clipboard_clipboard()
+                textareaNode_clipboard_clipboard.readText()
                 .then(function(text){/*fake DOM element*/
                     gotAuthPasteCB({type: 'input', target: {value: text}});
                 })
