@@ -47,7 +47,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[2,100,1'+(paginationToken?',"'+paginationToken+'"]':']'));
 }
 /*getThreadListUI(evt)*/
-function g(paginationToken, evt) {
+function g(evt,paginationToken) {
 evt = evt.target;
 evt.innerText ="\xa0\u25BD\u231B";     /*err*/
 getThreadList(paginationToken,function(e_moreBut,r){
@@ -61,7 +61,7 @@ getThreadList(paginationToken,function(e_moreBut,r){
             e_moreBut.innerText = "\xa0Load More\xa0";
             e_moreBut.wvpgtok = r.paginationToken;
             e_moreBut.onclick = function (evt){
-                g(evt.target.wvpgtok, evt);
+                g(evt,evt.target.wvpgtok);
             };
         }
         r = r.thread;
@@ -100,14 +100,14 @@ getThreadList(paginationToken,function(e_moreBut,r){
 }
 if(lazySignedInEmail()){
     d = 1;
-    g(0,{target:{innerText: 0}});
+    g({target:{innerText: 0}});
 }
 </script>
 <body>
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='g(0,event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
+<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x2800;Go #&#x2800;</button><div id='threadList'></div>
 <script>
 (function(){ /*var e can't be global*/
         if(navigator.clipboard && navigator.clipboard.readText) { /* old browser or HTTPS failure */
