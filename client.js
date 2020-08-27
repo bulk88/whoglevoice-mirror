@@ -585,7 +585,7 @@ function mkCall(elem, destNum, dir, finish){
 }
 
 function mkOfflineCall(elem, acntNum, destNum, finish) {
-    var t = acntNum+'P2'+destNum+'#';
+    var t = acntNum+',,2'+destNum+'#';
     wvCopyToClipboard(t, elem);
     window.location = 'tel:';
     finish(false);

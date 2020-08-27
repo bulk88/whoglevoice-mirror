@@ -211,7 +211,7 @@ function hashChangeHandler () {
         e.onclick = function (evt){
             evt = evt.target;
             evt.innerText = "\xa0Calling\xa0";
-            mkCall(evt, evt.wvnum, localStorage.getItem('wvCallDir'), function(err){
+            mkCall(evt, evt.wvnum, localStorage.getItem('wvCallDir')|0, function(err){
                 if(err){
                     evt.innerText = "\xa0Called \u2718\xa0";
                 } else {
