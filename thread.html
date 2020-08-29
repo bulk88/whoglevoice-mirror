@@ -207,15 +207,15 @@ function hashChangeHandler () {
         }
         e = f.appendChild(document.createElement('button'));
         e.wvnum = t;
-        e.innerText = "\xa0Call\xa0";
+        e.innerText = "\u3164Call \u3164";
         e.onclick = function (evt){
             evt = evt.target;
-            evt.innerText = "\xa0Calling\xa0";
+            evt.innerText = "\u3164Calling\u231B\u3164";
             mkCall(evt, evt.wvnum, localStorage.getItem('wvCallDir')|0, function(err){
                 if(err){
-                    evt.innerText = "\xa0Called \u2718\xa0";
+                    evt.innerText = "\u3164Called \u2718\u3164";
                 } else {
-                    evt.innerText = "\xa0Called \u2714\xa0";
+                    evt.innerText = "\u3164Called \u2714\u3164";
                 }
             });
         };
@@ -238,7 +238,7 @@ drawLoginBar();
 <br/>
 <button onclick="history.back()">&#x25C0;Back</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
-<button onclick="window.scrollTo(0,0)">&#x2800;&#x2B06;Top&#x2800;</button>
+<button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;Top&#x3164;</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
 <button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button>
 

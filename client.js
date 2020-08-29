@@ -542,7 +542,7 @@ function getSourceNum(finish){
     var phone_arr;
     var primaryDid;
     try {
-        phone_arr = JSON.parse(localStorage.getItem('gvauthobj')).linkedPhone;
+        phone_arr = JSON.parse(localStorage.getItem('gvauthobj'));
         primaryDid = phone_arr.primaryDid;
         phone_arr = phone_arr.linkedPhone;
     } catch (e) {
@@ -586,9 +586,7 @@ function mkCall(elem, destNum, dir, finish){
                     finish(err);
                 }
                 else {
-                    var t = r.proxyNumber.proxyNumber.e164;
-                    t = /^\+1(.+)$/.exec(t)[1];
-                    window.location = 'tel:'+t;
+                    location = 'tel:'+/^\+1(.+)$/.exec(r.proxyNumber.proxyNumber.e164)[1];
                     finish(false);
                 }
             })
