@@ -141,7 +141,7 @@ var pollLastTimer;
 var pollMaxLoop = 0;
 
 function nextPollLoop (t) {
-    if (pollMaxLoop++ < 18) { //abt 1 min
+    if (pollMaxLoop++ < 14) { //abt 1 min
         if (!t) {
             if( pollDelayIdx < pollDelay.length) {
                 t = pollDelay[pollDelayIdx++];
