@@ -393,7 +393,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 //commented out encoding is GV Web typ, BUTTTT, it only works for old threads
@@ -444,12 +444,11 @@ x.setRequestHeader("Content-Type", "application/json");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
-debugger;
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
         getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 x.send('{"name":{"display_name":'+JSON.stringify(name)+'},"phone":{"value":"+1'+num+'","type":""}}');
@@ -474,7 +473,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
     //TODO add 404 means sourceNum is invalid/changed/not linked/not on server
     //anymore auto fetch from network source num list again and reissue the call
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false)};
 }};
 x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
@@ -495,7 +494,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getActInfo_t(false, tok, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 x.send('[null,1]');
@@ -657,7 +656,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, isvid, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
         if(finish){
             x = JSON.parse(x.response);
@@ -733,7 +732,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThdInfo_t(false, tok, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
 x.send('[]');
@@ -795,7 +794,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getProxyNumWithSrc_t(false, tok, sourceNum, destNum, finish)});
     }
-    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false,JSON.parse(x.response))};
 }};
 /*last field     "message": "Invalid value at 'request' (BOOL), Invalid value '2' for bool field. Allowed values are either 0 or 1.",
