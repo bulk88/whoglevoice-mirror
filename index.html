@@ -47,9 +47,10 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[2,100,1'+(paginationToken?',"'+paginationToken+'"]':']'));
 }
 /*getThreadListUI(evt)*/
-function g(evt,paginationToken) {
+function g(evt) {
 evt = evt.target;
 evt.innerText ="\xa0\u25BD\u231B";     /*err*/
+var paginationToken = (evt.dataset||{}).wvPgTok;
 getThreadList(paginationToken,function(e_moreBut,r){
     if (e_moreBut) { /*error*/
         evt.innerText ="\xa0\u25BD\u2718";//X mark
@@ -59,16 +60,17 @@ getThreadList(paginationToken,function(e_moreBut,r){
         if (r.paginationToken) {
             e_moreBut = document.createElement('button');
             e_moreBut.innerText = "\xa0Load More\xa0";
-            e_moreBut.wvpgtok = r.paginationToken;
-            e_moreBut.onclick = function (evt){
-                g(evt,evt.target.wvpgtok);
-            };
+            //survive serialization of HTML
+            e_moreBut.dataset.wvPgTok = r.paginationToken;
+            e_moreBut.setAttribute('onclick', "g(event)");
         }
         r = r.thread;
         for(var i=0;i<r.length; i++){
             //p=paragraph
             var p = document.createElement('div');
             var msgObj = r[i].item[0];
+            if (!i)p.dataset.wvMid = msgObj.id;
+
             frag.appendChild(p);
             if(msgObj.isArtificialErrorMessage) {
                 p.style.backgroundColor = 'red';
