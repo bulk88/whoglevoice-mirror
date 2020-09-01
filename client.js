@@ -43,6 +43,7 @@ return r;
 function wvWipeAuthToken (logout) {
     localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
     localStorage.removeItem('gvauthobj');
+    localStorage.removeItem('wvThdList');
 }
 
 function drawLoginBar()

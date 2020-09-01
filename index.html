@@ -95,6 +95,7 @@ getThreadList(paginationToken,function(e_moreBut,r){
                 tdiv.removeChild(tdiv.lastChild);
             }
             tdiv.appendChild(frag);
+            localStorage.setItem('wvThdList', tdiv.innerHTML);
         }
         evt.innerText ="\xa0\u25BD\u2714";//Good mark
     }
@@ -111,6 +112,8 @@ Welcome To Whogle Voice
 <!--all 1 line on purpose, dont add newlines-->
 <button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x3164;Go #&#x3164;</button><div id='threadList'></div>
 <script>
+document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdList');
+
 (function(){ /*var e can't be global*/
         var c = navigator.clipboard;
         if(c && c.readText) { /* old browser or HTTPS failure */
