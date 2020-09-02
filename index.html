@@ -5,25 +5,25 @@
 var d;/*didEarlyFetch*/
 
 //finish(err, resp)
-function getThreadList(paginationToken, finish){
-    getAuthToken(function(tok) {getThreadList_t(true, tok, paginationToken, finish)});
+function getThreadList(fullreq, paginationToken, finish){
+    getAuthToken(function(tok) {getThreadList_t(true, tok, fullreq, paginationToken, finish)});
 }
-function getThreadList_t(canReAuth, tok, paginationToken, finish){
+function getThreadList_t(canReAuth, tok, fullreq, paginationToken, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt=json"),1);
+x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt="+(fullreq?"json":"protojson")),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThreadList_t(false, tok, paginationToken, finish)});
+        getAuthToken(function(tok) {getThreadList_t(false, tok, light, paginationToken, finish)});
     }
     else if(x.status != 200) {
         x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
         finish(x.response||-1); /* opera 12 for 401 has empty x.response, mk fake error */
     }
-    else {finish(false, JSON.parse(x.response))};
+    else {finish(false, fullreq ? JSON.parse(x.response) : x.response)};
 }};
 
 //x.send('[1, 10, 15, null, "v1-0-1594212530956000", [null, true, true]]');
@@ -44,60 +44,91 @@ x.onreadystatechange=function(){if(x.readyState==4){
  //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
 //extra struct elements not needed
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
-x.send('[2,100,1'+(paginationToken?',"'+paginationToken+'"]':']'));
+x.send((fullreq?'[2,100,1':'[2,1,1')+(paginationToken?',"'+paginationToken+'"]':']'));
 }
+
+function drawThdList(paginationToken,r) {
+    var frag = document.createDocumentFragment();
+    if (r.paginationToken) {
+        var moreButton = document.createElement('button');
+        moreButton.innerText = "\xa0Load More\xa0";
+        //survive serialization of HTML
+        moreButton.dataset.wvPgTok = r.paginationToken;
+        moreButton.setAttribute('onclick', "g(event)");
+    }
+    r = r.thread;
+    for(var i=0;i<r.length; i++){
+        //p=paragraph
+        var p = document.createElement('div');
+        var msgObj = r[i].item[0];
+        if (!i)p.dataset.wvMid = msgObj.id;
+
+        frag.appendChild(p);
+        if(msgObj.isArtificialErrorMessage) {
+            p.style.backgroundColor = 'red';
+        } else {
+            p.style.outline = '1px solid black';
+        }
+        var n = p.appendChild(document.createElement('div'));
+        n.align = 'left';
+        n = n.appendChild(document.createElement('a'));
+        n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
+        n.textContent = msgObj.contact.name;
+        n = p.appendChild(document.createElement('div'));
+        n.align = msgObj.type == "smsIn" ? 'left' : 'right';
+        n.textContent = msgObj.mmsMessage ? '[IMG]'+msgObj.mmsMessage.text : msgObj.messageText;
+    }
+    moreButton && frag.appendChild(moreButton);
+    var tdiv = document.getElementById('threadList');
+    if (paginationToken) {
+        tdiv.replaceChild(frag, tdiv.lastChild);
+    } else {
+        while (tdiv.lastChild) {
+            tdiv.removeChild(tdiv.lastChild);
+        }
+        tdiv.appendChild(frag);
+        localStorage.setItem('wvThdList', tdiv.innerHTML);
+    }
+}
+
 /*getThreadListUI(evt)*/
 function g(evt) {
 evt = evt.target;
-evt.innerText ="\xa0\u25BD\u231B";     /*err*/
+evt.innerText ="\xa0\u25BD\u231B";
 var paginationToken = (evt.dataset||{}).wvPgTok;
-getThreadList(paginationToken,function(e_moreBut,r){
-    if (e_moreBut) { /*error*/
+//even on virgin page load, we still do tiny net req/full net req, not straight
+//to full network req
+//because old HTML code and base page aren't done parsing yet and threadList
+//DIV doesn't exist yet
+
+/*            Full req Flag   pag token num */
+getThreadList(paginationToken,paginationToken,function(e,r){
+    if (e) { /*error*/
         evt.innerText ="\xa0\u25BD\u2718";//X mark
     }
     else {
-        var frag = document.createDocumentFragment();
-        if (r.paginationToken) {
-            e_moreBut = document.createElement('button');
-            e_moreBut.innerText = "\xa0Load More\xa0";
-            //survive serialization of HTML
-            e_moreBut.dataset.wvPgTok = r.paginationToken;
-            e_moreBut.setAttribute('onclick', "g(event)");
-        }
-        r = r.thread;
-        for(var i=0;i<r.length; i++){
-            //p=paragraph
-            var p = document.createElement('div');
-            var msgObj = r[i].item[0];
-            if (!i)p.dataset.wvMid = msgObj.id;
-
-            frag.appendChild(p);
-            if(msgObj.isArtificialErrorMessage) {
-                p.style.backgroundColor = 'red';
-            } else {
-                p.style.outline = '1px solid black';
-            }
-            var n = p.appendChild(document.createElement('div'));
-            n.align = 'left';
-            n = n.appendChild(document.createElement('a'));
-            n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
-            n.textContent = msgObj.contact.name;
-            n = p.appendChild(document.createElement('div'));
-            n.align = msgObj.type == "smsIn" ? 'left' : 'right';
-            n.textContent = msgObj.mmsMessage ? '[IMG]'+msgObj.mmsMessage.text : msgObj.messageText;
-        }
-        e_moreBut && frag.appendChild(e_moreBut);
-        var tdiv = document.getElementById('threadList');
-        if (paginationToken) {
-            tdiv.replaceChild(frag, tdiv.lastChild);
+        if(paginationToken) {
+            drawThdList(paginationToken,r);
         } else {
-            while (tdiv.lastChild) {
-                tdiv.removeChild(tdiv.lastChild);
+            var tdiv = document.getElementById('threadList');
+            //lastest server MID doesn't match local MID aka new msg
+            var newmid = r.substr(25,40);
+            var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
+            if ( newmid != oldmid) {
+                getThreadList(1,0,function(e,r){
+                    if (e) { /*error*/
+                        evt.innerText ="\xa0\u25BD\u2718";//X mark
+                    }
+                    else {
+                        drawThdList(0,r);
+                        evt.innerText ="\xa0\u25BD\u2714";//Good mark
+                    }
+                });
+            //no update needed
+            } else {
+                evt.innerText ="\xa0\u25BD\u2714";//Good mark
             }
-            tdiv.appendChild(frag);
-            localStorage.setItem('wvThdList', tdiv.innerHTML);
         }
-        evt.innerText ="\xa0\u25BD\u2714";//Good mark
     }
 });
 }
