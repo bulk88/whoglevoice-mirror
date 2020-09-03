@@ -17,7 +17,7 @@ x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThreadList_t(false, tok, light, paginationToken, finish)});
+        getAuthToken(function(tok) {getThreadList_t(false, tok, fullreq, paginationToken, finish)});
     }
     else if(x.status != 200) {
         x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
@@ -112,9 +112,8 @@ getThreadList(paginationToken,paginationToken,function(e,r){
         } else {
             var tdiv = document.getElementById('threadList');
             //lastest server MID doesn't match local MID aka new msg
-            var newmid = r.substr(25,40);
             var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
-            if ( newmid != oldmid) {
+            if(r.substr(25,40) != oldmid) {
                 getThreadList(1,0,function(e,r){
                     if (e) { /*error*/
                         evt.innerText ="\xa0\u25BD\u2718";//X mark
