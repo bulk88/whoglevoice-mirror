@@ -141,9 +141,10 @@ function getAuthToken (callbackFunc) {
     if (GVAuthObj) {
         callbackFunc(GVAuthObj.access_token);
     } else { //get token from user page
+        var wvDocumentElement = document.documentElement;
         var oldBodyNode = document.body;
-        oldBodyNode && document.documentElement.removeChild(oldBodyNode);
-        var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+        oldBodyNode && wvDocumentElement.removeChild(oldBodyNode);
+        var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
         buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
         buttonNode.onclick = function (evt){
@@ -204,8 +205,8 @@ function getAuthToken (callbackFunc) {
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
          buttonNode.innerText = "Cancel/Return";
          buttonNode.onclick = function (){
-            oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
-            :document.documentElement.removeChild(newBodyNode);
+            oldBodyNode?wvDocumentElement.replaceChild(oldBodyNode, newBodyNode)
+            :wvDocumentElement.removeChild(newBodyNode);
             window.onmessage = null;
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
@@ -502,36 +503,33 @@ x.send('[null,1]');
 }
 
 function getSourceNumUI(phone_arr, primaryDid, finish) {
+    var wvDocumentElement = document.documentElement;
     if (phone_arr.length > 1) {
-    var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
-    var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+    var oldBodyNode = wvDocumentElement.removeChild(wvDocumentElement.getElementsByTagName('body')[0]);
+    var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
     newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
     newBodyNode.appendChild(document.createElement('br'));
     var i;
     for (i = 0; i < phone_arr.length; i++) {
-        var aNode = newBodyNode.appendChild(document.createElement('a'));
-        aNode.setAttribute('href', '#');
-        var num = phone_arr[i].phoneNumber.e164;
-        var match = /^\+1(.+)$/.exec(num);
-        aNode.innerText = match[1];
-        aNode.onclick = function (e){
+        var node = newBodyNode.appendChild(document.createElement('a'));
+        node.setAttribute('href', '#');
+        node.innerText = /^\+1(.+)$/.exec(phone_arr[i].phoneNumber.e164)[1];
+        node.onclick = function (e){
             e.preventDefault();
-            document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+            wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
             finish(false, e.target.innerText, primaryDid);
         };
         newBodyNode.appendChild(document.createElement('br'));
     }
-     var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-     buttonNode.innerText = "Cancel/Return";
-     buttonNode.onclick = function (){
-        document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+     node = newBodyNode.appendChild(document.createElement('button'));
+     node.innerText = "Cancel/Return";
+     node.onclick = function (){
+        wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
         finish("USER_CLICKED_CANCEL");
     };
     }
     else if (phone_arr.length == 1) {
-        var num = phone_arr[0].phoneNumber.e164;
-        var match = /^\+1(.+)$/.exec(num);
-        finish(false, match[1], primaryDid);
+        finish(false, /^\+1(.+)$/.exec(phone_arr[0].phoneNumber.e164)[1], primaryDid);
     }
     else {
         alert("This account has no linked phone numbers for outgoing calls");
