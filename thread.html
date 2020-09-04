@@ -233,6 +233,12 @@ function hashChangeHandler () {
 }
 (onhashchange = hashChangeHandler)();
 drawLoginBar();
+window.ononline = function () {
+    if(pollMaxLoop >= 14 ) {
+        pollMaxLoop = 13;
+    }
+    nextPollLoop(1); //instant
+};
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here" style="width:100%"></textarea>
 <br/>

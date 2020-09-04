@@ -162,5 +162,6 @@ document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdLis
 })();
 /*if not logged in, the conditional paste button can't render/JS throw error missing node */
 d || g({target:{innerText: 0}});
+window.ononline = function () {g({target:{innerText: 0}})};
 </script>
 </body></html>
