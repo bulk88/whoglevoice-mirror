@@ -1,8 +1,8 @@
 /* triggerElement, UI element that user interacted with to trigger the
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
-function wvCopyToClipboard(text, triggerElem) {
-var success,r;
+function wvCopyToClipboard(text, triggerElem, restoreOnBlurCB) {
+var r;
 var input = document.createElement("input");
 input.value = text;
 document.body.appendChild(input);
@@ -13,19 +13,31 @@ try {
     if(!r){
         throw('document.execCommand("copy") returned false');
     }
-    success = 1;
+    r = 1;
 } catch(e) {
-    alert("Copy Failed: "+e);
     r = document.createElement("textarea");
     r.value = text;
+    if (restoreOnBlurCB) {
+        r.onblur = function(e) {
+            var lbl = e.target.parentNode;
+            lbl.parentNode.replaceChild(triggerElem, lbl);
+            restoreOnBlurCB();
+        };
+    } else {
+        //alert triggers an ASYNC non-blocking blur event on the Textarea node
+        //when alert dialog drops, so dont show the alert box if monitoring blur
+        alert("Copy Failed: "+e);
+    }
     r = document.createElement("label").appendChild(r).parentNode;
     r.insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),r.firstChild);
-    triggerElem.parentNode.insertBefore(r, triggerElem.nextSibling);
-    triggerElem.parentNode.removeChild(triggerElem);
-    r.lastChild.select();
+    triggerElem.parentNode.replaceChild(r, triggerElem);
+    r = r.lastChild;
+    r.select();
+    r.setSelectionRange(0, 99999); /*For mobile devices*/
+    r= 0;
 }
 document.body.removeChild(input);
-return success;
+return r;
 }
 
 function wvWipeAuthToken (logout) {
@@ -584,13 +596,14 @@ function mkCall(elem, destNum, dir, finish){
     });
 }
 
+function openDialer() {location = 'tel:'}
+
 function mkOfflineCall(elem, acntNum, destNum, finish) {
-    var t = acntNum+',,2'+destNum+'#';
-    wvCopyToClipboard(t, elem);
-    window.location = 'tel:';
+    if(wvCopyToClipboard(acntNum+',,2'+destNum+'#', elem,openDialer)){
+        openDialer();
+    }
     finish(false);
 }
-
 
 function resp401Unauth(jstr) {
     try {

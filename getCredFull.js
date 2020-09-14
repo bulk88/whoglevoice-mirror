@@ -223,6 +223,9 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
             var buttonNode = scriptElem.appendChild(document.createElement('button'));
             buttonNode.innerText = "Login Again";
             buttonNode.onclick = wvHaveGAPIAuth2Lib;
+            buttonNode = scriptElem.appendChild(document.createElement('button'));
+            buttonNode.innerText = "Switch Accounts";
+            buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
         }
     } else {
         sarr = sarr[0];
