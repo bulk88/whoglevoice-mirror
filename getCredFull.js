@@ -264,6 +264,29 @@ window.gapi.auth2.authorize({
                  || b64authstr == "http://cp.wvoice.workers.dev" ) {
                 window.opener.postMessage(authstr,b64authstr);
              }
+             else { /* Auth token release perm to 3rd party/private embedders
+                        I never wipe the cache once perm given, leak, oh well */
+                var originAllow = localStorage.getItem('wvOriginPerms');
+                var email = resp.profile.email;
+                try {
+                    originAllow = JSON.parse(originAllow);
+                    originAllow = originAllow || {};
+                    if (originAllow[email] &&
+                        originAllow[email][b64authstr]){
+                        window.opener.postMessage(authstr,b64authstr);
+                    } else {
+                        if(confirm("Do you want to release your Google Voice password to "+b64authstr)) {
+                            originAllow[email] = originAllow[email] || {};
+                            originAllow[email][b64authstr] = 1;
+                            localStorage.setItem('wvOriginPerms', JSON.stringify(originAllow));
+                            window.opener.postMessage(authstr,b64authstr);
+                        }
+                    }
+                }
+                catch (e) {
+                    alert("wvOriginPerms parse error "+e)
+                }
+             }
              }
              else {
                 alert("Warning: login page has no referrer, can't send msg");
