@@ -103,12 +103,11 @@ function getConvoUI(t, pagination_token, finish) {
         }
         document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
         if(r.thread.pagination_token){
-            p = document.createElement('button');
+            p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.innerText = "\xa0Load More\xa0";
-            p.addEventListener('click', function (evt){
+            p.onclick = function (evt){
                 getConvoUI(location.hash.substring(1), r.thread.pagination_token);
-            });
-            frag.insertBefore(p, frag.firstChild);
+            };
         }
         }
         var tdiv = document.getElementById('thread');
@@ -177,7 +176,7 @@ function hashChangeHandler () {
         e = document.createElement('button');
         e.wvnum = t;
         e.innerText = "\xa0Call\xa0";
-        e.addEventListener('click', function (evt){
+        e.onclick = function (evt){
             evt = evt.target;
             evt.innerText = "\xa0Calling\xa0";
             mkCall(evt.wvnum, function(err){
@@ -187,14 +186,14 @@ function hashChangeHandler () {
                     evt.innerText = "\xa0Called \u2718\xa0";
                 }
             });
-        });
+        };
         f.appendChild(e);
         e = document.createElement('button');
         e.innerText = "\xa0Bottom\u2B07\xa0";
-        e.addEventListener('click', function (evt){
+        e.onclick = function (evt){
             var scrollingElement = (document.scrollingElement || document.body);
-            scrollingElement.scrollTop = scrollingElement.scrollHeight;}
-        );
+            scrollingElement.scrollTop = scrollingElement.scrollHeight;
+        };
         f.appendChild(e);
         divBuddyBar.appendChild(f);
     } else {
@@ -203,7 +202,7 @@ function hashChangeHandler () {
     }
 }
 hashChangeHandler();
-window.addEventListener('hashchange', hashChangeHandler, false);
+window.onhashchange = hashChangeHandler;
 drawLoginBar();
 nextPollLoop();
 </script>

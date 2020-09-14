@@ -121,10 +121,21 @@ TokDec.DecodeToken = function(a) {
     
 
 function wvHaveGAPIAuth2Lib() {
+var email = (function(){
+    var vars = location.hash.substring(1).split("&");
+    for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == 'wvCurAcnt'){return pair[1];}
+    }
+    return '';
+})();
 window.gapi.auth2.authorize({
     "apiKey":"AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg",
     "clientId":"301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com",
-    "prompt":"select_account",
+    //if only 1 account logged in somewhere else, grab it no taps, account picket
+    //only comes up if 2 accounts logged in and no hint email
+    //"prompt":"select_account",
+    "login_hint":email,
     "scope":"openid profile email https://www.googleapis.com/auth/googlevoice https://www.googleapis.com/auth/notifications https://www.googleapis.com/auth/peopleapi.readwrite https://www.googleapis.com/auth/sipregistrar-3p",
     response_type: 'id_token permission code'
     },

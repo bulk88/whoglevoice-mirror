@@ -28,7 +28,10 @@ document.body.removeChild(input);
 return success;
 }
 
-function wvWipeAuthToken () {
+function wvWipeAuthToken (logout) {
+    logout ?
+        localStorage.removeItem('wvCurAcnt')
+        :localStorage.setItem('wvCurAcnt',lazySignedInEmail());
     localStorage.removeItem('gvauthobj');
 }
 
@@ -65,7 +68,7 @@ function drawLoginBar()
         email_label = "Signed in: "+email_label;
         buttonNode.innerText = "Logout";
         buttonNode.onclick = function (){
-            wvWipeAuthToken()
+            wvWipeAuthToken(1)
             drawLoginBar()
         };
     } else {
@@ -139,7 +142,9 @@ function getAuthToken (callbackFunc) {
         newBodyNode.appendChild(document.createElement('br'));
         //monitor the click and close the tab if opened from this window?????
         var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
-        GVLinkNode.setAttribute('href', 'https://voice.google.com/about');
+        var email = localStorage.getItem('wvCurAcnt');
+        GVLinkNode.setAttribute('href',
+            'https://voice.google.com/about'+(email?'#wvCurAcnt='+email:''));
         GVLinkNode.setAttribute('target', '_blank');
         newBodyNode.appendChild(document.createElement('br'));
         GVLinkNode.innerText = "Open Google Voice Site";
