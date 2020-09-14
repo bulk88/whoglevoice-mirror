@@ -228,6 +228,9 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
             buttonNode = scriptElem.appendChild(document.createElement('button'));
             buttonNode.innerText = "Switch Accounts";
             buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
+            if('onfreeze' in document) {
+                document.onfreeze = wvHaveGAPIAuth2Lib
+            }
         }
     } else {
         sarr = sarr[0];
