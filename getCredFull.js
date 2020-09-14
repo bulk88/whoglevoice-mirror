@@ -170,6 +170,8 @@ window.gapi.auth2.authorize({
              b64authstr = new URL(document.referrer).origin;
              if (b64authstr == "https://wvoice.us.to"
                  || b64authstr == "http://wvoice.us.to"
+                 || b64authstr == "http://www.voice.tel"
+                 || b64authstr == "https://www.voice.tel"
                  || b64authstr == "https://localhost"
                  || b64authstr == "http://localhost"){
                 window.opener.postMessage(authstr,b64authstr);
