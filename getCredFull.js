@@ -234,7 +234,11 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
     //api.js does document.querySelector("script[nonce]") internally
     //nonce prop on purpose not reflected in DOM, only JS shadow
     //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
-    scriptElem.setAttribute('nonce',sarr.nonce || sarr.getAttribute('nonce') || alert("cant get nonce"));
+    //Google servers DO NOT return a nonce below 55
+    //https://csp.withgoogle.com/docs/adopting-csp.html
+    if(/Chrome\/(\d+)/.exec(navigator.userAgent)[1] >= 55){
+        scriptElem.setAttribute('nonce',sarr.nonce || sarr.getAttribute('nonce') || alert("cant get nonce"));
+    }
 
     //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
     scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
