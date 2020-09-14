@@ -1,6 +1,74 @@
 //A bookmarklet to run on voice.google.com
 //this can be minifield but is loaded by a stub for sanity
 
+(function() {
+if (!('gapi' in window && 'auth2' in window.gapi)) {
+    if (location.hostname != "voice.google.com") {
+        alert("No Google Auth Library in this page, are you inside voice.google.com?");
+    }
+
+    var scriptElem;
+    //CSP for api.js to be loaded
+    var sarr = document.getElementsByTagName('script');
+    if (!sarr.length) {
+        sarr = document.getElementsByTagName('style');
+        if (!sarr.length) {
+            alert("cant get nonce");
+        } else {
+            sarr = sarr[0];
+            /* convert this dummy page into a perm login tool */
+            sarr.parentNode.removeChild(sarr);
+            scriptElem = document.body;
+            while (scriptElem.lastChild) {
+                scriptElem.removeChild(scriptElem.lastChild);
+            }
+            scriptElem.innerText = "Whogle Voice Login Tool\n";
+            document.title = "Whogle Voice Login Tool";
+            var buttonNode = scriptElem.appendChild(document.createElement('button'));
+            buttonNode.innerText = "Login Again";
+            buttonNode.onclick = wvHaveGAPIAuth2Lib;
+            buttonNode = scriptElem.appendChild(document.createElement('button'));
+            buttonNode.innerText = "Switch Accounts";
+            buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
+            if('onfreeze' in document) {
+                document.onfreeze = wvHaveGAPIAuth2Lib
+            }
+            //document.onvisibilitychange = function() {
+            //console.log('vc');
+            //    if (document.visibilityState === 'visible') {
+            //        wvHaveGAPIAuth2Lib();
+            //    }
+            //};
+        }
+    } else {
+        sarr = sarr[0];
+    }
+    // https://voice.google.com/about (not signed into GV home page)
+    // doesn't have auth lib loaded, so loaded it
+    scriptElem = document.createElement("script");
+    scriptElem.src = "https://apis.google.com/js/api.js";
+    //api.js does document.querySelector("script[nonce]") internally
+    //nonce prop on purpose not reflected in DOM, only JS shadow
+    //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
+    sarr = sarr.nonce || sarr.getAttribute('nonce');
+    scriptElem.setAttribute('nonce',sarr);
+    buttonNode = /Chrome\/(\d+)/.exec(navigator.userAgent);
+    //Google servers DO NOT return a nonce below 55
+    //https://csp.withgoogle.com/docs/adopting-csp.html
+    if(!sarr && buttonNode && buttonNode[1] >= 55) {
+        alert("cant get nonce");
+    }
+
+    //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
+    scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
+    scriptElem.onreadystatechange = function(){if (this.readyState === 'complete') this.onload()};
+    document.head.appendChild(scriptElem);
+} else {
+    setTimeout(wvHaveGAPIAuth2Lib, 1);
+}
+})();
+
+
 /* triggerElement, UI element that user interacted with to trigger the
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
@@ -214,69 +282,3 @@ function wvHandleClientLoad() {
   gapi.load('auth2', wvHaveGAPIAuth2Lib);
 }
 
-(function() {
-if (!('gapi' in window && 'auth2' in window.gapi)) {
-    if (location.hostname != "voice.google.com") {
-        alert("No Google Auth Library in this page, are you inside voice.google.com?");
-    }
-
-    var scriptElem;
-    //CSP for api.js to be loaded
-    var sarr = document.getElementsByTagName('script');
-    if (!sarr.length) {
-        sarr = document.getElementsByTagName('style');
-        if (!sarr.length) {
-            alert("cant get nonce");
-        } else {
-            sarr = sarr[0];
-            /* convert this dummy page into a perm login tool */
-            sarr.parentNode.removeChild(sarr);
-            scriptElem = document.body;
-            while (scriptElem.lastChild) {
-                scriptElem.removeChild(scriptElem.lastChild);
-            }
-            scriptElem.innerText = "Whogle Voice Login Tool\n";
-            document.title = "Whogle Voice Login Tool";
-            var buttonNode = scriptElem.appendChild(document.createElement('button'));
-            buttonNode.innerText = "Login Again";
-            buttonNode.onclick = wvHaveGAPIAuth2Lib;
-            buttonNode = scriptElem.appendChild(document.createElement('button'));
-            buttonNode.innerText = "Switch Accounts";
-            buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
-            if('onfreeze' in document) {
-                document.onfreeze = wvHaveGAPIAuth2Lib
-            }
-            //document.onvisibilitychange = function() {
-            //console.log('vc');
-            //    if (document.visibilityState === 'visible') {
-            //        wvHaveGAPIAuth2Lib();
-            //    }
-            //};
-        }
-    } else {
-        sarr = sarr[0];
-    }
-    // https://voice.google.com/about (not signed into GV home page)
-    // doesn't have auth lib loaded, so loaded it
-    scriptElem = document.createElement("script");
-    scriptElem.src = "https://apis.google.com/js/api.js";
-    //api.js does document.querySelector("script[nonce]") internally
-    //nonce prop on purpose not reflected in DOM, only JS shadow
-    //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
-    sarr = sarr.nonce || sarr.getAttribute('nonce');
-    scriptElem.setAttribute('nonce',sarr);
-    buttonNode = /Chrome\/(\d+)/.exec(navigator.userAgent);
-    //Google servers DO NOT return a nonce below 55
-    //https://csp.withgoogle.com/docs/adopting-csp.html
-    if(!sarr && buttonNode && buttonNode[1] >= 55) {
-        alert("cant get nonce");
-    }
-
-    //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
-    scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
-    scriptElem.onreadystatechange = function(){if (this.readyState === 'complete') this.onload()};
-    document.head.appendChild(scriptElem);
-} else {
-    wvHaveGAPIAuth2Lib();
-}
-})();
