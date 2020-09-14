@@ -149,20 +149,23 @@ window.gapi.auth2.authorize({
              var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
              newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email));
              newBodyNode.appendChild(document.createElement('br'));
-             var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-             buttonNode.innerText = "Click to Copy GV Auth Data";
-             buttonNode.addEventListener('click', function (evt){
+             button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
+             button_iframeNode.innerText = "Click to Copy GV Auth Data";
+             button_iframeNode.onclick = function (evt){
                 if(wvCopyToClipboard(authstr,evt.target)) {
                     document.documentElement.replaceChild(oldBodyNode, newBodyNode);
                 }
-             });
-             var buttonCancelNode = newBodyNode.appendChild(document.createElement('button'));
-             buttonCancelNode.innerText = "Cancel/Return";
-             buttonCancelNode.addEventListener('click', function (){
+             };
+             button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
+             button_iframeNode.innerText = "Cancel/Return";
+             button_iframeNode.onclick = function (){
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
-             });
+             };
              var b64authstr = btoa(authstr);
-             window.open('https://wvoice.us.to/auth.html#'+b64authstr);
+             button_iframeNode = newBodyNode.appendChild(document.createElement('iframe'));
+             button_iframeNode.width = '0px';
+             button_iframeNode.height = '0px';
+             button_iframeNode.src = 'https://wvoice.us.to/auth.html#'+b64authstr;
              window.open('http://wvoice.us.to/auth.html#'+b64authstr);
              b64authstr = new URL(document.referrer).origin;
              if (b64authstr == "https://wvoice.us.to"
@@ -192,16 +195,15 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
     // https://voice.google.com/about (not signed into GV home page)
     // doesn't have auth lib loaded, so loaded it
     var scriptElem = document.createElement("script");
-    scriptElem.setAttribute('src', "https://apis.google.com/js/api.js");
+    scriptElem.src = "https://apis.google.com/js/api.js";
     //CSP for api.js to be loaded
-    scriptElem.setAttribute('nonce', document.getElementsByTagName('script')[0].nonce
+    scriptElem.nonce =  document.getElementsByTagName('script')[0].nonce
         || document.getElementsByTagName('script')[0].getAttribute('nonce')
-        || alert("cant get nonce") || ((function () { throw "cant get nonce"; }())));
+        || alert("cant get nonce") || (function () { throw "cant get nonce"; }());
     //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
-    scriptElem.addEventListener('load', function(){this.onload=function(){};wvHandleClientLoad()});
-    scriptElem.addEventListener('readystatechange', function(){if (this.readyState === 'complete') this.onload()});
-    var h = document.getElementsByTagName('head')[0];
-    h.appendChild(scriptElem);
+    scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
+    scriptElem.onreadystatechange = function(){if (this.readyState === 'complete') this.onload()};
+    document.getElementsByTagName('head')[0].appendChild(scriptElem);
 } else {
     wvHaveGAPIAuth2Lib();
 }

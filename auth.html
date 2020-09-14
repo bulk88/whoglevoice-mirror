@@ -6,16 +6,13 @@ var r = document.referrer;
 if (r == '' || r.substr(0,24) == 'https://voice.google.com') {
     try  {
         localStorage.setItem('gvauthobj',atob(location.hash.substring(1)));
-        //if (localStorage.getItem('gvauthobj') != atob(location.hash.substring(1))) {
-        //        alert('bad set');
-        //}
     } catch (e) {
         alert(e);
     }
 } else {
         alert('didnt set cred');
 }
-window.close();
+close();
 </script></head>
 <body>
 </body></html>
