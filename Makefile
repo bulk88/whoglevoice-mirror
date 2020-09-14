@@ -36,6 +36,14 @@ docs/cproxy.js : cproxy.js
 	copy /y cproxy.js "$@"
 	terser -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
 
+docs/ac.appcache : docs/index.html docs/thread.html docs/auth.html
+docs/ac.appcache : docs/client.js docs/getCredFull.js
+	perl -e"use File::Slurp; \
+	my $$f = read_file('docs/ac.appcache', { binmode => ':raw' }); \
+	$$f =~  s/# v .+/\"# v \".localtime()/e;\
+	write_file('docs/ac.appcache', {binmode => ':raw'}, $$f);"
+	git add docs/ac.appcache
+
 #dev tool target, set F= on cmd line
 mini:
 	html-minifier.cmd -c minify_config.json -o "$(F)" "$(F)"
@@ -43,3 +51,4 @@ mini:
 all: docs/thread.html docs/index.html docs/auth.html
 all: docs/CNAME docs/getCredFull.js docs/cproxy.js
 all: docs/getCredStub.js docs/client.js docs/favicon.ico
+all: docs/ac.appcache

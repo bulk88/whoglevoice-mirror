@@ -169,7 +169,8 @@ window.gapi.auth2.authorize({
              button_iframeNode.height = '0px';
              button_iframeNode.src = 'https://wvoice.us.to/auth.html#'+b64authstr;
              window.open('http://wvoice.us.to/auth.html#'+b64authstr);
-             b64authstr = new URL(document.referrer).origin;
+             if (b64authstr = document.referrer) {
+             b64authstr = new URL(b64authstr).origin;
              if (b64authstr == "https://wvoice.us.to"
                  || b64authstr == "http://wvoice.us.to"
                  || b64authstr == "http://www.voice.tel"
@@ -177,6 +178,10 @@ window.gapi.auth2.authorize({
                  || b64authstr == "https://localhost"
                  || b64authstr == "http://localhost"){
                 window.opener.postMessage(authstr,b64authstr);
+             }
+             }
+             else {
+                alert("Warning: login page has no referrer, can't send msg");
              }
 
         } else { //failed to auth
