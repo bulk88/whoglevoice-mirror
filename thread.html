@@ -41,31 +41,23 @@ function getConvoUI(evt, paginationToken, finish) {
             if (msgObj.mmsMessage && msgObj.mmsMessage.attachment) {
                 for(n=0;n<msgObj.mmsMessage.attachment.length;n++){
                     m=msgObj.mmsMessage.attachment[n];
-                    if(m.mediaType == "VIDEO") {
+                    if(m.mediaType == "video") {
                         img = p.appendChild(document.createElement('video'));
-                        img.onerror = threadImgAltLoader;
                         img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         img.controls = true;
-                        img.style.maxWidth = "100%";
                         a = p.appendChild(document.createElement('a'));
                         a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
-                        a.target = '_blank';
                         a.textContent = "Download Video";
-                    } else if (m.mediaType == "VCARD") {
+                    } else if (m.mediaType == "vcard") {
                         img = p.appendChild(document.createElement('img'));
-                        img.style.width = "0px";
-                        img.style.height = "0px";
-                        img.onerror = threadImgAltLoader;
                         img.isvcard = 1;
                         img.src = 'https://voice.google.com/u/'+userIndex+'/a/vc/'+m.id;
                         a = p.appendChild(document.createElement('a'));
                         a.href = 'https://voice.google.com/u/'+userIndex+'/a/vc/'+m.id;
-                        a.target = '_blank';
                         a.textContent = "Download Vcard";
                         //a.onclick = altVcardLoader;
                     } else {
                         img = document.createElement('img'); //start img download ASAP
-                        img.onerror = threadImgAltLoader;
 //"u/0" the 0 is sessionIndex, it separates simultanious logins into GV, 0 is most
 //common, second login is 1, this determines what google.com cookie
 //is used for voice.google.com images, if the browser
@@ -73,7 +65,6 @@ function getConvoUI(evt, paginationToken, finish) {
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
                         img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
-                        img.style.maxWidth = "100%";
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
 //0: {size_spec: "ORIGINAL", width: 11, height: 10}
@@ -81,10 +72,12 @@ function getConvoUI(evt, paginationToken, finish) {
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
                         a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
-                        a.target = '_blank';
                         a.appendChild(img);
                         p.appendChild(a);
                     }
+                    img.style.maxWidth = "100%";
+                    img.onerror = threadImgAltLoader;
+                    a.target = '_blank';
                 }
             }
             frag.insertBefore(p, frag.firstChild);

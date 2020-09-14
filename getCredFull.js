@@ -24,9 +24,11 @@ try {
     r.value = text;
     r = document.createElement("label").appendChild(r).parentNode;
     r.insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),r.firstChild);
-    triggerElem.parentNode.insertBefore(r, triggerElem.nextSibling);
-    triggerElem.parentNode.removeChild(triggerElem);
+    success = triggerElem.parentNode;
+    success.insertBefore(r, triggerElem.nextSibling);
+    success.removeChild(triggerElem);
     r.lastChild.select();
+    success=0;
 }
 document.body.removeChild(input);
 return success;
@@ -195,24 +197,39 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
     if (location.hostname != "voice.google.com") {
         alert("No Google Auth Library in this page, are you inside voice.google.com?");
     }
-    // https://voice.google.com/about (not signed into GV home page)
-    // doesn't have auth lib loaded, so loaded it
-    var scriptElem = document.createElement("script");
-    scriptElem.src = "https://apis.google.com/js/api.js";
+
+    var scriptElem;
     //CSP for api.js to be loaded
-    var nonce;
     var sarr = document.getElementsByTagName('script');
     if (!sarr.length) {
         sarr = document.getElementsByTagName('style');
         if (!sarr.length) {
             alert("cant get nonce");
+        } else {
+            sarr = sarr[0];
+            /* convert this dummy page into a perm login tool */
+            sarr.parentNode.removeChild(sarr);
+            scriptElem = document.body;
+            while (scriptElem.lastChild) {
+                scriptElem.removeChild(scriptElem.lastChild);
+            }
+            scriptElem.innerText = "Whogle Voice Login Tool\n";
+            document.title = "Whogle Voice Login Tool";
+            var buttonNode = scriptElem.appendChild(document.createElement('button'));
+            buttonNode.innerText = "Login Again";
+            buttonNode.onclick = wvHaveGAPIAuth2Lib;
         }
+    } else {
+        sarr = sarr[0];
     }
-    nonce = sarr[0].nonce || sarr[0].getAttribute('nonce') || alert("cant get nonce");
+    // https://voice.google.com/about (not signed into GV home page)
+    // doesn't have auth lib loaded, so loaded it
+    scriptElem = document.createElement("script");
+    scriptElem.src = "https://apis.google.com/js/api.js";
     //api.js does document.querySelector("script[nonce]") internally
     //nonce prop on purpose not reflected in DOM, only JS shadow
     //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
-    scriptElem.setAttribute('nonce',nonce);
+    scriptElem.setAttribute('nonce',sarr.nonce || sarr.getAttribute('nonce') || alert("cant get nonce"));
 
     //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
     scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
