@@ -141,8 +141,11 @@ function getAuthToken (callbackFunc) {
         //monitor the click and close the tab if opened from this window?????
         var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
         var email = localStorage.getItem('wvCurAcnt');
+        //previous dummy link was 'https://voice.google.com/about' which was
+        //sort of light weight, but this random GUID link to an invalid pic is
+        //an even lighter weight page even though its always 401 or 404
         GVLinkNode.setAttribute('href',
-            'https://voice.google.com/about'+(email?'#wvCurAcnt='+email:''));
+            'https://voice.google.com/a/i/4e01281e272a1ccb11ceff9704b131e5-1'+(email?'#wvCurAcnt='+email:''));
         GVLinkNode.setAttribute('target', '_blank');
         newBodyNode.appendChild(document.createElement('br'));
         GVLinkNode.innerText = "Open Google Voice Site";

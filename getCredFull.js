@@ -190,6 +190,7 @@ function wvHandleClientLoad() {
   gapi.load('auth2', wvHaveGAPIAuth2Lib);
 }
 
+(function() {
 if (!('gapi' in window && 'auth2' in window.gapi)) {
     if (location.hostname != "voice.google.com") {
         alert("No Google Auth Library in this page, are you inside voice.google.com?");
@@ -199,13 +200,25 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
     var scriptElem = document.createElement("script");
     scriptElem.src = "https://apis.google.com/js/api.js";
     //CSP for api.js to be loaded
-    scriptElem.nonce =  document.getElementsByTagName('script')[0].nonce
-        || document.getElementsByTagName('script')[0].getAttribute('nonce')
-        || alert("cant get nonce") || (function () { throw "cant get nonce"; }());
+    var nonce;
+    var sarr = document.getElementsByTagName('script');
+    if (!sarr.length) {
+        sarr = document.getElementsByTagName('style');
+        if (!sarr.length) {
+            alert("cant get nonce");
+        }
+    }
+    nonce = sarr[0].nonce || sarr[0].getAttribute('nonce') || alert("cant get nonce");
+    //api.js does document.querySelector("script[nonce]") internally
+    //nonce prop on purpose not reflected in DOM, only JS shadow
+    //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
+    scriptElem.setAttribute('nonce',nonce);
+
     //cant use setAttribute('onload', "xxx;") because CSP unsafe-inline
     scriptElem.onload = function(){this.onload=function(){};wvHandleClientLoad()};
     scriptElem.onreadystatechange = function(){if (this.readyState === 'complete') this.onload()};
-    document.getElementsByTagName('head')[0].appendChild(scriptElem);
+    document.head.appendChild(scriptElem);
 } else {
     wvHaveGAPIAuth2Lib();
 }
+})();
