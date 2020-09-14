@@ -180,7 +180,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
-        getConvoUI({target:{innerText: 0}});//get this req ASAP on wire before paints
+        getConvoUI({target:{innerText: 0}},0,function(){nextPollLoop(6000)});//get this req ASAP on wire before paints
         var f = document.createDocumentFragment();
         f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
         var e = document.createElement('a');
@@ -215,8 +215,6 @@ function hashChangeHandler () {
 }
 (onhashchange = hashChangeHandler)();
 drawLoginBar();
-nextPollLoop(5000); /*loading page virgin got a refresh automatic
- dont hit the GAPI rate throttler */
 </script>
 <textarea id="msg" placeholder="Type outgoing msg here" style="width:100%"></textarea>
 <br/>
