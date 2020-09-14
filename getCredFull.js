@@ -149,7 +149,7 @@ window.gapi.auth2.authorize({
             //copy can only be fired from a onclick event, so temp wipe GV interface, and put up a button
              var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
              var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
-             newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email+' Exp In: '+(resp.expires_in/60)|0+':'+(resp.expires_in%60)+' Min'));
+             newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email+' Exp In: '+((resp.expires_in/60)|0)+':'+(resp.expires_in%60)+' Min'));
              newBodyNode.appendChild(document.createElement('br'));
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
              button_iframeNode.innerText = "Click to Copy GV Auth Data";
@@ -239,7 +239,8 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
     //see https://html.spec.whatwg.org/multipage/urls-and-fetching.html#nonce-attributes
     //Google servers DO NOT return a nonce below 55
     //https://csp.withgoogle.com/docs/adopting-csp.html
-    if(/Chrome\/(\d+)/.exec(navigator.userAgent)[1] >= 55){
+    buttonNode = /Chrome\/(\d+)/.exec(navigator.userAgent);
+    if(buttonNode && buttonNode[1] >= 55){
         scriptElem.setAttribute('nonce',sarr.nonce || sarr.getAttribute('nonce') || alert("cant get nonce"));
     }
 
