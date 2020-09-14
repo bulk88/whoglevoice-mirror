@@ -146,9 +146,15 @@ window.gapi.auth2.authorize({
             resp.profile = TokDec.DecodeToken(resp);
             delete resp.id_token; //useless and very long
             var authstr = JSON.stringify(resp);
+             var b64authstr = btoa(authstr);
+             window.open('http://wvoice.us.to/auth.html#'+b64authstr);
             //copy can only be fired from a onclick event, so temp wipe GV interface, and put up a button
              var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
              var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
+             var button_iframeNode = newBodyNode.appendChild(document.createElement('iframe'));
+             button_iframeNode.width = '0px';
+             button_iframeNode.height = '0px';
+             button_iframeNode.src = 'https://wvoice.us.to/auth.html#'+b64authstr;
              newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email+' Exp In: '+((resp.expires_in/60)|0)+':'+(resp.expires_in%60)+' Min'));
              newBodyNode.appendChild(document.createElement('br'));
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
@@ -163,12 +169,6 @@ window.gapi.auth2.authorize({
              button_iframeNode.onclick = function (){
                 document.documentElement.replaceChild(oldBodyNode, newBodyNode);
              };
-             var b64authstr = btoa(authstr);
-             button_iframeNode = newBodyNode.appendChild(document.createElement('iframe'));
-             button_iframeNode.width = '0px';
-             button_iframeNode.height = '0px';
-             button_iframeNode.src = 'https://wvoice.us.to/auth.html#'+b64authstr;
-             window.open('http://wvoice.us.to/auth.html#'+b64authstr);
              if (b64authstr = document.referrer) {
              b64authstr = new URL(b64authstr).origin;
              if (b64authstr == "https://wvoice.us.to"

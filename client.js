@@ -539,7 +539,8 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
     }
 }
 //finish(err, sourceNum, acntNum)
-function getSourceNum(finish){
+//pickerUI(phone_arr, primaryDid, finish)
+function getSourceNum(pickerUI, finish){
     var phone_arr;
     var primaryDid;
     try {
@@ -551,7 +552,7 @@ function getSourceNum(finish){
     }
     if(phone_arr) { /* warning cache doesn't deal with settings changes, changed
     once an hour by token relogin*/
-        getSourceNumUI(phone_arr, primaryDid, finish);
+        pickerUI(phone_arr, primaryDid, finish);
     }
     else {
         getActInfo(function(err,resp){
@@ -564,7 +565,7 @@ function getSourceNum(finish){
             err.linkedPhone = phone_arr;
             err.primaryDid = primaryDid;
             localStorage.setItem('gvauthobj', JSON.stringify(err));
-            getSourceNumUI(phone_arr, primaryDid, finish);
+            pickerUI(phone_arr, primaryDid, finish);
         }
         });
     }
@@ -575,7 +576,13 @@ function getSourceNum(finish){
 //Account has multiple source numbers
 //dir=direction, 0 incoming, 1 outwards online, 2 outwards offline (no data)
 function mkCall(elem, destNum, dir, finish){
-    getSourceNum(function(err, sourceNum, acntNum) {
+    getSourceNum(
+        dir == 2 ?
+            function(phone_arr, primaryDid, finish) {
+                finish(false, false, primaryDid)
+            }
+            : getSourceNumUI,
+    function(err, sourceNum, acntNum) {
     err ?
     finish(err)
         : dir == 2 ?
