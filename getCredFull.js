@@ -176,7 +176,9 @@ window.gapi.auth2.authorize({
                  || b64authstr == "http://www.voice.tel"
                  || b64authstr == "https://www.voice.tel"
                  || b64authstr == "https://localhost"
-                 || b64authstr == "http://localhost"){
+                 || b64authstr == "http://localhost"
+                 || b64authstr == "https://cp.wvoice.workers.dev"
+                 || b64authstr == "http://cp.wvoice.workers.dev" ) {
                 window.opener.postMessage(authstr,b64authstr);
              }
              }

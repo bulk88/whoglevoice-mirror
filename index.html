@@ -51,7 +51,7 @@ function g(evt,paginationToken) {
 evt = evt.target;
 evt.innerText ="\xa0\u25BD\u231B";     /*err*/
 getThreadList(paginationToken,function(e_moreBut,r){
-    if (e_moreBut) {
+    if (e_moreBut) { /*error*/
         evt.innerText ="\xa0\u25BD\u2718";//X mark
     }
     else {

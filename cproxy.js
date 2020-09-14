@@ -70,7 +70,18 @@ function handleOptions(request) {
     })
   }
 }
-addEventListener('fetch', event => {
+
+// drop back to wvoice static files, but increase cache from GH 10 mins default
+async function HandleStatic(url, request) {
+      url.hostname = 'wvoice.us.to'
+      let response = await fetch(url.toString(), request)
+// Recreate the response so we can modify the headers
+      response = new Response(response.body, response)
+      response.headers.set("Cache-Control", "public, max-age=3600")
+      return response
+}
+
+addEventListener('fetch', async event => {
   const request = event.request
   const url = new URL(request.url)
   // TODO We should filter that destination URL is a google domain
@@ -95,8 +106,7 @@ addEventListener('fetch', event => {
       })
     }
   } else {
-    // Serve demo page
-    event.respondWith(rawHtmlResponse(demoPage))
+    event.respondWith(HandleStatic(url,request));
   }
 })
 // We support the GET, POST, HEAD, and OPTIONS methods from any origin,
@@ -110,66 +120,5 @@ const corsHeaders = {
   'Access-Control-Max-Age': 3600,
   'Vary': 'Origin',
 }
-// The URL for the remote third party API you want to fetch from
-// but does not implement CORS
-const apiurl = 'https://workers-tooling.cf/demos/demoapi'
 // The endpoint you want the CORS reverse proxy to be on
 const proxyEndpoint = '/corsproxy/'
-// The rest of this snippet for the demo page
-async function rawHtmlResponse(html) {
-  return new Response(html, {
-    headers: {
-      'content-type': 'text/html;charset=UTF-8',
-    },
-  })
-}
-const demoPage = `
-<!DOCTYPE html>
-<html>
-<body>
-  <h1>API GET without CORS Proxy</h1>
-  <a target='_blank' href='https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful'>Shows TypeError: Failed to fetch since CORS is misconfigured</a>
-  <p id='noproxy-status'/>
-  <code id='noproxy'>Waiting</code>
-  <h1>API GET with CORS Proxy</h1>
-  <p id='proxy-status'/>
-  <code id='proxy'>Waiting</code>
-  <h1>API POST with CORS Proxy + Preflight</h1>
-  <p id='proxypreflight-status'/>
-  <code id='proxypreflight'>Waiting</code>
-  <script>
-  let reqs = {};
-  reqs.noproxy = async () => {
-    let response = await fetch('${apiurl}')
-    return await response.json()
-  }
-  reqs.proxy = async () => {
-    let response = await fetch(window.location.origin + '${proxyEndpoint}?apiurl=${apiurl}')
-    return await response.json()
-  }
-  reqs.proxypreflight = async () => {
-    const reqBody = {
-      msg: "Hello world!"
-    }
-    let response = await fetch(window.location.origin + '${proxyEndpoint}?apiurl=${apiurl}', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(reqBody),
-    })
-    return await response.json()
-  }
-  (async () => {
-    for (const [reqName, req] of Object.entries(reqs)) {
-      try {
-        let data = await req()
-        document.getElementById(reqName).innerHTML = JSON.stringify(data)
-      } catch (e) {
-        document.getElementById(reqName).innerHTML = e
-      }
-    }
-  })()
-  </script>
-</body>
-</html>`
