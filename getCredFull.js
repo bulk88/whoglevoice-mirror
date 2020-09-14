@@ -145,13 +145,22 @@ window.gapi.auth2.authorize({
         if ('access_token' in resp) { //success
             resp.profile = TokDec.DecodeToken(resp);
             delete resp.id_token; //useless and very long
+            location.hash = '#wvCurAcnt='+resp.profile.email;
             var authstr = JSON.stringify(resp);
              var b64authstr = btoa(authstr);
+             var oldBodyNodes = document.createDocumentFragment();
+             var newBodyNode = document.body;
+
              window.open('http://wvoice.us.to/auth.html#'+b64authstr);
             //copy can only be fired from a onclick event, so temp wipe GV interface, and put up a button
-             var oldBodyNode = document.documentElement.removeChild(document.documentElement.getElementsByTagName('body')[0]);
-             var newBodyNode = document.documentElement.appendChild(document.createElement('body'));
-             var button_iframeNode = newBodyNode.appendChild(document.createElement('iframe'));
+            var button_iframeNode;
+            //do not deattach and reattach IFRAME https://accounts.google.com/o/oauth2/iframe
+            //through a body swap since that page is no-cache and its 1-3KB reloaded over
+            //network each time, less IO on 2G is better
+            while((button_iframeNode = newBodyNode.firstChild).id != "ssIFrame_google") {
+                oldBodyNodes.appendChild(newBodyNode.removeChild(button_iframeNode));
+             }
+             button_iframeNode = newBodyNode.appendChild(document.createElement('iframe'));
              button_iframeNode.width = '0px';
              button_iframeNode.height = '0px';
              button_iframeNode.src = 'https://wvoice.us.to/auth.html#'+b64authstr;
@@ -159,15 +168,21 @@ window.gapi.auth2.authorize({
              newBodyNode.appendChild(document.createElement('br'));
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
              button_iframeNode.innerText = "Click to Copy GV Auth Data";
-             button_iframeNode.onclick = function (evt){
+                 button_iframeNode.onclick = function (evt){
                 if(wvCopyToClipboard(authstr,evt.target)) {
-                    document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+                    while (newBodyNode.lastChild.id != "ssIFrame_google") {
+                        newBodyNode.removeChild(newBodyNode.lastChild);
+                    }
+                    newBodyNode.insertBefore(oldBodyNodes, newBodyNode.firstChild);
                 }
              };
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
              button_iframeNode.innerText = "Cancel/Return";
              button_iframeNode.onclick = function (){
-                document.documentElement.replaceChild(oldBodyNode, newBodyNode);
+                while (newBodyNode.lastChild.id != "ssIFrame_google") {
+                    newBodyNode.removeChild(newBodyNode.lastChild);
+                }
+                newBodyNode.insertBefore(oldBodyNodes, newBodyNode.firstChild);
              };
              if (b64authstr = document.referrer) {
              b64authstr = new URL(b64authstr).origin;
@@ -231,6 +246,12 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
             if('onfreeze' in document) {
                 document.onfreeze = wvHaveGAPIAuth2Lib
             }
+            //document.onvisibilitychange = function() {
+            //console.log('vc');
+            //    if (document.visibilityState === 'visible') {
+            //        wvHaveGAPIAuth2Lib();
+            //    }
+            //};
         }
     } else {
         sarr = sarr[0];
