@@ -156,11 +156,12 @@ function getAuthToken (callbackFunc) {
         //previous dummy link was 'https://voice.google.com/about' which was
         //sort of light weight, but this random GUID link to an invalid pic is
         //an even lighter weight page even though its always 401 or 404
-        GVLinkNode.setAttribute('href',
-            'https://voice.google.com/a/i/4e01281e272a1ccb11ceff9704b131e5-1'+(email?'#wvCurAcnt='+email:''));
-        GVLinkNode.setAttribute('target', '_blank');
-        newBodyNode.appendChild(document.createElement('br'));
+        GVLinkNode.href = 'https://voice.google.com/a/i/4e01281e272a1ccb11ceff9704b131e5-1'+(email?'#wvCurAcnt='+email:'');
+        GVLinkNode.target = '_blank';
+        /*https://github.com/whatwg/html/issues/4078*/
+        GVLinkNode.rel = 'opener';
         GVLinkNode.innerText = "Open Google Voice Site";
+        newBodyNode.appendChild(document.createElement('br'));
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
@@ -187,7 +188,7 @@ function getAuthToken (callbackFunc) {
             //callbackFunc needs its body DOM back
             oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
             :document.documentElement.removeChild(newBodyNode);
-            window.removeEventListener("message", wvMsgEvtCB, false);
+            window.onmessage = null;
             if (GVAuthObj) {
                 localStorage.setItem('gvauthobj',pasteStr);
                 callbackFunc(GVAuthObj.access_token);
@@ -204,7 +205,7 @@ function getAuthToken (callbackFunc) {
          buttonNode.onclick = function (){
             oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
             :document.documentElement.removeChild(newBodyNode);
-            window.removeEventListener("message", wvMsgEvtCB, false);
+            window.onmessage = null;
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
          };
