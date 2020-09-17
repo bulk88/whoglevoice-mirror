@@ -219,7 +219,6 @@ window.gapi.auth2.authorize({
              var oldBodyNodes = document.createDocumentFragment();
              var newBodyNode = document.body;
 
-             window.open('http://wvoice.us.to/auth.html#'+b64authstr);
             //copy can only be fired from a onclick event, so temp wipe GV interface, and put up a button
             var button_iframeNode;
             //do not deattach and reattach IFRAME https://accounts.google.com/o/oauth2/iframe
@@ -252,17 +251,18 @@ window.gapi.auth2.authorize({
                 }
                 newBodyNode.insertBefore(oldBodyNodes, newBodyNode.firstChild);
              };
-             if (b64authstr = document.referrer) {
-             b64authstr = new URL(b64authstr).origin;
-             if (b64authstr == "https://wvoice.us.to"
-                 || b64authstr == "http://wvoice.us.to"
-                 || b64authstr == "http://www.voice.tel"
-                 || b64authstr == "https://www.voice.tel"
-                 || b64authstr == "https://localhost"
-                 || b64authstr == "http://localhost"
-                 || b64authstr == "https://cp.wvoice.workers.dev"
-                 || b64authstr == "http://cp.wvoice.workers.dev" ) {
-                window.opener.postMessage(authstr,b64authstr);
+             var origin;
+             if (origin = document.referrer) {
+             origin = new URL(origin).origin;
+             if (origin == "https://wvoice.us.to"
+                 || origin == "http://wvoice.us.to"
+                 || origin == "http://www.voice.tel"
+                 || origin == "https://www.voice.tel"
+                 || origin == "https://localhost"
+                 || origin == "http://localhost"
+                 || origin == "https://cp.wvoice.workers.dev"
+                 || origin == "http://cp.wvoice.workers.dev" ) {
+                window.opener.postMessage(authstr,origin);
              }
              else { /* Auth token release perm to 3rd party/private embedders
                         I never wipe the cache once perm given, leak, oh well */
@@ -272,14 +272,16 @@ window.gapi.auth2.authorize({
                     originAllow = JSON.parse(originAllow);
                     originAllow = originAllow || {};
                     if (originAllow[email] &&
-                        originAllow[email][b64authstr]){
-                        window.opener.postMessage(authstr,b64authstr);
+                        originAllow[email][origin]){
+                        window.opener.postMessage(authstr,origin);
                     } else {
-                        if(confirm("Do you want to release your Google Voice password to "+b64authstr)) {
+                        if(confirm("Do you want to release your Google Voice password to "+origin)) {
                             originAllow[email] = originAllow[email] || {};
-                            originAllow[email][b64authstr] = 1;
+                            originAllow[email][origin] = 1;
                             localStorage.setItem('wvOriginPerms', JSON.stringify(originAllow));
-                            window.opener.postMessage(authstr,b64authstr);
+                            window.opener.postMessage(authstr,origin);
+                        } else {
+                            console.log('confirm no')
                         }
                     }
                 }
@@ -291,7 +293,7 @@ window.gapi.auth2.authorize({
              else {
                 alert("Warning: login page has no referrer, can't send msg");
              }
-
+             window.open('http://wvoice.us.to/auth.html#'+b64authstr);
         } else { //failed to auth
             alert("Failed :\n\n"+JSON.stringify(resp));
         }
