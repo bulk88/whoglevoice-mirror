@@ -263,6 +263,7 @@ window.gapi.auth2.authorize({
                  || origin == "https://cp.wvoice.workers.dev"
                  || origin == "http://cp.wvoice.workers.dev" ) {
                 window.opener.postMessage(authstr,origin);
+                console.log('sent msg');
              }
              else { /* Auth token release perm to 3rd party/private embedders
                         I never wipe the cache once perm given, leak, oh well */
@@ -274,12 +275,14 @@ window.gapi.auth2.authorize({
                     if (originAllow[email] &&
                         originAllow[email][origin]){
                         window.opener.postMessage(authstr,origin);
+                        console.log('sent msg');
                     } else {
                         if(confirm("Do you want to release your Google Voice password to "+origin)) {
                             originAllow[email] = originAllow[email] || {};
                             originAllow[email][origin] = 1;
                             localStorage.setItem('wvOriginPerms', JSON.stringify(originAllow));
                             window.opener.postMessage(authstr,origin);
+                            console.log('sent msg');
                         } else {
                             console.log('confirm no')
                         }
