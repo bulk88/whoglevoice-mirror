@@ -12,6 +12,18 @@ async function handleRequest(request) {
   h.set('Origin', apiurl.origin)
   h.set('Referer',apiurl.origin)
   h.set('Host', apiurl.host)
+  //semi-useless, these aren't inside the CFW VM, they are added on
+  //outgoing requests on runtime
+  //https://cp.wvoice.workers.dev/corsproxy/?apiurl=http://httpbin.org/headers
+  //http://cp.wvoice.workers.dev/corsproxy/?apiurl=http://scooterlabs.com/echo?argname=argval
+  h.delete('X-Forwarded-Proto');
+  h.delete('Cdn-Loop');
+  h.delete('Cf-Connecting-Ip');
+  h.delete('Cf-Ew-Via');
+  h.delete('Cf-Request-Id');
+  h.delete('Cf-Visitor');
+  h.delete('Cf-Worker');
+  h.delete('X-Forwarded-For');
   let response = await fetch(request)
   /*for (i of response.headers.entries()) {
   console.log(i);}*/
