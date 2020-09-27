@@ -1,5 +1,5 @@
 <html manifest="ac.appcache"><head><meta name="mobileoptimized" content="0" charset=utf-8></head>
-<link rel="preconnect" href="https://cp.wvoice.workers.dev">
+<link rel="preconnect" href="https://www.googleapis.com">
 <script src="client.js" type="text/javascript"></script>
 <style>button{line-height:1.5}</style>
 <script>
@@ -11,10 +11,9 @@ function getThreadList(fullreq, paginationToken, finish){
 }
 function getThreadList_t(canReAuth, tok, fullreq, paginationToken, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/list?alt="+(fullreq?"json":"protojson")),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/list?alt="+(fullreq?"json":"protojson"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();

@@ -287,10 +287,9 @@ if (num != lastNum || body != lastBody || img != lastImg) {
     msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
 }
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 var imgPBArrStr = '';
 if (img) {
     if (/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(img)) {
@@ -332,10 +331,9 @@ function getThread(num,pagination_token,finish,items){
 }
 function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -361,10 +359,9 @@ function mkContact(name,num,finish){
 return true for CORS if Referer/Origin is voice.google.com */
 function mkContact_t(canReAuth,tok,name,num,finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent('https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json'),1);
+x.open("POST", 'https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
 x.setRequestHeader("Content-Type", "application/json");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -384,10 +381,9 @@ function mkCallWithSrc(sourceNum, destNum, finish){
 }
 function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -407,10 +403,9 @@ function getActInfo(finish){
 }
 function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/account/get?alt=json"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -574,10 +569,9 @@ function attachIDtoB64(id, size, isvid, finish){
 }
 function attachIDtoB64_t(canReAuth, tok, id, size, isvid, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://content.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -650,10 +644,9 @@ function getThdInfo(finish){
 }
 function getThdInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://content.googleapis.com/voice/v1/voiceclient/threadinginfo/get?alt=protojson",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/threadinginfo/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -688,11 +681,9 @@ function chkNewMsg(num, finish){
 }
 function chkNewMsg_t(canReAuth, tok, num, finish){
 var x=new XMLHttpRequest;
-//x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://www.googleapis.com/voice/v1/voiceclient/api2thread/get"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     //404 thread doesnt exist, 0 is timeout/network failure
     //401 no credentials, dont reauth, too annoying popups
@@ -712,10 +703,9 @@ function getProxyNumWithSrc(sourceNum, destNum, finish){
 function getProxyNumWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
 //x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
-x.open("POST","https://cp.wvoice.workers.dev/corsproxy/?apiurl="+encodeURIComponent("https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json"),1);
+x.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
-x.withCredentials=1;
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
