@@ -494,30 +494,38 @@ function getSourceNum(pickerUI, finish){
 //Account has multiple source numbers
 //dir=direction, 0 incoming, 1 outwards online, 2 outwards offline (no data)
 function mkCall(elem, destNum, dir, finish){
-    getSourceNum(
+    dir == 1 ?
+    //source number is ignored by GV server atleast for USA nums, same proxy num
+    //for all linked phones AFAIK, dont ask user to pick a source line, source
+    //num must be a valid area code/NPAA tho, no all 0s or empty string
+    //(400 inval argument or 500)
+    getProxyNumWithSrc('8004377950', destNum,
+        function (err, r) {
+            if (err) {
+                finish(err);
+            }
+            else {
+                location = 'tel:'+/^\+1(.+)$/.exec(r.proxyNumber.proxyNumber.e164)[1];
+                finish(false);
+            }
+        }
+    )
+    : getSourceNum(
+        //arg 1, pass a line picker UI, no-op if want acnt/GV num only
         dir == 2 ?
             function(phone_arr, primaryDid, finish) {
                 finish(false, false, primaryDid)
             }
             : getSourceNumUI,
-    function(err, sourceNum, acntNum) {
-    err ?
-    finish(err)
-        : dir == 2 ?
-        //TODO offline call MUST supress source num dialog, we only need acnt num
-        mkOfflineCall(elem, acntNum, destNum, finish)
-            : dir ?
-            getProxyNumWithSrc(sourceNum, destNum, function (err, r) {
-                if (err) {
-                    finish(err);
-                }
-                else {
-                    location = 'tel:'+/^\+1(.+)$/.exec(r.proxyNumber.proxyNumber.e164)[1];
-                    finish(false);
-                }
-            })
-                : mkCallWithSrc(sourceNum, destNum, finish);
-    });
+        //arg 2, finish
+        function(err, sourceNum, acntNum) {
+            err ?
+            finish(err)
+            : dir ? // == 2 offline, 0 is incoming
+            mkOfflineCall(elem, acntNum, destNum, finish)
+            : mkCallWithSrc(sourceNum, destNum, finish);
+        }
+    );
 }
 
 function openDialer() {location = 'tel:'}
