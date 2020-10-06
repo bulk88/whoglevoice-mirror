@@ -42,6 +42,7 @@ return r;
 
 function wvWipeAuthToken (logout) {
     localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
+    localStorage.setItem('wvLastExpires', lazySignedInExpires());
     localStorage.removeItem('gvauthobj');
     localStorage.removeItem('wvThdList');
 }
@@ -124,6 +125,22 @@ function lazySignedInUserIndex() {
     }
     if(GVAuthObj) return GVAuthObj.session_state.extraQueryParams.authuser;
     else throw "Not logged in.";
+}
+
+function lazySignedInExpires() {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.expires_at;
+    else return 0;
 }
 
 function getAuthToken (callbackFunc) {
@@ -223,6 +240,11 @@ function getAuthToken (callbackFunc) {
                     evt.target.previousSibling.click();
                 });
             };
+         }
+         var oldExp = Number(localStorage.getItem('wvLastExpires'));
+         if (oldExp) {
+            newBodyNode.appendChild(document.createElement('br'));
+            newBodyNode.appendChild(document.createTextNode('Old Tok Exp: '+new Date(oldExp).toLocaleTimeString()));
          }
          window.onmessage = wvMsgEvtCB;
     }
