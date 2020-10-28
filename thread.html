@@ -109,7 +109,10 @@ function getConvoUI(evt, paginationToken, finish) {
             }
             evt.innerText ="\xa0\u25BD\u2714";//Good mark
         }
-        document.getElementById('buddy-bar').firstChild.textContent = r.thread.contact[0].name+'-';
+        document.getElementById('buddy-bar').firstChild.textContent
+            = r.thread.contact.reduce(function(a,cv){
+                return cv.phoneNumber != "Unknown"? cv:a;
+            }).name+'-';
         if(img = r.thread.paginationToken){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.innerText = "\xa0Load More\xa0";
