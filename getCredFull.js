@@ -207,7 +207,7 @@ window.gapi.auth2.authorize({
     "prompt":(email?0:"select_account"),
     "login_hint":email,
     "scope":"openid profile email https://www.googleapis.com/auth/googlevoice https://www.googleapis.com/auth/notifications https://www.googleapis.com/auth/peopleapi.readwrite https://www.googleapis.com/auth/sipregistrar-3p",
-    response_type: 'id_token permission code'
+    response_type: 'id_token permission'
     },
     function(resp){
         if ('access_token' in resp) { //success
