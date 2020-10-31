@@ -94,6 +94,93 @@ function drawLoginBar()
     divLoginBar.appendChild(buttonNode);
 }
 
+TokDec = {};
+TokDec.kh = {};
+TokDec.lh = null;
+TokDec.nh = function() {
+        if (!TokDec.lh) {
+            TokDec.lh = {};
+            for (var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""), b = ["+/=", "+/", "-_=", "-_.", "-_"], c = 0; 5 > c; c++) {
+                var d = a.concat(b[c].split(""));
+                TokDec.kh[c] = d;
+                for (var e = 0; e < d.length; e++) {
+                    var f = d[e];
+                    void 0 === TokDec.lh[f] && (TokDec.lh[f] = e)
+                }
+            }
+        }
+    }
+    ;
+
+TokDec.Re = function(a) {
+        return /^[\s\xa0]*$/.test(a)
+    }
+    
+TokDec.Nv = function(a, b) {
+        function c(l) {
+            for (; d < a.length; ) {
+                var m = a.charAt(d++)
+                  , n = TokDec.lh[m];
+                if (null != n)
+                    return n;
+                if (!TokDec.Re(m))
+                    throw Error("x`" + m);
+            }
+            return l
+        }
+        TokDec.nh();
+        for (var d = 0; ; ) {
+            var e = c(-1)
+              , f = c(0)
+              , g = c(64)
+              , k = c(64);
+            if (64 === k && -1 === e)
+                break;
+            b(e << 2 | f >> 4);
+            64 != g && (b(f << 4 & 240 | g >> 2),
+            64 != k && b(g << 6 & 192 | k))
+        }
+    }
+    ;
+
+TokDec.Mv = function(a) {
+        for (var b = [], c = 0, d = 0; c < a.length; ) {
+            var e = a[c++];
+            if (128 > e)
+                b[d++] = String.fromCharCode(e);
+            else if (191 < e && 224 > e) {
+                var f = a[c++];
+                b[d++] = String.fromCharCode((e & 31) << 6 | f & 63)
+            } else if (239 < e && 365 > e) {
+                f = a[c++];
+                var g = a[c++]
+                  , k = a[c++];
+                e = ((e & 7) << 18 | (f & 63) << 12 | (g & 63) << 6 | k & 63) - 65536;
+                b[d++] = String.fromCharCode(55296 + (e >> 10));
+                b[d++] = String.fromCharCode(56320 + (e & 1023))
+            } else
+                f = a[c++],
+                g = a[c++],
+                b[d++] = String.fromCharCode((e & 15) << 12 | (f & 63) << 6 | g & 63)
+        }
+        return b.join("")
+    }
+TokDec.Ov = function(a) {
+        var b = [];
+        TokDec.Nv(a, function(c) {
+            b.push(c)
+        });
+        return b
+    }
+TokDec.DecodeToken = function(a) {
+        a = a && a.id_token;
+        if (!a || !a.split(".")[1])
+            return null;
+        a = (a.split(".")[1] + "...").replace(/^((....)+).?.?.?$/, "$1");
+        var b = TokDec.Mv(TokDec.Ov(a));
+        return JSON.parse(b);
+    }
+
 function lazySignedInEmail() {
     var GVAuthObj= localStorage.getItem('gvauthobj');
     if (GVAuthObj) {
@@ -184,6 +271,15 @@ function getAuthToken (callbackFunc) {
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
+            if(e.origin == "https://gap.wvoice.workers.dev"){
+                e = JSON.parse(e.data).params.authResult;
+        /*this logic is in client origin GAPI JS framework typ, not over wire */
+                e.first_issued_at = (new Date).getTime();
+                e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
+                e.profile = TokDec.DecodeToken(e);
+                delete e.id_token; //useless and very long
+                gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
+            }
             if(e.origin == "https://voice.google.com") {
                 gotAuthPasteCB({type: 'input', target: {value: e.data}});
             }
@@ -227,6 +323,14 @@ function getAuthToken (callbackFunc) {
             window.onmessage = null;
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
+         };
+         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+         buttonNode.innerText = "Auth Proxy";
+         buttonNode.onclick = function (){
+            var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
+//https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
+            window.open('https://accounts.google.com'+u);
+            window.open('https://gap.wvoice.workers.dev'+u);
          };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
