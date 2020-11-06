@@ -235,6 +235,7 @@ function hashChangeHandler () {
     }
 }
 (onhashchange = hashChangeHandler)();
+var refreshNoUI = hashChangeHandler;
 drawLoginBar();
 window.ononline = function () {
     if(pollMaxLoop >= 14 ) {

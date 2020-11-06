@@ -131,9 +131,14 @@ getThreadList(paginationToken,paginationToken,function(e,r){
     }
 });
 }
+
+function refreshNoUI() {
+	g({target:{innerText: 0}})
+}
+
 if(lazySignedInEmail()){
     d = 1;
-    g({target:{innerText: 0}});
+    refreshNoUI();
 }
 </script>
 <body>
@@ -161,7 +166,7 @@ document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdLis
     drawLoginBar();
 })();
 /*if not logged in, the conditional paste button can't render/JS throw error missing node */
-d || g({target:{innerText: 0}});
-window.ononline = function () {g({target:{innerText: 0}})};
+d || refreshNoUI();
+window.ononline = refreshNoUI;
 </script>
 </body></html>

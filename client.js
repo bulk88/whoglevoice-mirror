@@ -87,7 +87,8 @@ function drawLoginBar()
         email_label = "Logged out";
         buttonNode.innerText = "Login";
         buttonNode.onclick = function (){
-            getAuthToken(function(){});
+            //func from html page or undef
+            getAuthToken(refreshNoUI);
         };
     }
     divLoginBar.appendChild(document.createTextNode(email_label));
@@ -355,12 +356,12 @@ function getAuthToken (callbackFunc) {
 }
 
 var wvMap = Array.prototype.map ? function(a, b, c) {
-	return Array.prototype.map.call(a, b, c);
+    return Array.prototype.map.call(a, b, c);
 }
 : function(a, b, c) {
-	for (var d = a.length, e = Array(d), g = "string" === typeof a ? a.split("") : a, h = 0; h < d; h++)
-		h in g && (e[h] = b.call(c, g[h], h, a));
-	return e
+    for (var d = a.length, e = Array(d), g = "string" === typeof a ? a.split("") : a, h = 0; h < d; h++)
+        h in g && (e[h] = b.call(c, g[h], h, a));
+    return e
 };
 function joinArrayToInt (a) {
             return wvMap(a, function(b) {
