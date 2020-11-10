@@ -30,6 +30,9 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
             buttonNode = scriptElem.appendChild(document.createElement('button'));
             buttonNode.innerText = "Switch Accounts";
             buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
+            buttonNode = scriptElem.appendChild(document.createElement('div'));
+            buttonNode.id = 'picker';
+            wvDrawAccountPicker();
             if('onfreeze' in document) {
                 document.onfreeze = wvHaveGAPIAuth2Lib
             }
@@ -190,15 +193,59 @@ TokDec.DecodeToken = function(a) {
     }
     
 
-function wvHaveGAPIAuth2Lib() {
-var email = (function(){
+function wvDrawAccountPicker() {
+    var myRequest = new XMLHttpRequest();
+    myRequest.responseType = 'document';
+    myRequest.onreadystatechange = function() {
+        if (4 == myRequest.readyState && 200 == myRequest.status) {
+            var d = myRequest.responseXML.getElementsByClassName('gb_hg')[0];
+            if(d){
+                var e = d.getElementsByTagName('a');
+                Array.prototype.forEach.call(e, function(e) {
+                    var u = new URL(e.href);
+                    e.href = '';
+                    e.onclick = function(e) {
+                        e.preventDefault(); //get email addr from div
+                        wvHaveGAPIAuth2Lib(e.currentTarget.lastChild.lastChild.innerText);
+                    };
+                    e.firstChild.src = e.firstChild.dataset.src;
+                });
+            } else {
+                d = document.createElement('div');
+            }
+            d.appendChild(document.createElement('br'));
+            e = d.appendChild(document.createElement('a'));
+            e.href = 'https://accounts.google.com/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
+            e.target = '_blank';
+            e.textContent = 'Add Account';
+            e.onclick = function () {
+                window.onfocus = function () {
+                    wvDrawAccountPicker();
+                    window.onfocus = undefined;
+                };
+            };
+            var p = document.getElementById('picker');
+            while (p.lastChild) {
+                p.removeChild(p.lastChild);
+            }
+            p.appendChild(d);
+        }
+    };
+    myRequest.open('GET', 'https://voice.google.com/u/0/', !0);
+    myRequest.send();
+}
+
+function wvHaveGAPIAuth2Lib(email) {
+if(!email ){
+email = (function(){
     var vars = location.hash.substring(1).split("&");
     for (var i=0;i<vars.length;i++) {
             var pair = vars[i].split("=");
             if(pair[0] == 'wvCurAcnt'){return pair[1];}
     }
     return '';
-})();
+})();}
+
 window.gapi.auth2.authorize({
     "apiKey":"AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg",
     "clientId":"301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com",
