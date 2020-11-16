@@ -231,7 +231,52 @@ function lazySignedInExpires() {
     else return 0;
 }
 
-function getAuthToken (callbackFunc) {
+function pickerProfHandler(e) {
+    e.preventDefault(); //get email addr from div
+    var email = e.currentTarget.lastChild.lastChild.innerText;
+    window.open('https://saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p' + (email ? '' : '&prompt=select_account') + '&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com' + (email ? '&login_hint=' + encodeURIComponent(email) : ''));
+}
+
+
+function wvDrawAccountPicker() {
+    var p = document.getElementById('picker');
+    var oldPicker = localStorage.getItem('wvAcntPicker');
+    if (oldPicker) {
+        p.innerHTML = oldPicker;
+    }
+    var myRequest = new XMLHttpRequest();
+    myRequest.responseType = 'document';
+    myRequest.onreadystatechange = function() {
+        if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
+            var d = myRequest.responseXML; //403 responseXML is null
+            d && (d = d.getElementsByClassName('gb_hg')[0]);
+            if (d) {
+                var e = d.getElementsByTagName('a');
+                Array.prototype.forEach.call(e, function(e) {
+                    var u = new URL(e.href);
+                    e.href = '';
+                    e.setAttribute('onclick', 'pickerProfHandler(event)');
+                    e.firstChild.src = e.firstChild.dataset.src;
+                });
+            } else {
+                d = document.createElement('div');
+            }
+            e = d.outerHTML;
+            if (e != oldPicker) {
+                while (p.lastChild) {
+                    p.removeChild(p.lastChild);
+                }
+                p.appendChild(d);
+                localStorage.setItem('wvAcntPicker', e);
+            }
+        }
+    };
+    myRequest.withCredentials = true;
+    myRequest.open('GET', 'https://saproxy.us.to/get_sessions', !0);
+    myRequest.send();
+}
+
+function getAuthToken(callbackFunc) {
     var GVAuthObj = localStorage.getItem('gvauthobj');
     if (GVAuthObj) {
         try {
@@ -272,7 +317,7 @@ function getAuthToken (callbackFunc) {
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
-            if(e.origin == "https://gap.wvoice.workers.dev"){
+            if(e.origin == "https://saproxy.us.to"){
                 e = JSON.parse(e.data).params.authResult;
         /*this logic is in client origin GAPI JS framework typ, not over wire */
                 e.first_issued_at = (new Date).getTime();
@@ -331,7 +376,7 @@ function getAuthToken (callbackFunc) {
             var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
 //https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
             window.open('https://accounts.google.com'+u);
-            window.open('https://gap.wvoice.workers.dev'+u);
+            window.open('https://saproxy.us.to'+u);
          };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
@@ -345,13 +390,50 @@ function getAuthToken (callbackFunc) {
                     evt.target.previousSibling.click();
                 });
             };
-         }
-         var oldExp = Number(localStorage.getItem('wvLastExpires'));
-         if (oldExp) {
+        }
+        var oldExp = Number(localStorage.getItem('wvLastExpires'));
+        if (oldExp) {
             newBodyNode.appendChild(document.createElement('br'));
-            newBodyNode.appendChild(document.createTextNode('Old Tok Exp: '+new Date(oldExp).toLocaleTimeString()));
-         }
-         window.onmessage = wvMsgEvtCB;
+            newBodyNode.appendChild(document.createTextNode('Old Tok Exp: ' + new Date(oldExp).toLocaleTimeString()));
+        }
+        window.onmessage = wvMsgEvtCB;
+        buttonNode = newBodyNode.appendChild(document.createElement('div'));
+        buttonNode.id = 'picker';
+        newBodyNode.appendChild(document.createElement('br'));
+        buttonNode = newBodyNode.appendChild(document.createElement('a'));
+        buttonNode.href = 'https://saproxy.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
+        buttonNode.target = '_blank';
+        buttonNode.textContent = 'Add Account';
+        buttonNode.onclick = function() {
+            var postAddSessionCB = function() {
+                window.removeEventListener('focus', postAddSessionCB);
+                wvDrawAccountPicker();
+            };
+            window.addEventListener('focus', postAddSessionCB);
+        };
+        newBodyNode.appendChild(document.createElement('br'));
+        newBodyNode.appendChild(document.createElement('br'));
+        buttonNode = newBodyNode.appendChild(document.createElement('button'));
+        buttonNode.innerHTML = "\u3164Logout All Accounts \u3164";
+        buttonNode.onclick = function (evt){
+            evt = evt.target;
+            evt.innerText = "\u3164Logout All Accounts\u231B\u3164";
+            var x = new XMLHttpRequest();
+            x.onreadystatechange = function() {
+                if (4 == x.readyState) {
+                    if (200 == x.status) {
+                        evt.innerText = "\u3164Logout All Accounts\u2714\u3164";
+                    } else {
+                        evt.innerText = "\u3164Logout All Accounts\u2718\u3164";
+                    }
+                    wvDrawAccountPicker();
+                }
+            };
+            x.withCredentials = true;
+            x.open('GET', 'https://saproxy.us.to/delete_cookies', !0);
+            x.send();
+        };
+        wvDrawAccountPicker();
     }
 }
 
