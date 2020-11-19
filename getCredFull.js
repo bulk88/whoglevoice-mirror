@@ -198,11 +198,10 @@ function wvDrawAccountPicker() {
     myRequest.responseType = 'document';
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState && 200 == myRequest.status) {
-            var d = myRequest.responseXML.getElementsByClassName('gb_hg')[0];
+            var d = myRequest.responseXML.getElementsByClassName('gb_gg')[0];
             if(d){
                 var e = d.getElementsByTagName('a');
                 Array.prototype.forEach.call(e, function(e) {
-                    var u = new URL(e.href);
                     e.href = '';
                     e.onclick = function(e) {
                         e.preventDefault(); //get email addr from div

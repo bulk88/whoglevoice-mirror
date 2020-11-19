@@ -234,7 +234,7 @@ function lazySignedInExpires() {
 function pickerProfHandler(e) {
     e.preventDefault(); //get email addr from div
     var email = e.currentTarget.lastChild.lastChild.innerText;
-    window.open('https://saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p' + (email ? '' : '&prompt=select_account') + '&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com' + (email ? '&login_hint=' + encodeURIComponent(email) : ''));
+    window.open('https://saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(email));
 }
 
 
@@ -249,11 +249,10 @@ function wvDrawAccountPicker() {
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
             var d = myRequest.responseXML; //403 responseXML is null
-            d && (d = d.getElementsByClassName('gb_hg')[0]);
+            d && (d = d.getElementsByClassName('gb_gg')[0]);
             if (d) {
                 var e = d.getElementsByTagName('a');
                 Array.prototype.forEach.call(e, function(e) {
-                    var u = new URL(e.href);
                     e.href = '';
                     e.setAttribute('onclick', 'pickerProfHandler(event)');
                     e.firstChild.src = e.firstChild.dataset.src;
