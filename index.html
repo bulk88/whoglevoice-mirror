@@ -5,6 +5,10 @@
 <script>
 var d;/*didEarlyFetch*/
 
+function cleanTelNum(t) {
+    return /1?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/.exec(t)[0].replace(/\D/g, '').substr(-10, 10);
+}
+
 //finish(err, resp)
 function getThreadList(fullreq, paginationToken, finish){
     getAuthToken(function(tok) {getThreadList_t(true, tok, fullreq, paginationToken, finish)});
@@ -145,7 +149,7 @@ if(lazySignedInEmail()){
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+event.target.previousSibling.value.replace(/\D/g,"")'>&#x3164;Go #&#x3164;</button><div id='threadList'></div>
+<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+cleanTelNum(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button><div id='threadList'></div>
 <script>
 document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdList');
 
@@ -158,7 +162,7 @@ document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdLis
         e.onclick  = function (){
             c.readText()
             .then(function(t){
-                window.location = 'thread.html#'+t.replace(/\D/g,"");
+                window.location = "thread.html#"+cleanTelNum(t);
             })
         };
     }
