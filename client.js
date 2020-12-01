@@ -402,6 +402,7 @@ function getAuthToken(callbackFunc) {
         buttonNode = newBodyNode.appendChild(document.createElement('a'));
         buttonNode.href = 'https://saproxy.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
         buttonNode.target = '_blank';
+        buttonNode.rel = 'opener';
         buttonNode.textContent = 'Add Account';
         buttonNode.onclick = function() {
             var postAddSessionCB = function() {
