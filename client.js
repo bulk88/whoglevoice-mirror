@@ -249,10 +249,21 @@ function wvDrawAccountPicker() {
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
             var d = myRequest.responseXML; //403 responseXML is null
-            d && (d = d.getElementsByClassName('gb_Qb')[0]);
-            if (d) {
-                var e = d.getElementsByTagName('a');
-                Array.prototype.forEach.call(e, function(e) {
+            d = d.getElementsByTagName('div');
+            var e;
+            for (var i = d.length - 1; e=null,i >= 0; i--) {
+                e = d[i];
+                if(e = e.childNodes[0]) {
+                    if(e.nodeValue && e.nodeValue.match(/Default/)) {
+                        i=5;
+                        while(i>0){e = e.parentNode;i--}
+                        d=e;
+                        break;
+                    }
+                }
+            }
+            if (e) {
+                Array.prototype.forEach.call(d.getElementsByTagName('a'), function(e) {
                     e.href = '';
                     e.setAttribute('onclick', 'pickerProfHandler(event)');
                     e.firstChild.src = e.firstChild.dataset.src;
