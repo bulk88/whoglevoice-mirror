@@ -176,6 +176,17 @@ function nextFastPollLoop() {
     nextPollLoop();
 }
 
+function carrierUpdate(s) {
+    document.getElementById('buddy-bar').childNodes[1].textContent =
+    s.match(/CINGULAR/) ? 'ATTW-' :
+    s.match(/CELLCO PARTNERSHIP/) ? 'VZW-' :
+    s.match(/OMNIPOINT|T-MOBILE USA INC/) ? 'TM-' :
+    s.match(/BANDWIDTH.COM/) ? 'BCOM-' :
+    s.match(/SPRINT SPECTRUM/) ? 'SPCS-' :
+    s.match(/Inteliquent/) ? 'ITQL-' :
+    s + '-';
+}
+
 function dirRadio(evt) {localStorage.setItem('wvCallDir', evt.target.value)}
 
 function hashChangeHandler () {
@@ -191,7 +202,11 @@ function hashChangeHandler () {
         getConvoUI({target:{innerText: 0}},0,function(){nextPollLoop(6000)});//get this req ASAP on wire before paints
         var f = document.createDocumentFragment();
         f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
-        var e = document.createElement('a');
+        f.appendChild(document.createElement('span')); //carrier, empty RN
+        var e = document.createElement('script');
+        e.src = '//carrier.natasha.cat/'+t.substring(0,7);
+        f.appendChild(e);
+        e = document.createElement('a');
         e.innerText = t;
         e.href = 'https://www.telcodata.us/search-area-code-exchange-detail?npa='+t.substr(0,3)+'&exchange='+t.substr(3,3);
         f.appendChild(e);
