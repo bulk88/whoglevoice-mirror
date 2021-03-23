@@ -293,12 +293,25 @@ function clearPrvImg() {
     //node doesn't remove the img, only cloneNode works (AKA new node)
     p.insertBefore(i.cloneNode(), s);
 }
-function sendUI(b) { //b button
+function sendUI(b, skip_paste) { //b button
+    var b64StartPos_msgElem = document.getElementById('msg');
+    if(b64StartPos_msgElem.value.length == 0 && !skip_paste) {
+        var p = navigator.clipboard;
+        if(p && p.readText) { /* old browser or HTTPS failure */
+            p.readText()
+            .then(function(t){
+                b64StartPos_msgElem.value = t;
+                if(t.length == 0) {
+                    sendUI(b,1)
+                }
+            })
+        }
+        return;
+    }
     //avoid banging API rate
     clearTimeout(pollLastTimer);
     b = b.target;
     var t = location.hash.substring(1);
-    var b64StartPos_msgElem;
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
         t == "no num specified in url anchor" && (t = '');
@@ -313,7 +326,6 @@ function sendUI(b) { //b button
             }
         }
         b.innerText = "\xa0\u2709\u231B\xa0"; //hourglass mark
-        b64StartPos_msgElem = document.getElementById('msg');
         sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
             if (err) {
                 b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
