@@ -180,7 +180,7 @@ function carrierUpdate(s) {
     document.getElementById('buddy-bar').childNodes[1].textContent =
     s.match(/CINGULAR/) ? 'ATTW-' :
     s.match(/CELLCO PARTNERSHIP/) ? 'VZW-' :
-    s.match(/OMNIPOINT|T-MOBILE USA INC/) ? 'TM-' :
+    s.match(/OMNIPOINT|T-MOBILE USA INC|METRO PCS INC/) ? 'TM-' :
     s.match(/BANDWIDTH.COM/) ? 'BCOM-' :
     s.match(/SPRINT SPECTRUM/) ? 'SPCS-' :
     s.match(/Inteliquent/) ? 'ITQL-' :
