@@ -61,14 +61,14 @@ function drawLoginBar()
     }
     var buttonNode = divLoginBar.appendChild(document.createElement('a'));
     if (window.location.protocol == 'http:') {
-        buttonNode.innerText = ' ̵S̵ '
+        buttonNode.textContent = ' ̵S̵ '
         buttonNode.style.backgroundColor = 'red';
         buttonNode.onclick = function () {
         // no ;, see https://bugzilla.mozilla.org/show_bug.cgi?id=726779
             window.location.protocol = 'https'
         };
     } else {
-        buttonNode.innerText = 'S'
+        buttonNode.textContent = 'S'
         buttonNode.style.backgroundColor = 'lime';
         buttonNode.onclick = function () {
             window.location.protocol = 'http'
@@ -78,14 +78,14 @@ function drawLoginBar()
     buttonNode = document.createElement('button');
     if (email_label.length) {
         email_label = "Signed in: "+email_label;
-        buttonNode.innerText = "Logout";
+        buttonNode.textContent = "Logout";
         buttonNode.onclick = function (){
             wvWipeAuthToken(1)
             drawLoginBar()
         };
     } else {
         email_label = "Logged out";
-        buttonNode.innerText = "Login";
+        buttonNode.textContent = "Login";
         buttonNode.onclick = function (){
             //func from html page or undef
             getAuthToken(refreshNoUI);
@@ -233,7 +233,7 @@ function lazySignedInExpires() {
 
 function pickerProfHandler(e) {
     e.preventDefault(); //get email addr from div
-    var email = e.currentTarget.lastChild.lastChild.innerText;
+    var email = e.currentTarget.lastChild.lastChild.textContent;
     window.open('https://saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(email));
 }
 
@@ -306,7 +306,7 @@ function getAuthToken(callbackFunc) {
         oldBodyNode && wvDocumentElement.removeChild(oldBodyNode);
         var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-        buttonNode.innerText = "Copy to Clipboard Bookmarklet to run on GV";
+        buttonNode.textContent = "Copy to Clipboard Bookmarklet to run on GV";
         buttonNode.onclick = function (evt){
         //http!!!! because Android 4.1.2 SSL too old to talk to github pages SSL
            wvCopyToClipboard('javascript:var e=new XMLHttpRequest;e.onreadystatechange=function(){4==e.readyState&&200==e.status&&eval(e.responseText)};e.open("GET","https://wvoice.us.to/getCredFull.js",!0);e.overrideMimeType("application/javascript");e.send();',evt.target);
@@ -322,7 +322,7 @@ function getAuthToken(callbackFunc) {
         GVLinkNode.target = '_blank';
         /*https://github.com/whatwg/html/issues/4078*/
         GVLinkNode.rel = 'opener';
-        GVLinkNode.innerText = "Open Google Voice Site";
+        GVLinkNode.textContent = "Open Google Voice Site";
         newBodyNode.appendChild(document.createElement('br'));
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
@@ -372,7 +372,7 @@ function getAuthToken(callbackFunc) {
          textareaNode_clipboard_clipboard.onpaste = gotAuthPasteCB;
          newBodyNode.appendChild(document.createElement('br'));
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-         buttonNode.innerText = "Cancel/Return";
+         buttonNode.textContent = "Cancel/Return";
          buttonNode.onclick = function (){
             oldBodyNode?wvDocumentElement.replaceChild(oldBodyNode, newBodyNode)
             :wvDocumentElement.removeChild(newBodyNode);
@@ -381,7 +381,7 @@ function getAuthToken(callbackFunc) {
             drawLoginBar();
          };
          var buttonNode = newBodyNode.appendChild(document.createElement('button'));
-         buttonNode.innerText = "Auth Proxy";
+         buttonNode.textContent = "Auth Proxy";
          buttonNode.onclick = function (){
             var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
 //https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
@@ -390,7 +390,7 @@ function getAuthToken(callbackFunc) {
          };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
-            buttonNode.innerText = "Paste";
+            buttonNode.textContent = "Paste";
             buttonNode.onclick = function (evt){
                 textareaNode_clipboard_clipboard.readText()
                 .then(function(text){/*fake DOM element*/
@@ -428,14 +428,14 @@ function getAuthToken(callbackFunc) {
         buttonNode.innerHTML = "\u3164Logout All Accounts \u3164";
         buttonNode.onclick = function (evt){
             evt = evt.target;
-            evt.innerText = "\u3164Logout All Accounts\u231B\u3164";
+            evt.textContent = "\u3164Logout All Accounts\u231B\u3164";
             var x = new XMLHttpRequest();
             x.onreadystatechange = function() {
                 if (4 == x.readyState) {
                     if (200 == x.status) {
-                        evt.innerText = "\u3164Logout All Accounts\u2714\u3164";
+                        evt.textContent = "\u3164Logout All Accounts\u2714\u3164";
                     } else {
-                        evt.innerText = "\u3164Logout All Accounts\u2718\u3164";
+                        evt.textContent = "\u3164Logout All Accounts\u2718\u3164";
                     }
                     wvDrawAccountPicker();
                 }
@@ -648,16 +648,16 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
     for (i = 0; i < phone_arr.length; i++) {
         var node = newBodyNode.appendChild(document.createElement('a'));
         node.setAttribute('href', '#');
-        node.innerText = /^\+1(.+)$/.exec(phone_arr[i].phoneNumber.e164)[1];
+        node.textContent = /^\+1(.+)$/.exec(phone_arr[i].phoneNumber.e164)[1];
         node.onclick = function (e){
             e.preventDefault();
             wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
-            finish(false, e.target.innerText, primaryDid);
+            finish(false, e.target.textContent, primaryDid);
         };
         newBodyNode.appendChild(document.createElement('br'));
     }
      node = newBodyNode.appendChild(document.createElement('button'));
-     node.innerText = "Cancel/Return";
+     node.textContent = "Cancel/Return";
      node.onclick = function (){
         wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
         finish("USER_CLICKED_CANCEL");

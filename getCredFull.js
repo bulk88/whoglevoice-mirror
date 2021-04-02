@@ -22,13 +22,13 @@ if (!('gapi' in window && 'auth2' in window.gapi)) {
             while (scriptElem.lastChild) {
                 scriptElem.removeChild(scriptElem.lastChild);
             }
-            scriptElem.innerText = "Whogle Voice Login Tool\n";
+            scriptElem.textContent = "Whogle Voice Login Tool\n";
             document.title = "Whogle Voice Login Tool";
             var buttonNode = scriptElem.appendChild(document.createElement('button'));
-            buttonNode.innerText = "Login Again";
+            buttonNode.textContent = "Login Again";
             buttonNode.onclick = wvHaveGAPIAuth2Lib;
             buttonNode = scriptElem.appendChild(document.createElement('button'));
-            buttonNode.innerText = "Switch Accounts";
+            buttonNode.textContent = "Switch Accounts";
             buttonNode.onclick = function () {location.hash=''; wvHaveGAPIAuth2Lib()};
             buttonNode = scriptElem.appendChild(document.createElement('div'));
             buttonNode.id = 'picker';
@@ -205,7 +205,7 @@ function wvDrawAccountPicker() {
                     e.href = '';
                     e.onclick = function(e) {
                         e.preventDefault(); //get email addr from div
-                        wvHaveGAPIAuth2Lib(e.currentTarget.lastChild.lastChild.innerText);
+                        wvHaveGAPIAuth2Lib(e.currentTarget.lastChild.lastChild.textContent);
                     };
                     e.firstChild.src = e.firstChild.dataset.src;
                 });
@@ -280,7 +280,7 @@ window.gapi.auth2.authorize({
              newBodyNode.appendChild(document.createTextNode("Got Account: "+resp.profile.email+' Exp In: '+((resp.expires_in/60)|0)+':'+(resp.expires_in%60)+' Min'));
              newBodyNode.appendChild(document.createElement('br'));
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
-             button_iframeNode.innerText = "Click to Copy GV Auth Data";
+             button_iframeNode.textContent = "Click to Copy GV Auth Data";
                  button_iframeNode.onclick = function (evt){
                 if(wvCopyToClipboard(authstr,evt.target)) {
                     while (newBodyNode.lastChild.id != "ssIFrame_google") {
@@ -290,7 +290,7 @@ window.gapi.auth2.authorize({
                 }
              };
              button_iframeNode = newBodyNode.appendChild(document.createElement('button'));
-             button_iframeNode.innerText = "Cancel/Return";
+             button_iframeNode.textContent = "Cancel/Return";
              button_iframeNode.onclick = function (){
                 while (newBodyNode.lastChild.id != "ssIFrame_google") {
                     newBodyNode.removeChild(newBodyNode.lastChild);

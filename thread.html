@@ -14,7 +14,7 @@ var altImgLoaderWarn;
 function getConvoUI(evt, paginationToken, finish) {
     var t = location.hash.substring(1);
     evt = evt.target;
-    evt.innerText ="\xa0\u25BD\u231B";
+    evt.textContent ="\xa0\u25BD\u231B";
     getThread(t, paginationToken, function(err,r){
         var frag = document.createDocumentFragment();
         if (err) {
@@ -27,7 +27,7 @@ function getConvoUI(evt, paginationToken, finish) {
             } catch (e) {
             alert("Error getting thread:\n\n"+err);
             }
-            evt.innerText ="\xa0\u25BD\u2718";//X mark
+            evt.textContent ="\xa0\u25BD\u2718";//X mark
             finish && finish(err);
         }
         else {
@@ -107,7 +107,7 @@ function getConvoUI(evt, paginationToken, finish) {
             if(i==0) { //used for new msg poll
                 p.mid = msgObj.id;
             }
-            evt.innerText ="\xa0\u25BD\u2714";//Good mark
+            evt.textContent ="\xa0\u25BD\u2714";//Good mark
         }
         document.getElementById('buddy-bar').firstChild.textContent
             = r.thread.contact.reduce(function(a,cv){
@@ -115,7 +115,7 @@ function getConvoUI(evt, paginationToken, finish) {
             }).name+'-';
         if(img = r.thread.paginationToken){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
-            p.innerText = "\xa0Load More\xa0";
+            p.textContent = "\xa0Load More\xa0";
             p.wvpgtok = img;
             p.onclick = function (evt){
                 getConvoUI(evt, evt.target.wvpgtok);
@@ -158,7 +158,7 @@ function nextPollLoop (t) {
                 //if have new messge, compare server newest msg ID to client side
                 if(r.substr(24,40) != t.lastChild.mid){
                     //bug will wipe load mores on top, count nodes & use as input?
-                    getConvoUI({target:{innerText: 0}}, 0, nextFastPollLoop);
+                    getConvoUI({target:{textContent: 0}}, 0, nextFastPollLoop);
                 } else { // nothing new slowly decay poll
                     nextPollLoop();
                 }
@@ -199,7 +199,7 @@ function hashChangeHandler () {
     }
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
-        getConvoUI({target:{innerText: 0}},0,function(){nextPollLoop(6000)});//get this req ASAP on wire before paints
+        getConvoUI({target:{textContent: 0}},0,function(){nextPollLoop(6000)});//get this req ASAP on wire before paints
         var f = document.createDocumentFragment();
         f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
         f.appendChild(document.createElement('span')); //carrier, empty RN
@@ -207,7 +207,7 @@ function hashChangeHandler () {
         e.src = '//carrier.natasha.cat/'+t.substring(0,7);
         f.appendChild(e);
         e = document.createElement('a');
-        e.innerText = t;
+        e.textContent = t;
         e.href = 'https://www.telcodata.us/search-area-code-exchange-detail?npa='+t.substr(0,3)+'&exchange='+t.substr(3,3);
         f.appendChild(e);
         var d = localStorage.getItem('wvCallDir')|0;//make null 0
@@ -225,20 +225,20 @@ function hashChangeHandler () {
         }
         e = f.appendChild(document.createElement('button'));
         e.wvnum = t;
-        e.innerText = "\u3164Call \u3164";
+        e.textContent = "\u3164Call \u3164";
         e.onclick = function (evt){
             evt = evt.target;
-            evt.innerText = "\u3164Calling\u231B\u3164";
+            evt.textContent = "\u3164Calling\u231B\u3164";
             mkCall(evt, evt.wvnum, localStorage.getItem('wvCallDir')|0, function(err){
                 if(err){
-                    evt.innerText = "\u3164Called \u2718\u3164";
+                    evt.textContent = "\u3164Called \u2718\u3164";
                 } else {
-                    evt.innerText = "\u3164Called \u2714\u3164";
+                    evt.textContent = "\u3164Called \u2714\u3164";
                 }
             });
         };
         e = f.appendChild(document.createElement('button'));
-        e.innerText = "\xa0Bottom\u2B07\xa0";
+        e.textContent = "\xa0Bottom\u2B07\xa0";
         e.onclick = function (scrollingElement){
             scrollingElement = (document.scrollingElement || document.body);
             scrollingElement.scrollTop = scrollingElement.scrollHeight;
@@ -325,15 +325,15 @@ function sendUI(b, skip_paste) { //b button
                 b64 = b64.substr(b64StartPos_msgElem+1);
             }
         }
-        b.innerText = "\xa0\u2709\u231B\xa0"; //hourglass mark
+        b.textContent = "\xa0\u2709\u231B\xa0"; //hourglass mark
         sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
             if (err) {
-                b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
+                b.textContent = "\xa0\u2709\u2718\xa0"; //X mark
                 nextPollLoop();
             } else {
                 var latestOutPostHash= r[2];
-                b.innerText = "\xa0\u2709\u2714\xa0"; //Good mark
-                getConvoUI({target:{innerText: 0}}, 0, function (err, r) {
+                b.textContent = "\xa0\u2709\u2714\xa0"; //Good mark
+                getConvoUI({target:{textContent: 0}}, 0, function (err, r) {
                    if (!err) {
                         //sometimes proxy drops outgoing msgs IDK why, retry auto
                         //but with same our side rando msg ID to prevent duplicate
@@ -356,7 +356,7 @@ function sendUI(b, skip_paste) { //b button
             }
         });
     //} else { //no tel num given
-    //    b.innerText = "\xa0\u2709\u2718\xa0"; //X mark
+    //    b.textContent = "\xa0\u2709\u2718\xa0"; //X mark
     //}
 }
 function threadImgAltLoaderClick (e) {
