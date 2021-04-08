@@ -109,10 +109,21 @@ function getConvoUI(evt, paginationToken, finish) {
             }
             evt.textContent ="\xa0\u25BD\u2714";//Good mark
         }
-        document.getElementById('buddy-bar').firstChild.textContent
-            = r.thread.contact.reduce(function(a,cv){
-                return cv.phoneNumber != "Unknown"? cv:a;
-            }).name+'-';
+        n = r.thread.contact.reduce(function(a, cv) {
+            return cv.phoneNumber != "Unknown" ? cv : a;
+        }).name;
+        a=document.getElementById('buddy-bar').firstChild;
+        a.textContent = n + '-';
+        if (n.match(/^\+\d+$/)) {
+            getContactName(n.substring(2), function(err, r) {
+            //undefined or "{}" on wire if no match
+            if (Object.keys(r).length !== 0) {
+                r = r.people;
+                a.textContent = r[Object.getOwnPropertyNames(r)[0]].name[0].displayName + '-';
+            }
+            });
+        }
+
         if(img = r.thread.paginationToken){
             p = frag.insertBefore(document.createElement('button'), frag.firstChild);
             p.textContent = "\xa0Load More\xa0";

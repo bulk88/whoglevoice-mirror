@@ -77,7 +77,20 @@ function drawThdList(paginationToken,r) {
         n.align = 'left';
         n = n.appendChild(document.createElement('a'));
         n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
-        n.textContent = msgObj.contact.name;
+        var name = msgObj.contact.name;
+        n.textContent = name;
+        if (name.match(/^\+\d+$/)) {
+            (function(e){
+            getContactName(name.substring(2), function(err, r) {
+            //undefined or "{}" on wire if no match
+            if (Object.keys(r).length !== 0) {
+                r = r.people;
+                e.textContent = r[Object.getOwnPropertyNames(r)[0]].name[0].displayName;
+                localStorage.setItem('wvThdList', document.getElementById('threadList').innerHTML);
+            }
+            });
+            })(n);
+        }
         n = p.appendChild(document.createElement('div'));
         n.align = msgObj.type == "smsIn" ? 'left' : 'right';
         n.textContent = msgObj.mmsMessage ? '[IMG]'+msgObj.mmsMessage.text : msgObj.messageText;

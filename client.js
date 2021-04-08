@@ -962,3 +962,24 @@ cacheable proxy number JSON call takes 500-800 ms *EEK*
 */
 x.send('[[["phnnmbr","+1'+destNum+'"]],null,["phnnmbr","+1'+sourceNum+'"],null,0]');
 }
+
+
+function getContactName(num, finish){
+    getAuthToken(function(tok) {getContactName_t(true, tok, num, finish)});
+}
+function getContactName_t(canReAuth, tok, num, finish){
+var x=new XMLHttpRequest;
+//I dont have the scope, and gauth wont let me add it
+//x.open("GET","https://content-people.googleapis.com/v1/people:searchContacts?query=1"+num+"&readMask=names&fields=results.person.names.displayName&prettyPrint=false",1);
+x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&prettyPrint=false&alt=json",1);
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getContactName_t(false, tok, num, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false,JSON.parse(x.response))};
+}};
+x.send();
+}
