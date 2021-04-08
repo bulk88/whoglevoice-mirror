@@ -357,8 +357,17 @@ function getAuthToken(callbackFunc) {
                 GVAuthObj = undefined;
             }
             //callbackFunc needs its body DOM back
-            oldBodyNode?document.documentElement.replaceChild(oldBodyNode, newBodyNode)
-            :document.documentElement.removeChild(newBodyNode);
+            if (oldBodyNode) {
+                document.documentElement.replaceChild(oldBodyNode, newBodyNode)
+                if (document.querySelector('#picker')) {
+                    //gotAuthPasteCB but with a different scope and finish CB
+                    //there are multiple login screens layered, need to wipe all of them
+                    //off the screen
+                    oldBodyNode.getElementsByTagName('textarea')[0].onpaste(e);
+                }
+            } else {
+                document.documentElement.removeChild(newBodyNode);
+            }
             window.onmessage = null;
             if (GVAuthObj) {
                 localStorage.setItem('gvauthobj',pasteStr);
