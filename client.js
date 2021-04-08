@@ -560,7 +560,7 @@ function getThread(num,pagination_token,finish,items){
 }
 function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
-x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -588,7 +588,7 @@ function mkContact(name,num,finish){
 return true for CORS if Referer/Origin is voice.google.com */
 function mkContact_t(canReAuth,tok,name,num,finish){
 var x=new XMLHttpRequest;
-x.open("POST", 'https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
+x.open("POST", 'https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&prettyPrint=false',1);
 x.setRequestHeader("Content-Type", "application/json");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -632,7 +632,7 @@ function getActInfo(finish){
 }
 function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=json",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -798,7 +798,7 @@ function attachIDtoB64(id, size, isvid, finish){
 }
 function attachIDtoB64_t(canReAuth, tok, id, size, isvid, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -932,7 +932,7 @@ function getProxyNumWithSrc(sourceNum, destNum, finish){
 function getProxyNumWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
 //x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
-x.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json",1);
+x.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
