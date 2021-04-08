@@ -249,7 +249,7 @@ function wvDrawAccountPicker() {
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
             var d = myRequest.responseXML; //403 responseXML is null
-            d = d.getElementsByTagName('div');
+            d = d ? d.getElementsByTagName('div') : [];
             var e;
             for (var i = d.length - 1; e=null,i >= 0; i--) {
                 e = d[i];
