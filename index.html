@@ -83,9 +83,8 @@ function drawThdList(paginationToken,r) {
             (function(e){
             getContactName(name.substring(2), function(err, r) {
             //undefined or "{}" on wire if no match
-            if (Object.keys(r).length !== 0) {
-                r = r.people;
-                e.textContent = r[Object.getOwnPropertyNames(r)[0]].name[0].displayName;
+            if (r) {
+                e.textContent = r;
                 localStorage.setItem('wvThdList', document.getElementById('threadList').innerHTML);
             }
             });

@@ -117,9 +117,8 @@ function getConvoUI(evt, paginationToken, finish) {
         if (n.match(/^\+\d+$/)) {
             getContactName(n.substring(2), function(err, r) {
             //undefined or "{}" on wire if no match
-            if (Object.keys(r).length !== 0) {
-                r = r.people;
-                a.textContent = r[Object.getOwnPropertyNames(r)[0]].name[0].displayName + '-';
+            if (r) {
+                a.textContent = r + '-';
             }
             });
         }
