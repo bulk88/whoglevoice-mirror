@@ -973,7 +973,7 @@ function getContactName_t(canReAuth, tok, num, finish){
 var x=new XMLHttpRequest;
 //I dont have the scope, and gauth wont let me add it
 //x.open("GET","https://content-people.googleapis.com/v1/people:searchContacts?query=1"+num+"&readMask=names&fields=results.person.names.displayName&prettyPrint=false",1);
-x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&prettyPrint=false&alt=json",1);
+x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&prettyPrint=false&alt=protojson",1);
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
@@ -982,12 +982,11 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else if(finish) {
-        //undefined or "{}" on wire if no match
-        if((x = x.response) == "{}") {
+        //undefined or "[]" on wire if no match
+        if((x = x.response) == "[]") {
             x = undefined;
         } else {
-            x = JSON.parse(x).people;
-            x = x[Object.getOwnPropertyNames(x)[0]].name[0].displayName;
+            x = JSON.parse(x)[1][0][1][2][0][1];
         }
         finish(false, x);
     }

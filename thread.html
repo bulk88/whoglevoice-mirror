@@ -118,10 +118,8 @@ function getConvoUI(evt, paginationToken, finish) {
         a.textContent = n + '-';
         if (n.match(/^\+\d+$/)) {
             getContactName(n.substring(2), function(err, r) {
-            //undefined or "{}" on wire if no match
-            if (r) {
-                a.textContent = r + '-';
-            }
+                //undefined or "[]" on wire if no match
+                r && (a.textContent = r + '-')
             });
         }
 

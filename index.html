@@ -86,7 +86,7 @@ function drawThdList(paginationToken,r) {
             pendingNameReqs++;
             getContactName(name.substring(2), function(err, r) {
             pendingNameReqs--;
-            //undefined or "{}" on wire if no match
+            //undefined or "[]" on wire if no match
             if (r) {
                 e.textContent = r;
                 if(pendingNameReqs===0) {
