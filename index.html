@@ -3,6 +3,7 @@
 <script src="client.js" type="text/javascript"></script>
 <style>button{line-height:1.5}</style>
 <script>
+var pendingNameReqs = 0;
 var d;/*didEarlyFetch*/
 /*cleanTelNum*/
 function c(t) {
@@ -81,11 +82,15 @@ function drawThdList(paginationToken,r) {
         n.textContent = name;
         if (name.match(/^\+\d+$/)) {
             (function(e){
+            pendingNameReqs++;
             getContactName(name.substring(2), function(err, r) {
+            pendingNameReqs--;
             //undefined or "{}" on wire if no match
             if (r) {
                 e.textContent = r;
-                localStorage.setItem('wvThdList', document.getElementById('threadList').innerHTML);
+                if(pendingNameReqs===0) {
+                    localStorage.setItem('wvThdList', document.getElementById('threadList').innerHTML);
+                }
             }
             });
             })(n);
@@ -149,7 +154,7 @@ getThreadList(paginationToken,paginationToken,function(e,r){
 }
 
 function refreshNoUI() {
-	g({target:{textContent: 0}})
+    g({target:{textContent: 0}})
 }
 
 if(lazySignedInEmail()){
