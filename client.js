@@ -247,6 +247,7 @@ function wvDrawAccountPicker() {
         p.innerHTML = oldPicker;
     }
     var myRequest = new XMLHttpRequest();
+    myRequest.open('GET', 'https://saproxy.us.to/get_sessions', !0);
     myRequest.responseType = 'document';
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
@@ -284,7 +285,6 @@ function wvDrawAccountPicker() {
         }
     };
     myRequest.withCredentials = true;
-    myRequest.open('GET', 'https://saproxy.us.to/get_sessions', !0);
     myRequest.send();
 }
 
