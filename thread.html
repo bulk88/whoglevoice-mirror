@@ -111,16 +111,12 @@ function getConvoUI(evt, paginationToken, finish) {
             }
             evt.textContent ="\xa0\u25BD\u2714";//Good mark
         }
-        n = r.thread.contact.reduce(function(a, cv) {
-            return cv.phoneNumber != "Unknown" ? cv : a;
-        }).name;
+
         a=document.getElementById('buddy-bar').firstChild;
-        a.textContent = n + '-';
-        if (n.match(/^\+\d+$/)) {
-            getContactName(n.substring(2), function(err, r) {
-                //undefined or "[]" on wire if no match
-                r && (a.textContent = r + '-')
-            });
+        if(a.textContent === '') {
+            a.textContent = r.thread.contact.reduce(function(a, cv) {
+                return cv.phoneNumber != "Unknown" ? cv : a;
+            }).name + '-';
         }
 
         if(img = r.thread.paginationToken){
@@ -201,7 +197,12 @@ function hashChangeHandler () {
         //get this req ASAP on wire before paints
         getConvoUI({target:{textContent: 0}},0,function(){nextPollLoop(6000)});
         var f = document.createDocumentFragment();
-        f.appendChild(document.createElement('span')); //Contact Name tag, empty RN
+        (function(element,num){
+            getContactName(num, function(err, r) {
+                //undefined or "[]" on wire if no match
+                r && (element.textContent = r + '-')
+            });//Contact Name tag, empty RN
+        })(f.appendChild(document.createElement('span')),t);
         carrierUpdate = function (s) {
             carrierUpdate.wvnode.textContent =
             s.match(/CINGULAR/) ? 'ATTW-' :
@@ -211,7 +212,7 @@ function hashChangeHandler () {
             s.match(/SPRINT SPECTRUM/) ? 'SPCS-' :
             s.match(/Inteliquent/) ? 'ITQL-' :
             s + '-';
-            carrierUpdate.wvnode = undefined;
+            carrierUpdate = undefined;
         };
         carrierUpdate.wvnode = f.appendChild(document.createElement('span')); //carrier, empty RN
         var e = document.createElement('script');
