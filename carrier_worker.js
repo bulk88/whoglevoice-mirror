@@ -50,8 +50,13 @@ addEventListener("fetch", event => {
       carrierCache[num] = await response.clone().text();
       return;
     }
+    let referer = event.request.headers.get('referer');
     let responseOrigin = fetch('https://www.telcodata.us/search-area-code-exchange-detail?npa=' +
-      num.substr(0, 3) + '&exchange=' + num.substr(4, 3));
+      num.substr(0, 3) + '&exchange=' + num.substr(4, 3)
+    //let responseOrigin = fetch('http://scooterlabs.com/echo'
+    ,{ cf: { scrapeShield: false }, ...referer && {headers: {referer: referer}}});
+    //resolveCB(responseOrigin);
+    //return;
     let metaCarrier;
     let saw1000s;
 
@@ -125,7 +130,7 @@ addEventListener("fetch", event => {
                   "content-type": "text/javascript",
                   "cache-control": "no-transform, max-age=2629800"
                   //,"x-i": runI++,
-                  ,'x-hsdbg': JSON.stringify(carrierCache)
+                  //,'x-hsdbg': JSON.stringify(carrierCache)
                 }
               });
               //console.log('meta resp');
