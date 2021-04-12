@@ -8,7 +8,7 @@ docs/index.html : index.html minify_config.json
 
 docs/thread.html : thread.html minify_config.json
 	copy /y thread.html "$@"
-	html-minifier.cmd -c minify_config.json --minify-js -o "$@" "$@"
+	html-minifier.cmd -c minify_config.json -o "$@" "$@"
 
 docs/auth.html : auth.html
 	copy /y auth.html "$@"

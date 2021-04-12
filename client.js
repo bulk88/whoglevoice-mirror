@@ -459,6 +459,7 @@ function getAuthToken(callbackFunc) {
     }
 }
 
+var joinArrayToInt = (function(){
 var wvMap = Array.prototype.map ? function(a, b, c) {
     return Array.prototype.map.call(a, b, c);
 }
@@ -467,12 +468,13 @@ var wvMap = Array.prototype.map ? function(a, b, c) {
         h in g && (e[h] = b.call(c, g[h], h, a));
     return e
 };
-function joinArrayToInt (a) {
+return function (a) {
             return wvMap(a, function(b) {
                 b = b.toString(16);
                 return 1 < b.length ? b : "0" + b
             }).join("");
 }
+})();
 /* if you send too many BASE64 per time (???) to GV this happens
 {
  "error": {
@@ -505,7 +507,7 @@ crypto = window.crypto ||
 function sendsms(num, body, img, finish){
     getAuthToken(function(tok) {sendsms_t(true, tok, num, body, img, finish)});
 }
-var sendsms_t = (function (){
+window.sendsms_t = (function (){
 /*anti replay/msg dedup if network errors, body was sent, but resp had CORS or timeout */
 var lastNum, lastBody, lastImg, msg_id;
 return function (canReAuth, tok, num, body, img, finish){

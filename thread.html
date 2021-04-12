@@ -306,13 +306,14 @@ function clearPrvImg() {
     p.insertBefore(i.cloneNode(), s);
 }
 function sendUI(b, skip_paste) { //b button
-    var b64StartPos_msgElem = document.getElementById('msg');
-    if(b64StartPos_msgElem.value.length == 0 && !skip_paste) {
+    var b64 = document.getElementById('prv').src;
+    var msgElem = document.getElementById('msg');
+    if(msgElem.value.length == 0 && !b64 && !skip_paste) {
         var p = navigator.clipboard;
         if(p && p.readText) { /* old browser or HTTPS failure */
             p.readText()
             .then(function(t){
-                b64StartPos_msgElem.value = t;
+                msgElem.value = t;
                 if(t.length == 0) {
                     sendUI(b,1)
                 }
@@ -327,18 +328,17 @@ function sendUI(b, skip_paste) { //b button
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
         t == "no num specified in url anchor" && (t = '');
-        var b64 = document.getElementById('prv').src;
         if(b64){
-            b64StartPos_msgElem = b64.indexOf(',');
-            if(b64StartPos_msgElem == -1){
+            var b64StartPos = b64.indexOf(',');
+            if(b64StartPos == -1){
                 alert("Image selected could not be turned into a DATA URL");
                 b64 = ''
             } else {
-                b64 = b64.substr(b64StartPos_msgElem+1);
+                b64 = b64.substr(b64StartPos+1);
             }
         }
         b.textContent = "\xa0\u2709\u231B\xa0"; //hourglass mark
-        sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
+        sendsms(t,msgElem.value,b64,function(err, r){
             if (err) {
                 b.textContent = "\xa0\u2709\u2718\xa0"; //X mark
                 nextPollLoop();
@@ -352,13 +352,13 @@ function sendUI(b, skip_paste) { //b button
                         //messages, see sendsms logic for rando msg ID generation
                         if(r.thread.item[0].id != latestOutPostHash) {
                             alert("Warning: sent outgoing message , server confirmed, but not in chat log");
-                            sendsms(t,b64StartPos_msgElem.value,b64,function(err, r){
+                            sendsms(t,msgElem.value,b64,function(err, r){
                                 if (!err) {
                                     nextFastPollLoop();
                                 }
                             });
                         } else {
-                            b64StartPos_msgElem.value = '';
+                            msgElem.value = '';
                             clearPrvImg();
                             nextFastPollLoop();
                         }
