@@ -767,17 +767,23 @@ function mkOfflineCall(elem, acntNum, destNum, finish) {
 
 function resp401Unauth(jstr) {
     try {
-        jstr = JSON.parse(jstr).error;
-        if(jstr && jstr.code == 401
-            && (jstr.status == "UNAUTHENTICATED"
-                || jstr.message == "Invalid Credentials")) {
+        jstr = JSON.parse(jstr);
+        //https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+        //16=UNAUTHENTICATED, for protojson contact name
+        if (Array.isArray(jstr) && jstr[0] == 16 &&
+            !jstr[1].indexOf('Request had invalid authentication credentials. Expected OAuth 2 access token')) {
             return true;
+        } else {
+            jstr = jstr.error;
+            if (jstr && jstr.code == 401 &&
+                (jstr.status == "UNAUTHENTICATED" ||
+                    jstr.message == "Invalid Credentials")) {
+                return true;
+            }
         }
-    } catch (e) {
-    }
+    } catch (e) {}
     return false;
 }
-
 //void function finish(err_obj_typ_JSON_str, response_str)
 function imgURLToB64Str(url,finish){
 var x=new XMLHttpRequest;
