@@ -231,9 +231,10 @@ function lazySignedInExpires() {
     else return 0;
 }
 
+var wvProxyPrefix = 'https:';
 function pickerProfHandler(e) {
     e.preventDefault();
-    e = 'https://saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(e.currentTarget.lastChild.lastChild.textContent);
+    e = wvProxyPrefix+'//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(e.currentTarget.lastChild.lastChild.textContent);
     //get email addr from div^^^
     console.log(e);
     window.open(e);
@@ -247,10 +248,11 @@ function wvDrawAccountPicker() {
         p.innerHTML = oldPicker;
     }
     var myRequest = new XMLHttpRequest();
-    myRequest.open('GET', 'https://saproxy.us.to/get_sessions', !0);
+    myRequest.open('GET', wvProxyPrefix+'//saproxy.us.to/get_sessions', !0);
     myRequest.responseType = 'document';
     myRequest.onreadystatechange = function() {
-        if (4 == myRequest.readyState && (200 == myRequest.status || 403 == myRequest.status)) {
+        if (4 == myRequest.readyState) {
+            if(200 == myRequest.status || 403 == myRequest.status) {
             var d = myRequest.responseXML; //403 responseXML is null
             d = d ? d.getElementsByTagName('div') : [];
             var e;
@@ -281,6 +283,10 @@ function wvDrawAccountPicker() {
                 }
                 p.appendChild(d);
                 localStorage.setItem('wvAcntPicker', e);
+            }
+            } else if(0 == myRequest.status && wvProxyPrefix == 'https:') {
+                wvProxyPrefix = 'http:';
+                wvDrawAccountPicker();
             }
         }
     };
@@ -329,7 +335,7 @@ function getAuthToken(callbackFunc) {
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
-            if(e.origin == "https://saproxy.us.to"){
+            if(e.origin == "https://saproxy.us.to" || e.origin == "http://saproxy.us.to"){
                 e = JSON.parse(e.data).params.authResult;
         /*this logic is in client origin GAPI JS framework typ, not over wire */
                 e.first_issued_at = (new Date).getTime();
@@ -397,7 +403,7 @@ function getAuthToken(callbackFunc) {
             var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
 //https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
             window.open('https://accounts.google.com'+u);
-            window.open('https://saproxy.us.to'+u);
+            window.open(wvProxyPrefix+'//saproxy.us.to'+u);
          };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
@@ -422,11 +428,14 @@ function getAuthToken(callbackFunc) {
         buttonNode.id = 'picker';
         newBodyNode.appendChild(document.createElement('br'));
         buttonNode = newBodyNode.appendChild(document.createElement('a'));
-        buttonNode.href = 'https://saproxy.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
+        buttonNode.href = wvProxyPrefix+'//saproxy.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
         buttonNode.target = '_blank';
         buttonNode.rel = 'opener';
         buttonNode.textContent = 'Add Account';
-        buttonNode.onclick = function() {
+        buttonNode.onclick = function(e) {
+            e = e.target;
+            e.href.indexOf(wvProxyPrefix) && 
+                (e.href = wvProxyPrefix+e.href.substr(e.href.indexOf('/')))
             var postAddSessionCB = function() {
                 window.removeEventListener('focus', postAddSessionCB);
                 wvDrawAccountPicker();
@@ -452,7 +461,7 @@ function getAuthToken(callbackFunc) {
                 }
             };
             x.withCredentials = true;
-            x.open('GET', 'https://saproxy.us.to/delete_cookies', !0);
+            x.open('GET', wvProxyPrefix+'//saproxy.us.to/delete_cookies', !0);
             x.send();
         };
         wvDrawAccountPicker();
