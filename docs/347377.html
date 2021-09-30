@@ -1,0 +1,245 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- 
+********************* ATTENTION ******************
+
+Please do not run automated scripts against this
+site, we have put steps in place to disallow this.
+
+Most of this data can be directly downloaded with
+a paid subscription, and if you need anything that
+you can not get with a paid subscription, please
+contact support@telcodata.us to setup an arrangement.
+
+Also, if you really want an API, we're working on
+one. If you want to help shape it, get in now.
+
+**************************************************
+-->
+<html>
+  <head>
+    <meta name="description" content="Telcodata.US - The Telecommunications Database" />
+    <meta name="keywords" content="telecommunications database, telcodata, npa/nxx, ratecenter, wirecenter, centeral office, ocn, switch lookup, lata, tandem lookup" />
+    <title>TelcoData.US: Search by Area Code / Exchange</title>
+    <link rel="stylesheet" type="text/css" href="https://d1glx5rv37wetx.cloudfront.net/css/telcodata.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body style="background-color: #EFEFEF;">
+  <!-- <body style="background-color: #88DD88;"> -->
+    <script type="text/javascript">
+    window._idl = {};
+    _idl.variant = "banner";
+    (function() {
+        var idl = document.createElement('script');
+        idl.type = 'text/javascript';
+        idl.async = true;
+        idl.src =  'https://members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+        document.getElementsByTagName('body')[0].appendChild(idl);
+    })();
+</script>
+<div id="logo" class="TelcoDataLogo">
+    <img src="https://d1glx5rv37wetx.cloudfront.net/images/telcodata.jpg" alt="TelcoData.US - Telecommunications Database" width="340" height="70" /><br>
+      <p style="margin-top: -6px; padding: 0px; font-size: 10pt;">
+     Still going strong after 19 years!<br>
+Last Updated: Thu Sep 30 01:16:07 2021<br>
+
+      </p>
+    </div>
+    <div id="Menu" class="menu">
+      <div id="TelcoData" class="menulist">TelcoData.us</div>
+      <div id="TelcoData-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/">Main Page</a></li>
+           <li><a href="https://www.telcodata.us/faq">Frequently Asked Questions</a></li>
+        </ul>
+      </div>
+     <br>
+      <div id="Subscription" class="menulist">Subscription Services</div>
+      <div id="Subscription-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/login">Login/Subscriber Menu</a></li>
+           <li><a href="https://www.telcodata.us/logout">Logout</a></li>
+           <li><a href="https://www.telcodata.us/signup">Signup</a></li>
+           <li><a href="https://www.telcodata.us/data-downloads">Downloads</a></li>
+           <li><a href="https://www.telcodata.us/query-by-csv-upload">CSV Upload Query</a></li>
+        </ul>
+      </div>
+     <br>
+      <div id="AreaCodeExchangeListing" class="menulist">Area Code / Exchange Listings By</div>
+      <div id="AreaCodeExchangeListing-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-detail">Area Code / Exchange</a></li>
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-by-clli">CLLI</a></li>
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state">Company Name & State</a></li>
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state">Rate Center & State</a></li>
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn">OCN</a></li>
+           <li><a href="https://www.telcodata.us/search-area-code-exchange-by-lata">LATA</a></li>
+        </ul>
+      </div>
+     <br>
+      <div id="SwitchListing" class="menulist">Switch Listings By</div>
+      <div id="SwitchListing-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/search-switches-by-clli-code">CLLI</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-by-tandem-clli">Tandem CLLI</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-by-switch-type">Type</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-by-lata">LATA</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-by-city-state">City, State</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-by-zip-code">Zip Code</a></li>
+        </ul>
+      </div>
+     <br>
+      <div id="OtherListing" class="menulist">Other Listings</div>
+      <div id="OtherListing-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/view-switch-detail-by-clli">Switch Detail by CLLI</a></li>
+           <li><a href="https://www.telcodata.us/search-cic-acna-tenten-info">CIC/ACNA Code Lookup</a></li>
+           <li><a href="https://www.telcodata.us/search-companies-by-area-code">Companies by Area Code</a></li>
+           <li><a href="https://www.telcodata.us/search-companies-by-state">Companies by State</a></li>
+           <li><a href="https://www.telcodata.us/search-area-codes-by-state">Area Codes by State</a></li>
+           <li><a href="https://www.telcodata.us/search-switches-companies-by-ratecenter-state">Switches & Companies by Rate Center & State</a></li>
+        </ul>
+      </div>
+     <br>
+      <div id="Reports" class="menulist">Reports</div>
+      <div id="Reports-Options" class="menulist">
+        <ul class="menulinks">
+           <li><a href="https://www.telcodata.us/new-exchanges-report">New Exchanges</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="Content" class="content">
+
+    <form>
+	Input an <abbr title="This is the first part of the number, example XXX-xxx-xxxx">Area Code</abbr> (required) followed by the <abbr title="This is the part of the phone number after the area code, but before the line number - xxx-XXX-xxxx">Prefix, or Exchange</abbr> (optional):<br /><input name="npa" value="347" size="3" maxlength="3" />-<input name="exchange" value="377" size="3" maxlength="3" /><input type="submit" value="Search" /><br />
+	
+		If you were a <a href="https://www.telcodata.us/signup">paid member</a>, you could be loading this into any version of Excel or Access (or any other software that understands CSV) right now for less than you paid for your breakfast or lunch today. If you are a member please <a href="https://www.telcodata.us/login">login</a> to access this and other functionality.
+	
+</form>
+
+
+	<table class="resultstable">
+	
+		<tr class="header"><td>npa-nxx</td><td>State</td><td>Company</td><td>OCN</td><td>Rate Center</td><td>CLLI</td><td>Assign Date</td><td>Misc</td></tr>
+	
+	
+		
+		
+			<tr class="results"><td><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=XO%20NEW%20YORK%2C%20INC.&state=NY">XO NEW YORK, INC. (Verizon Communications)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=8340">8340</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCMNY83DSR">NYCMNY83DSR</a></td><td>07/22/2010</td><td>Prefix Type: CLEC<br>Switch Name: NEW YORK CITY<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCMNY83DSR">Detailed Switch Info</a></td></tr>
+		
+	
+		
+			<tr class="subheader"><td colspan="100%" style="color: red">Thousands block for 347-377</td></tr>
+		
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-0</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=BANDWIDTH.COM%20CLEC%2C%20LLC%20-%20NY&state=NY">BANDWIDTH.COM CLEC, LLC - NY</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=997E">997E</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td>NOCLLIKNOWN</td><td>09/22/2010</td><td>Prefix Type: CLEC<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NOCLLIKNOWN">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-1</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=OMNIPOINT%20COMMUNICATIONS%2C%20INC.&state=NY">OMNIPOINT COMMUNICATIONS, INC. (T-Mobile US, Inc)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=6622">6622</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCMNYAACML">NYCMNYAACML</a></td><td>10/08/2010</td><td>Prefix Type: PCS<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCMNYAACML">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-2</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=BANDWIDTH.COM%20CLEC%2C%20LLC%20-%20NY&state=NY">BANDWIDTH.COM CLEC, LLC - NY</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=997E">997E</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td>NOCLLIKNOWN</td><td>06/10/2011</td><td>Prefix Type: CLEC<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NOCLLIKNOWN">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-3</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=VERIZON%20NEW%20YORK%2C%20INC.&state=NY">VERIZON NEW YORK, INC. (Verizon Communications)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=9104">9104</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCKNY77DS0">NYCKNY77DS0</a></td><td>01/06/2011</td><td>Prefix Type: RBOC<br>Switch Name: 77TH STREET<br>Switch Type: NTDMS100<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCKNY77DS0">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-4</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=VERIZON%20NEW%20YORK%2C%20INC.&state=NY">VERIZON NEW YORK, INC. (Verizon Communications)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=9104">9104</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCKNY77DS0">NYCKNY77DS0</a></td><td>01/06/2011</td><td>Prefix Type: RBOC<br>Switch Name: 77TH STREET<br>Switch Type: NTDMS100<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCKNY77DS0">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-5</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=VERIZON%20NEW%20YORK%2C%20INC.&state=NY">VERIZON NEW YORK, INC. (Verizon Communications)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=9104">9104</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCKNY77DS0">NYCKNY77DS0</a></td><td>01/06/2011</td><td>Prefix Type: RBOC<br>Switch Name: 77TH STREET<br>Switch Type: NTDMS100<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCKNY77DS0">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-6</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=VERIZON%20NEW%20YORK%2C%20INC.&state=NY">VERIZON NEW YORK, INC. (Verizon Communications)</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=9104">9104</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-clli?cllicode=NYCKNY77DS0">NYCKNY77DS0</a></td><td>01/06/2011</td><td>Prefix Type: RBOC<br>Switch Name: 77TH STREET<br>Switch Type: NTDMS100<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NYCKNY77DS0">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-7</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=YMAX%20COMMUNICATIONS%20CORP.%20-%20NY&state=NY">YMAX COMMUNICATIONS CORP. - NY (YMAX (a/k/a MagicJack))</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=282E">282E</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td>NOCLLIKNOWN</td><td>08/23/2010</td><td>Prefix Type: CLEC<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NOCLLIKNOWN">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-8</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=YMAX%20COMMUNICATIONS%20CORP.%20-%20NY&state=NY">YMAX COMMUNICATIONS CORP. - NY (YMAX (a/k/a MagicJack))</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=282E">282E</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td>NOCLLIKNOWN</td><td>08/23/2010</td><td>Prefix Type: CLEC<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NOCLLIKNOWN">Detailed Switch Info</a></td></tr>
+		
+	
+		
+		
+			<tr class="results"><td style="text-align: right"><a href="https://www.telcodata.us/search-area-code-exchange-detail?npa=347&exchange=377">347-377-9</a></td><td>NY</td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-company-state?company=YMAX%20COMMUNICATIONS%20CORP.%20-%20NY&state=NY">YMAX COMMUNICATIONS CORP. - NY (YMAX (a/k/a MagicJack))</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ocn?ocn=282E">282E</a></td><td><a href="https://www.telcodata.us/search-area-code-exchange-by-ratecenter-state?ratecenter=NWYRCYZN07&state=NY">NWYRCYZN07</a></td><td>NOCLLIKNOWN</td><td>08/23/2010</td><td>Prefix Type: CLEC<br>Switch Name: N/A<br>Switch Type: N/A<br>LATA: New York City METRO (<a href="https://www.telcodata.us/search-area-code-exchange-by-lata?lata=132">132</a>)<br>Tandem: N/A<br><a href="https://www.telcodata.us/view-switch-detail-by-clli?clli=NOCLLIKNOWN">Detailed Switch Info</a></td></tr>
+		
+		
+	</table>
+
+
+
+
+    
+    </div>
+
+    <div id="WSPadding" style="width: auto; clear: both">
+    </div>
+
+    <div class="footer">
+      This information is not guaranteed to be accurate. User assumes all risk for any loss or gain resulting from use of this data.<br />
+      Although I strive for accuracy and prompt updates of changed information, it is possible that there may be errors. If you see one, could you please report it?<br />
+      Please report all errors, flames, questions, suggestions, and thanks to <a href="mailto:support@telcodata.us">Paul Timmins</a><br />
+
+      Please see the <a href="/faq.html">Frequently Asked Questions</a> page if you have any questions.<br />
+      Copyright &copy;2001-2021, <a href="http://www.timmins.net/">Paul Timmins/Timmins Technologies, LLC.</a> All rights reserved<br />
+      Website Design and User Interface &copy;2010, <a href="http://www.revsolns.com/">Adam Botbyl/Revolutionary Solutions, LLC.</a><br />
+
+      Colocation generously provided by <a href="http://www.clearrate.com/">Clear Rate Communications, Inc</a><br />
+      Has this site changed your life? Made your job easier? I always love <a href="mailto:support@telcodata.us">Fanmail and Suggestions</a>.<br />
+    </div>
+
+<script type="text/javascript">
+    window._idl = {};
+    _idl.variant = "modal";
+    (function() {
+        var idl = document.createElement('script');
+        idl.type = 'text/javascript';
+        idl.async = true;
+        idl.src = 'https://members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+        document.getElementsByTagName('body')[0].appendChild(idl);
+    })();
+</script>
+
+
+<a href="https://internetdefenseleague.org"><img src="https://internetdefenseleague.org/images/badges/final/footer_badge.png" alt="Member of The Internet Defense League"/></a>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-15518466-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!--[if !(lt IE 8)]><!-->
+   <script type="text/javascript">
+     (function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="https://d1agz031tafz8n.cloudfront.net/thedaywefightback.js/widget.min.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+   </script>
+<!--<![endif]-->
+  </body>
+</html>
+
