@@ -1,5 +1,10 @@
 var carrierCache = {};
 //let v8start;
+const primaryURLBase = 'https://www.telcodata.us/search-area-code-exchange-detail';
+//const primaryURLBase = 'http://betacors.herokuapp.com/https://www.telcodata.us/search-area-code-exchange-detail';
+//const primaryURLBase = 'http://wvoice.us.to/abuse.htm';
+const secURLBase = 'http://betacors.herokuapp.com/https://www.telcodata.us/search-area-code-exchange-detail';
+//const secURLBase = 'http://wvoice.us.to/abuse.htm';
 
 addEventListener("fetch", event => {
   //  if(!v8start) {v8start = Date.now()};
@@ -51,12 +56,23 @@ addEventListener("fetch", event => {
       return;
     }
     let referer = event.request.headers.get('referer');
-    let responseOrigin = fetch('https://www.telcodata.us/search-area-code-exchange-detail?npa=' +
-      num.substr(0, 3) + '&exchange=' + num.substr(4, 3)
+    let url = primaryURLBase + '?npa=' + num.substr(0, 3) + '&exchange=' + num.substr(4, 3);
+    let responseOrigin = fetch(
+    url
     //let responseOrigin = fetch('http://scooterlabs.com/echo'
     ,{ cf: { scrapeShield: false }, ...referer && {headers: {referer: referer}}});
     //resolveCB(responseOrigin);
     //return;
+    processResponse(event, responseOrigin, resolveCB, num, url);
+    //toss promise just in case
+    return;
+    //    } catch (e) {
+    //      resolveCB(new Response(e));
+    //
+  }));
+})
+
+function processResponse(event, response, resolveCB, num, url) {
     let metaCarrier;
     let saw1000s;
 
@@ -65,6 +81,35 @@ addEventListener("fetch", event => {
     //reformat number to origin-like string
 
     let rewriter = new HTMLRewriter()
+      .on('title', {
+        element: function() {
+          textBuf = '';
+        },
+        text: function(text) {
+          textBuf += text.text; // concatenate new text with existing text buffer
+          if (text.lastInTextNode) {
+            //"Error communicating with origin"
+            //'Abuse Detection'
+            if (textBuf != 'TelcoData.US: Search by Area Code / Exchange') {
+              if(url.startsWith(secURLBase)) {
+                resolveCB(new Response(null, {
+                    status: 429
+                }));
+                return;
+              } else {
+                //retry using AWS proxy IP
+                let referer = event.request.headers.get('referer');
+                url = secURLBase + '?npa=' + num.substr(0, 3) + '&exchange=' + num.substr(4, 3);
+                let response = fetch(
+                url
+                //let responseOrigin = fetch('http://scooterlabs.com/echo'
+                ,{ cf: { scrapeShield: false }, ...referer && {headers: {referer: referer}}});
+                processResponse(event, response, resolveCB, num, url);
+              }
+            }
+          }
+        }
+      })
       .on('tr[class="results"]>td:nth-child(1)>a', {
         element: function() {
           textBuf = '';
@@ -151,7 +196,7 @@ addEventListener("fetch", event => {
         }
       });
     //Promise {[[PromiseState]]: "pending", [[PromiseResult]]: undefined}
-    responseOrigin.then(function(resp) {
+    response.then(function(resp) {
       //without event.waitUntil, after resolveCB() call in a matched 1000s
       //block, runtime will kill this worker, stopping parsing and storing
       //to cache rest of the 1000s block of the exchange
@@ -159,10 +204,4 @@ addEventListener("fetch", event => {
       //just in case event.waitUntil returns a promise, toss it away
       return;
     });
-    //toss promise just in case
-    return;
-    //    } catch (e) {
-    //      resolveCB(new Response(e));
-    //
-  }));
-})
+}
