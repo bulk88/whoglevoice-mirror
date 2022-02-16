@@ -232,59 +232,52 @@ function lazySignedInExpires() {
 }
 
 var wvProxyPrefix = 'https:';
-function pickerProfHandler(e) {
-    e.preventDefault();
-    e = wvProxyPrefix+'//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(e.currentTarget.lastChild.lastChild.textContent);
-    //get email addr from div^^^
-    console.log(e);
-    window.open(e);
+
+function wvDrawUserList(d) { //jsonText
+  var p = document.getElementById('picker');
+  var frag = document.createDocumentFragment();
+  try {
+    d = JSON.parse(d);
+    d = d[1];
+    for (var e = 0; e < d.length; e++) {
+      var u = d[e]; //user
+      var n = frag.appendChild(document.createElement('a'));
+      n.target = "_blank";
+      n.rel = "opener";
+      n.href = wvProxyPrefix + '//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(u[3]);
+      var i = n.appendChild(document.createElement('img'));
+      i.src = u[4];
+      i.referrerPolicy = "no-referrer";
+      n.appendChild(document.createElement('div')).textContent = u[2];
+      n.appendChild(document.createElement('div')).textContent = u[3];
+    }
+  } catch (e) {
+    frag.textContent = e;
+  }
+  while (p.lastChild) {
+    p.removeChild(p.lastChild);
+  }
+  p.appendChild(frag);
 }
 
-
 function wvDrawAccountPicker() {
-    var p = document.getElementById('picker');
+
     var oldPicker = localStorage.getItem('wvAcntPicker');
     if (oldPicker) {
-        p.innerHTML = oldPicker;
+        wvDrawUserList(oldPicker);
     }
     var myRequest = new XMLHttpRequest();
-    myRequest.open('GET', wvProxyPrefix+'//saproxy.us.to/get_sessions', !0);
-    myRequest.responseType = 'document';
+    //mo=1 prop required for profile pics to be user specific vs generic
+    myRequest.open('GET', wvProxyPrefix + '//saproxy.us.to/ListAccounts?mo=1', !0);
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState) {
-            if(200 == myRequest.status || 403 == myRequest.status) {
-            var d = myRequest.responseXML; //403 responseXML is null
-            d = d ? d.getElementsByTagName('div') : [];
-            var e;
-            for (var i = d.length - 1; e=null,i >= 0; i--) {
-                e = d[i];
-                if(e = e.childNodes[0]) {
-                    if(e.nodeValue && e.nodeValue.match(/Default/)) {
-                        i=5;
-                        while(i>0){e = e.parentNode;i--}
-                        d=e;
-                        break;
-                    }
+            if (200 == myRequest.status) {
+                var d = myRequest.responseText; //403 responseXML is null
+                if (d != oldPicker) {
+                    wvDrawUserList(d);
+                    localStorage.setItem('wvAcntPicker', d);
                 }
-            }
-            if (e) {
-                Array.prototype.forEach.call(d.getElementsByTagName('a'), function(e) {
-                    e.href = '';
-                    e.setAttribute('onclick', 'pickerProfHandler(event)');
-                    e.firstChild.src = e.firstChild.dataset.src;
-                });
-            } else {
-                d = document.createElement('div');
-            }
-            e = d.outerHTML;
-            if (e != oldPicker) {
-                while (p.lastChild) {
-                    p.removeChild(p.lastChild);
-                }
-                p.appendChild(d);
-                localStorage.setItem('wvAcntPicker', e);
-            }
-            } else if(0 == myRequest.status && wvProxyPrefix == 'https:') {
+            } else if (0 == myRequest.status && wvProxyPrefix == 'https:') {
                 wvProxyPrefix = 'http:';
                 wvDrawAccountPicker();
             }
