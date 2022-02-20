@@ -248,6 +248,8 @@ function wvDrawUserList(d) { //jsonText
       var i = n.appendChild(document.createElement('img'));
       i.src = u[4];
       i.referrerPolicy = "no-referrer";
+      i.style.height = 48;
+      i.style.width = 48;
       n.appendChild(document.createElement('div')).textContent = u[2];
       n.appendChild(document.createElement('div')).textContent = u[3];
     }
