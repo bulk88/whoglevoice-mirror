@@ -14,10 +14,10 @@ function c(t) {
 }
 
 //finish(err, resp)
-function getThreadList(fullreq, paginationToken, finish){
-    getAuthToken(function(tok) {getThreadList_t(true, tok, fullreq, paginationToken, finish)});
+function getThreadList(fullreq, paginationToken, archive, finish){
+    getAuthToken(function(tok) {getThreadList_t(true, tok, fullreq, paginationToken, archive, finish)});
 }
-function getThreadList_t(canReAuth, tok, fullreq, paginationToken, finish){
+function getThreadList_t(canReAuth, tok, fullreq, paginationToken, archive, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/list?alt="+(fullreq?"json&prettyPrint=false":"protojson"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
@@ -25,7 +25,7 @@ x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {getThreadList_t(false, tok, fullreq, paginationToken, finish)});
+        getAuthToken(function(tok) {getThreadList_t(false, tok, fullreq, paginationToken, archive, finish)});
     }
     else if(x.status != 200) {
         x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
@@ -36,8 +36,8 @@ x.onreadystatechange=function(){if(x.readyState==4){
 
 //x.send('[1, 10, 15, null, "v1-0-1594212530956000", [null, true, true]]');
 //arg 1 is thread types, call or sms to return, 0 invalid arg err,
-// 2 is SMS only, 1 is SMS and calls 3 is calls only, 4 is bizzare tiny version
-//info only struct,  5 is spam folder texts, 6 is archive folder texts
+// 2 is SMS only, 1 is SMS and calls 3 is calls only, 4 is voicemail
+// 5 is spam folder texts, 6 is archive folder texts
 //7 is invalid arg
 //arg 2 is how many of the you want, how many numbers {
  // "id": "t.+13475551234",
@@ -52,7 +52,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
  //arg 5 is "version_token": "v1-0-1594212659066000" but no visible output change if I add it
 //extra struct elements not needed
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
-x.send((fullreq?'[2,100,1':'[2,1,1')+(paginationToken?',"'+paginationToken+'"]':']'));
+x.send((fullreq?'['+(archive?6:2)+',100,1':'['+(archive?6:2)+',1,1')+(paginationToken?',"'+paginationToken+'"]':']'));
 }
 
 function drawThdList(paginationToken,r) {
@@ -126,7 +126,7 @@ var paginationToken = (evt.dataset||{}).wvPgTok;
 //DIV doesn't exist yet
 
 /*            Full req Flag   pag token num */
-getThreadList(paginationToken,paginationToken,function(e,r){
+getThreadList(paginationToken,paginationToken,0,function(e,r){
     if (e) { /*error*/
         evt.textContent ="\xa0\u25BD\u2718";//X mark
     }
@@ -138,7 +138,7 @@ getThreadList(paginationToken,paginationToken,function(e,r){
             //lastest server MID doesn't match local MID aka new msg
             var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
             if(r.substr(25,40) != oldmid) {
-                getThreadList(1,0,function(e,r){
+                getThreadList(1,0,0,function(e,r){
                     if (e) { /*error*/
                         evt.textContent ="\xa0\u25BD\u2718";//X mark
                     }
