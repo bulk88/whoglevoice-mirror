@@ -321,7 +321,8 @@ function getAuthToken(callbackFunc) {
         //previous dummy link was 'https://voice.google.com/about' which was
         //sort of light weight, but this random GUID link to an invalid pic is
         //an even lighter weight page even though its always 401 or 404
-        GVLinkNode.href = 'https://voice.google.com/a/i/4e01281e272a1ccb11ceff9704b131e5-1'+(email?'#wvCurAcnt='+email:'');
+        //2021 CSP nonce in header isn't inside body of 404 page
+        GVLinkNode.href = 'https://voice.google.com/about'+(email?'#wvCurAcnt='+email:'');
         GVLinkNode.target = '_blank';
         /*https://github.com/whatwg/html/issues/4078*/
         GVLinkNode.rel = 'opener';
