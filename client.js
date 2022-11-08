@@ -242,9 +242,10 @@ function wvDrawUserList(d) { //jsonText
     for (var e = 0; e < d.length; e++) {
       var u = d[e]; //user
       var n = frag.appendChild(document.createElement('a'));
+      n.href = wvProxyPrefix + '//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(u[3]);
+      wvPickerTokenRefresh(n);
       n.target = "_blank";
       n.rel = "opener";
-      n.href = wvProxyPrefix + '//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(u[3]);
       var i = n.appendChild(document.createElement('img'));
       i.src = u[4];
       i.referrerPolicy = "no-referrer";
@@ -262,6 +263,87 @@ function wvDrawUserList(d) { //jsonText
   p.appendChild(frag);
 }
 
+function wvPickerTokenRefresh(buttonElement) {
+  var myRequest_divarr = new XMLHttpRequest();
+  /* login_hint for /iframerpc?action=issueToken must be a fake-JWT
+  not a integer sub: google ID serial number, and can't be an email addr and
+  /ListAccounts doesn't include id_token needed, and
+  /iframerpc?action=listSessions doesnt include profile photos
+   */
+  //https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDL-Al96OoAb-3hYtG3&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
+  myRequest_divarr.open('GET', buttonElement.href, !0);
+  myRequest_divarr.responseType = 'document';
+  myRequest_divarr.onreadystatechange = function () {
+    if (4 == myRequest_divarr.readyState) {
+      if (200 == myRequest_divarr.status) {
+        try { //API changes in Google HTML protect
+          myRequest_divarr = myRequest_divarr.response.body.getElementsByTagName('div');
+          var elem_str;
+          for (var i = 0; i < myRequest_divarr.length; i++) {
+            elem_str = myRequest_divarr[i];
+            if (elem_str = elem_str.attributes['data-credential-response']) {
+              //term loop
+              i = myRequest_divarr.length;
+              //chop off %.@. then parse
+              elem_str = JSON.parse('[' + elem_str.nodeValue.substring(4))[4][4];
+              //0 is json str
+              //1 is 301 domain
+              //2 is auth
+              //3 *
+              elem_str = {
+                origin: "https://saproxy.us.to",
+                data: JSON.stringify({
+                  params: {
+                    authResult: JSON.parse(elem_str[0]),
+                    clientId: elem_str[1],
+                    id: elem_str[2],
+                    type: "authResult"
+                  }
+                })
+              };
+              buttonElement.onclick = function () {
+                //inject token as if we had a full popup into a message
+                window.onmessage(elem_str); /* msg event obj real */
+                return false;
+              }
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      } else if (0 == myRequest_divarr.status && wvProxyPrefix == 'https:') {
+        wvProxyPrefix = 'http:';
+        wvPickerTokenRefresh(buttonElement);
+      }
+    }
+  };
+  myRequest_divarr.withCredentials = true;
+  myRequest_divarr.send();
+}
+
+/*
+function wvPickerTokenRefresh(buttonElement, user) {
+  var myRequest = new XMLHttpRequest();
+  debugger;
+//https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDLj6KEP9MzDcsaSxXgEfSczj3V-Al96OoAboO9hrh7Jy9wgL5c-3hYtG3iPXgOzw2cJUgmFPCVzMxAN7bUwf5PLWlYn0Sz5A&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
+  myRequest.open('GET', wvProxyPrefix + '//saproxy.us.to/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com&login_hint=' +user[10], !0);
+  myRequest.onreadystatechange = function() {
+      if (4 == myRequest.readyState) {
+          if (200 == myRequest.status) {
+              var d = myRequest.responseText; //403 responseXML is null
+              debugger;
+          } else if (0 == myRequest.status && wvProxyPrefix == 'https:') {
+              wvProxyPrefix = 'http:';
+              wvPickerTokenRefresh(buttonElement, user);
+          }
+      }
+  };
+  myRequest.withCredentials = true;
+  myRequest.send();
+}
+
+*/
+
 function wvDrawAccountPicker() {
 
     var oldPicker = localStorage.getItem('wvAcntPicker');
@@ -275,6 +357,7 @@ function wvDrawAccountPicker() {
         if (4 == myRequest.readyState) {
             if (200 == myRequest.status) {
                 var d = myRequest.responseText; //403 responseXML is null
+                //don't draw HTML 2nd time, dont trigger token prefetch 2nd time
                 if (d != oldPicker) {
                     wvDrawUserList(d);
                     localStorage.setItem('wvAcntPicker', d);
@@ -303,7 +386,20 @@ function getAuthToken(callbackFunc) {
     }
     if (GVAuthObj) {
         callbackFunc(GVAuthObj.access_token);
-    } else { //get token from user page
+    }
+    //are we a nested token fetch? avoid 2 token fetches
+    //thread fetch and contact name fetch for ex
+    else if (window.onmessage) {
+      var oldmessageCB = window.onmessage;
+      window.onmessage = function (e) {
+        window.onmessage = null;
+        e = oldmessageCB(e);
+        //todo could do a lazy token fetch but no func yet
+        getAuthToken(callbackFunc);
+        return e; /* ret */
+      }
+    }
+    else { //get token from user page UI
         var wvDocumentElement = document.documentElement;
         var oldBodyNode = document.body;
         oldBodyNode && wvDocumentElement.removeChild(oldBodyNode);
