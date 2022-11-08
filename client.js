@@ -242,7 +242,7 @@ function wvDrawUserList(d) { //jsonText
     for (var e = 0; e < d.length; e++) {
       var u = d[e]; //user
       var n = frag.appendChild(document.createElement('a'));
-      n.href = wvProxyPrefix + '//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&login_hint=' + encodeURIComponent(u[3]);
+      n.href = wvProxyPrefix + '//saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&authuser='+e+'&login_hint=' + encodeURIComponent(u[3]);
       wvPickerTokenRefresh(n);
       n.target = "_blank";
       n.rel = "opener";
@@ -290,11 +290,16 @@ function wvPickerTokenRefresh(buttonElement) {
               //1 is 301 domain
               //2 is auth
               //3 *
+              //add authuser index so images load faster through http vs base64
+              var authResult = JSON.parse(elem_str[0]);
+              authResult.session_state = authResult.session_state || {};
+              authResult.session_state.extraQueryParams = authResult.session_state.extraQueryParams || {};
+              authResult.session_state.extraQueryParams.authuser = new URL(buttonElement.href).searchParams.get('authuser');
               elem_str = {
                 origin: "https://saproxy.us.to",
                 data: JSON.stringify({
                   params: {
-                    authResult: JSON.parse(elem_str[0]),
+                    authResult: authResult,
                     clientId: elem_str[1],
                     id: elem_str[2],
                     type: "authResult"

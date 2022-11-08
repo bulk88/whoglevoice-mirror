@@ -50,17 +50,17 @@ function getConvoUI(evt, paginationToken, finish) {
                     m=msgObj.mmsMessage.attachment[n];
                     if(m.mediaType == "video") {
                         img = p.appendChild(document.createElement('video'));
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
+                        img.src = 'https://saproxy.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         img.controls = true;
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
+                        a.href = 'https://saproxy.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         a.textContent = "Download Video";
                     } else if (m.mediaType == "vcard") {
                         img = p.appendChild(document.createElement('img'));
                         img.isvcard = 1;
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/vc/'+m.id;
+                        img.src = 'https://saproxy.us.to/u/'+userIndex+'/a/vc/'+m.id;
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/vc/'+m.id;
+                        a.href = 'https://saproxy.us.to/u/'+userIndex+'/a/vc/'+m.id;
                         a.textContent = "Download Vcard";
                         //a.onclick = altVcardLoader;
                     } else {
@@ -71,14 +71,14 @@ function getConvoUI(evt, paginationToken, finish) {
 //google.com cookie doesn't match the copy pasted creds (auth token)
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
-                        img.src = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=2';
+                        img.src = 'https://saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=2';
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
 //0: {size_spec: "ORIGINAL", width: 11, height: 10}
 //1: {size_spec: "S_128", width: 11, height: 10}
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
-                        a.href = 'https://voice.google.com/u/'+userIndex+'/a/i/'+m.id+'?s=1';
+                        a.href = 'https://saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=1';
                         a.onclick = imgLoaderClick;
                         a.appendChild(img);
                         p.appendChild(a);
