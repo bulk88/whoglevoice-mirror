@@ -1,9 +1,9 @@
 var carrierCache = {};
 //let v8start;
 const primaryURLBase = 'https://www.telcodata.us/search-area-code-exchange-detail';
-//const primaryURLBase = 'http://betacors.herokuapp.com/https://www.telcodata.us/search-area-code-exchange-detail';
+//const primaryURLBase = 'http://betacors.fly.dev/https://www.telcodata.us/search-area-code-exchange-detail';
 //const primaryURLBase = 'http://wvoice.us.to/abuse.htm';
-const secURLBase = 'http://betacors.herokuapp.com/https://www.telcodata.us/search-area-code-exchange-detail';
+const secURLBase = 'http://betacors.fly.dev/https://www.telcodata.us/search-area-code-exchange-detail';
 //const secURLBase = 'http://wvoice.us.to/abuse.htm';
 
 addEventListener("fetch", event => {
