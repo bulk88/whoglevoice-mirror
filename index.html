@@ -23,7 +23,10 @@ x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/list?a
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
-    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+    if(x.status == 503) { //temorary random failure, just retry
+        getThreadList_t(canReAuth, tok, fullreq, paginationToken, archive, finish);
+    }
+    else if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThreadList_t(false, tok, fullreq, paginationToken, archive, finish)});
     }

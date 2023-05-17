@@ -656,7 +656,7 @@ x.send('[null,null,null,null,'+JSON.stringify(body)+',null,["+1'+num+'"],null,['
 
 //finish(err, resp)
 function getThread(num,pagination_token,finish,items){
-    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish,items)});
+    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish, items)});
 }
 function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
@@ -664,7 +664,10 @@ x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?al
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
-    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+    if(x.status == 503) { //temorary random failure, just retry
+      getThread_t(canReAuth, tok, num, pagination_token, finish, items);
+    }
+    else if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish,items)});
     }
