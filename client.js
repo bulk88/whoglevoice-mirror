@@ -272,46 +272,36 @@ function wvPickerTokenRefresh(buttonElement) {
    */
   //https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDL-Al96OoAb-3hYtG3&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
   myRequest_divarr.open('GET', buttonElement.href, !0);
-  myRequest_divarr.responseType = 'document';
+  myRequest_divarr.responseType = 'json';
   myRequest_divarr.onreadystatechange = function () {
     if (4 == myRequest_divarr.readyState) {
       if (200 == myRequest_divarr.status) {
         try { //API changes in Google HTML protect
-          myRequest_divarr = myRequest_divarr.response.body.getElementsByTagName('div');
-          var elem_str;
-          for (var i = 0; i < myRequest_divarr.length; i++) {
-            elem_str = myRequest_divarr[i];
-            if (elem_str = elem_str.attributes['data-credential-response']) {
-              //term loop
-              i = myRequest_divarr.length;
-              //chop off %.@. then parse
-              elem_str = JSON.parse('[' + elem_str.nodeValue.substring(4))[4][4];
-              //0 is json str
-              //1 is 301 domain
-              //2 is auth
-              //3 *
-              //add authuser index so images load faster through http vs base64
-              var authResult = JSON.parse(elem_str[0]);
-              authResult.session_state = authResult.session_state || {};
-              authResult.session_state.extraQueryParams = authResult.session_state.extraQueryParams || {};
-              authResult.session_state.extraQueryParams.authuser = new URL(buttonElement.href).searchParams.get('authuser');
-              elem_str = {
-                origin: "https://saproxy.us.to",
-                data: JSON.stringify({
-                  params: {
-                    authResult: authResult,
-                    clientId: elem_str[1],
-                    id: elem_str[2],
-                    type: "authResult"
-                  }
-                })
-              };
-              buttonElement.onclick = function () {
-                //inject token as if we had a full popup into a message
-                window.onmessage(elem_str); /* msg event obj real */
-                return false;
+          var response;
+          response = myRequest_divarr.response;
+          //0 is json str
+          //1 is 301 domain
+          //2 is auth
+          //add authuser index so images load faster through http vs base64
+          var authResult = response[0];
+          authResult = (authResult.session_state = authResult.session_state || {});
+          (authResult.extraQueryParams = authResult.extraQueryParams || {}).authuser
+            = new URL(buttonElement.href).searchParams.get('authuser');
+          response = {
+            origin: "https://saproxy.us.to",
+            data: JSON.stringify({
+              params: {
+                authResult: response[0],
+                clientId: response[1],
+                id: response[2],
+                type: "authResult"
               }
-            }
+            })
+          };
+          buttonElement.onclick = function () {
+            //inject token as if we had a full popup into a message
+            window.onmessage(response); /* msg event obj real */
+            return false;
           }
         } catch (e) {
           console.log(e);
