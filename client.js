@@ -44,7 +44,9 @@ function wvWipeAuthToken (logout) {
     localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
     localStorage.setItem('wvLastExpires', lazySignedInExpires());
     localStorage.removeItem('gvauthobj');
-    localStorage.removeItem('wvThdList');
+    localStorage.removeItem('wvThdListA');
+    localStorage.removeItem('wvThdListM');
+    localStorage.removeItem('wvArchView');
 }
 
 function drawLoginBar()

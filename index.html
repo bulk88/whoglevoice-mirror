@@ -59,6 +59,8 @@ x.send((fullreq?'['+(archive?6:2)+',100,1':'['+(archive?6:2)+',1,1')+(pagination
 }
 
 function drawThdList(paginationToken,r) {
+    var av_list_type = sessionStorage.getItem('wvArchView')
+      ? 'wvThdListA' : 'wvThdListM';
     var frag = document.createDocumentFragment();
     if (r.paginationToken) {
         var moreButton = document.createElement('button');
@@ -95,7 +97,7 @@ function drawThdList(paginationToken,r) {
             if (r) {
                 e.textContent = r;
                 if(pendingNameReqs===0) {
-                    localStorage.setItem('wvThdList', document.getElementById('threadList').innerHTML);
+                    localStorage.setItem(av_list_type, document.getElementById('threadList').innerHTML);
                 }
             }
             });
@@ -114,7 +116,7 @@ function drawThdList(paginationToken,r) {
             tdiv.removeChild(tdiv.lastChild);
         }
         tdiv.appendChild(frag);
-        localStorage.setItem('wvThdList', tdiv.innerHTML);
+        localStorage.setItem(av_list_type, tdiv.innerHTML);
     }
 }
 
@@ -129,7 +131,7 @@ var paginationToken = (evt.dataset||{}).wvPgTok;
 //DIV doesn't exist yet
 
 /*            Full req Flag   pag token num */
-getThreadList(paginationToken,paginationToken,0,function(e,r){
+getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView'),function(e,r){
     if (e) { /*error*/
         evt.textContent ="\xa0\u25BD\u2718";//X mark
     }
@@ -141,7 +143,7 @@ getThreadList(paginationToken,paginationToken,0,function(e,r){
             //lastest server MID doesn't match local MID aka new msg
             var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
             if(r.substr(25,40) != oldmid) {
-                getThreadList(1,0,0,function(e,r){
+                getThreadList(1,0,sessionStorage.getItem('wvArchView'),function(e,r){
                     if (e) { /*error*/
                         evt.textContent ="\xa0\u25BD\u2718";//X mark
                     }
@@ -172,11 +174,22 @@ if(lazySignedInEmail()){
 Welcome To Whogle Voice
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button><input type=tel placeholder="New number here"></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button><div id='threadList'></div>
+<button title="Refresh" style="width:3.5em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
+<label><input title="Archive" type="checkbox" id="archive"
+onchange="
+  sessionStorage.setItem('wvArchView',this.checked ? '1' : '');
+  document.getElementById('threadList').innerHTML = localStorage.getItem(this.checked?'wvThdListA':'wvThdListM');
+  //trigger refresh with UI effects
+  var b = this.parentNode.previousSibling.previousSibling;
+  b.onclick({target:b})"/>A</label>
+<input type=tel placeholder="New num here" size=10></input>
+<button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
+<div id='threadList'></div>
 <script>
-document.getElementById('threadList').innerHTML = localStorage.getItem('wvThdList');
-
 (function(){ /*var e can't be global*/
+        var av = sessionStorage.getItem('wvArchView');
+        document.getElementById('archive').checked = av;
+        document.getElementById('threadList').innerHTML = localStorage.getItem(av?'wvThdListA':'wvThdListM');
         var p = navigator.clipboard;
         if(p && p.readText) { /* old browser or HTTPS failure */
         var e = document;
