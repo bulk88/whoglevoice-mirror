@@ -138,6 +138,9 @@ function getConvoUI(evt, paginationToken, finish) {
                 }
                 tdiv.appendChild(frag);
             }
+            //set radio folder flag
+            tdiv = document.forms.folderForm.folder;
+            tdiv.curValue = tdiv.value = r.thread.view[0];
         }
         finish && finish(false, r);
         });
@@ -197,11 +200,27 @@ function hashChangeHandler () {
         //get this req ASAP on wire before paints
         getConvoUI({target:{textContent: 0}},0,function(){nextPollLoop(6000)});
         var f = document.createDocumentFragment();
-        (function(element,num){
-            getContactName(num, function(err, r) {
+        (function(element,num_matchStr_offsetEnd){
+            getContactName(num_matchStr_offsetEnd, function(err, r) {
                 //undefined or "[]" on wire if no match
                 r && (element.textContent = r + '-')
-            });//Contact Name tag, empty RN
+            });
+            //try to get Contact Name no I/O from cached threadList, UI jitter
+            //99% of time cached Contact name will be live XHR name
+            num_matchStr_offsetEnd = '<a href="thread.html#'+num_matchStr_offsetEnd+'">';
+            var threadListHtml = localStorage.getItem(sessionStorage.getItem('wvArchView')
+      ? 'wvThdListA' : 'wvThdListM');
+            if (threadListHtml) {
+              //dont use DOMParser for performance reasons, just basic string search
+              var contactOffset = threadListHtml.indexOf(num_matchStr_offsetEnd);
+              if (contactOffset != -1) {
+                contactOffset += num_matchStr_offsetEnd.length;
+                if((num_matchStr_offsetEnd = threadListHtml.indexOf('<', contactOffset)) != -1) {
+                  threadListHtml = threadListHtml.substring(contactOffset, num_matchStr_offsetEnd);
+                  threadListHtml && (element.textContent = threadListHtml + '-')
+                }
+              }
+            }
         })(f.appendChild(document.createElement('span')),t);
         carrierUpdate = function (s) {
             carrierUpdate.wvnode.textContent =
@@ -278,8 +297,16 @@ window.ononline = function () {
 <button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;Top&#x3164;</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
 <button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button>
-
 <br/>
+<!-- remove newline caused by form element -->
+<form name="folderForm" style="display:inline">
+  <label>
+    <input name="folder" type="radio" value="allThreads" onchange="return setFolderUI(this)">Mn </label>
+  <label>
+    <input name="folder" type="radio" value="allArchivedThreads" onchange="return setFolderUI(this)">Ar </label>
+  <label>
+<!-- Do not remove whitespace around the span elem, UI jitter -->
+    <input name="folder" type="radio" value="allSpamThreads" onchange="return setFolderUI(this)">Sm </label><span style="display:inline-block;width:1em" id="folderChg">&#x3164;</span></form>
 <label for="ipk">Choose attachment:</label>
 <button onclick="clearPrvImg()">Clear Img</button>
 <input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
@@ -453,6 +480,99 @@ function threadImgAltLoader(e) {
     }
 }
 
+function setFolderUI(e) { //e form element
+  var statusNode = e.parentNode.parentNode.lastChild;
+  var t = location.hash.substring(1);
+  //bug to-be new value
+  var radioList = e.parentNode.parentNode.folder;
+  var UACB = function (err,r) {
+    if (err) {
+      alert("Error moving thread thread:\n\n"+err);
+      err = "\u2718";//X mark
+      //restore old setting on Network failure/error
+      r = radioList.curValue;
+    }
+    else {
+      err = "\u2714";//Good mark
+      //redundant since attribute change should never fail,
+      //but who knows, should NOT cause UI jitter
+      r = r.attributes.view[0];
+    }
+    //set progress UI after XHR
+    statusNode.textContent = err;
+    //set radio button after XHR
+    radioList.curValue = radioList.value = r;
+  };
+  //span id=folderChg
+  statusNode.textContent ="\u231B";
+  switch (e.value) {
+    case "allThreads":
+    updateAttributes(t,0,0,null,0,UACB);
+    break;
+    case "allArchivedThreads":
+    updateAttributes(t,0,0,null,1,UACB);
+    break;
+    case "allSpamThreads":
+    updateAttributes(t,0,1,null,0,UACB);
+    break;
+    default:
+    throw 0;
+  }
+}
+
+//finish(err, resp)
+function updateAttributes(num,block,spam,read,archive,finish){
+    getAuthToken(function(tok) {updateAttributes_t(true, tok, num,block,spam,read,archive,finish)});
+}
+function updateAttributes_t(canReAuth, tok, num, block, spam, read, archive, finish) {
+  function setField(body, bool, offset) {
+    if (bool !== undefined && bool !== null) {
+      body[0][offset] = bool ? 1 : 0;
+      body[1][offset] = 1;
+    }
+  }
+  var x = new XMLHttpRequest;
+  var body = [["t.+1" + num], [], 1];
+  setField(body, block, 1);
+  setField(body, spam, 2);
+  setField(body, read, 3);
+  setField(body, archive, 5);
+  x.open("POST", "https://www.googleapis.com/voice/v1/voiceclient/thread/updateattributes?alt=json&prettyPrint=false", 1);
+  x.setRequestHeader("Content-Type", "application/json+protobuf");
+  x.setRequestHeader("Authorization", "Bearer " + tok);
+  x.onreadystatechange = function () {
+    if (x.readyState == 4) {
+      if (canReAuth && x.status == 401 && resp401Unauth(x.response)) {
+        wvWipeAuthToken();
+        getAuthToken(function (tok) {
+          updateAttributes_t(false, tok, num, block, spam, read, archive, finish)
+        });
+      } else if (x.status != 200) {
+        x.status == 404 || alert("status: " + x.status + "\nresp:" + x.response);
+        finish && finish(x.response || -1);
+      } else {
+        finish && finish(false, JSON.parse(x.response))
+      };
+    }
+  };
+  /*{ ret JSON of url
+  "attributes": {
+  "threadId": "t.+13478406647", //fake
+  "contactBlocked": false,
+  "contactSpammer": true,
+  "read": true,
+  "view": [
+  "allSpamThreads"
+  ],
+  "archived": false,
+  "groupName": "",
+  "contactSpammerStatus": "userMarkedSpam"
+  }
+  }
+   */
+  //"[[\"t.+13478406647\",BLOCKFLAG,SPAMFLAG,READFLAG,[],ARCHIVEFLAG],[null,BLOCKMASK,SPAMMASK,READMASK,UNKMASK,ARCHIVEMASK],1]"
+  x.send(JSON.stringify(body));
+}
 //https://codepen.io/shshaw/details/azzvBv
 // Adapted from georgepapadakis.me/demo/expanding-textarea.html
 (function(){
