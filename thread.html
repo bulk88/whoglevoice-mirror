@@ -71,6 +71,7 @@ function getConvoUI(evt, paginationToken, finish) {
 //google.com cookie doesn't match the copy pasted creds (auth token)
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
+//smallest file size for initial view
                         img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=2';
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
@@ -78,7 +79,7 @@ function getConvoUI(evt, paginationToken, finish) {
 //1: {size_spec: "S_128", width: 11, height: 10}
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
-                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=1';
+                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=4';
                         a.onclick = imgLoaderClick;
                         a.appendChild(img);
                         p.appendChild(a);
