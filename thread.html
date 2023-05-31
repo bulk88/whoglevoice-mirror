@@ -2,6 +2,7 @@
 <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
 <link rel="preconnect" href="//carrier.natasha.cat">
 <link rel="preconnect" href="https://content-people-pa.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://p.saproxy.us.to">
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
 <style>img,video{width:100%}button{line-height:1.5}</style>
@@ -103,7 +104,8 @@ function getConvoUI(evt, paginationToken, finish) {
                 +(msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText)+' ');
             img = a.textContent;
             if (img.match(urlre)) {
-                p.innerHTML = img.replace(urlre, '<a href="$&" target="_blank" rel="noreferrer">$&</a>');
+                //not 2G era anymore, prefetch a possible navigation
+                p.innerHTML = img.replace(urlre, '<link rel="prefetch" href="$&" /><a href="$&" target="_blank" rel="noreferrer">$&</a>');
             } else {
                 p.appendChild(a);
             }
@@ -227,10 +229,11 @@ function hashChangeHandler () {
             carrierUpdate.wvnode.textContent =
             s.match(/CINGULAR/) ? 'ATTW-' :
             s.match(/CELLCO PARTNERSHIP/) ? 'VZW-' :
-            s.match(/OMNIPOINT|T-MOBILE USA INC|METRO PCS INC/) ? 'TM-' :
+            s.match(/OMNIPOINT|T-MOBILE USA|METROPCS/) ? 'TM-' :
             s.match(/BANDWIDTH.COM/) ? 'BCOM-' :
             s.match(/SPRINT SPECTRUM/) ? 'SPCS-' :
             s.match(/Inteliquent/) ? 'ITQL-' :
+            s.match(/PEERLESS NETWORK OF NEW YORK/) ? 'PLSNY-' :
             s + '-';
             carrierUpdate = undefined;
         };
