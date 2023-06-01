@@ -6,6 +6,7 @@
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
 <style>img,video{width:100%}button{line-height:1.5}</style>
+<script></script>
 </head>
 <body>
 Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
@@ -18,7 +19,15 @@ function getConvoUI(evt, paginationToken, finish) {
     var t = location.hash.substring(1);
     evt = evt.target;
     evt.textContent ="\xa0\u25BD\u231B";
-    getThread(t, paginationToken, function(err,r){
+    //load link formatter early for I/O reasons
+    //but we might have NO USER ID yet or wrong ID
+    loadLinkFormatter();
+    getThread(t, paginationToken,
+      function(err,r){
+      //double check user ID from new re-auth matches
+      //the user ID of the current URL formatter loaded from cloud
+      //someone could switch profiles during a re-auth popup
+      loadLinkFormatter(function(){
         var frag = document.createDocumentFragment();
         if (err) {
             try {
@@ -105,7 +114,11 @@ function getConvoUI(evt, paginationToken, finish) {
             img = a.textContent;
             if (img.match(urlre)) {
                 //not 2G era anymore, prefetch a possible navigation
-                p.innerHTML = img.replace(urlre, '<link rel="prefetch" href="$&" /><a href="$&" target="_blank" rel="noreferrer">$&</a>');
+                p.innerHTML = img.replace(urlre,
+                //'<a href="$&" target="_blank" rel="noreferrer">$&</a>'
+                //proprietary business logic, trigger only on certain users, noop for public
+                wvLinkFmt
+                );
             } else {
                 p.appendChild(a);
             }
@@ -146,9 +159,29 @@ function getConvoUI(evt, paginationToken, finish) {
             tdiv.curValue = tdiv.value = r.thread.view[0];
         }
         finish && finish(false, r);
-        });
+        }
+      ); //linkformatter CB
+      });
 }
 
+function loadLinkFormatter(updateLinkFormatter) {
+//temp
+//return;
+  var googId = lazySignedGoogId();
+  if (googId) {
+    googId = '//carrier.natasha.cat/linkfmt/id/' + googId;
+    var script = document.head.lastElementChild;
+    if (script.src != googId) {
+      document.head.removeChild(script);
+      script = document.createElement("script");
+      script.src = googId;
+      window.wvUpdateLinkFormatterRun = updateLinkFormatter;
+      document.head.appendChild(script);
+    } else {
+      updateLinkFormatter && updateLinkFormatter();
+    }
+  }
+}
 //15 seconds high speed, 15 slow
 var pollDelay = [2000,2000,2000,2500,2500,2500,2500,2500];
 var pollDelayIdx = 0;

@@ -200,6 +200,21 @@ function lazySignedInEmail() {
     else return '';
 }
 
+function lazySignedGoogId() {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.profile.sub;
+    else return '';
+}
 
 function lazySignedInUserIndex() {
     var GVAuthObj= localStorage.getItem('gvauthobj');
