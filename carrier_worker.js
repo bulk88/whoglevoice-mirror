@@ -19,9 +19,29 @@ addEventListener("fetch", event => {
     }
     //match foo.com/2125551234 or foo.com/2125551 only
     if (!/^\d{7,10}$/.test(num)) {
-      resolveCB(new Response(null, {
-        status: 400
-      }));
+      if(num.startsWith('linkfmt/id/')) {
+        num = num.substr(11);
+        //Google account ID
+        //customize for internal biz use on fork
+        num = num == 999999999999999999999
+              || num == 888888888888888888888
+              ? 1 : 0;
+        resolveCB(new Response( num ?
+`function wvLinkFmt(e){return'<a href="'+e+'" target="_blank" rel="noreferrer">'+e+"</a>"}window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
+:
+`function wvLinkFmt(e){return'<a href="'+e+'" target="_blank" rel="noreferrer">'+e+"</a>"}window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
+            , {
+            status: 200,
+            headers: {
+            "content-type": "text/javascript",
+            "cache-control": "max-age=2629800"
+            }
+          }));
+    } else {
+        resolveCB(new Response(null, {
+            status: 400
+          }));
+    }
       //console.log tracing shows exec continues even though
       //client gets code 400
       return;

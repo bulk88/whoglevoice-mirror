@@ -36,6 +36,11 @@ docs/cproxy.js : cproxy.js
 	copy /y cproxy.js "$@"
 	terser -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
 
+docs/carrier_worker.js : carrier_worker.js
+	copy /y carrier_worker.js "$@"
+	terser -c -m toplevel -m eval --keep-fnames "$@" -o "$@"
+
+
 docs/ac.appcache : docs/index.html docs/thread.html docs/auth.html
 docs/ac.appcache : docs/client.js docs/getCredFull.js docs/favicon.ico
 	perl -e"use File::Slurp; \
@@ -51,4 +56,5 @@ mini:
 all: docs/thread.html docs/index.html docs/auth.html
 all: docs/CNAME docs/getCredFull.js docs/cproxy.js
 all: docs/getCredStub.js docs/client.js docs/favicon.ico
+all: docs/carrier_worker.js
 all: docs/ac.appcache
