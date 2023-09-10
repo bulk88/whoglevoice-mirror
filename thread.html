@@ -555,6 +555,9 @@ function setFolderUI(e) { //e form element
     default:
     throw 0;
   }
+  //purge cached thread lists, so folder change is updated in thread list
+  localStorage.removeItem('wvThdListM');
+  localStorage.removeItem('wvThdListA');
 }
 
 //finish(err, resp)
