@@ -76,24 +76,33 @@ function drawLoginBar()
             window.location.protocol = 'http'
         };
     }
-    var email_label = lazySignedInEmail();
+    var email_label = lazySignedInEmail()
+      , email_node;
     buttonNode = document.createElement('button');
     if (email_label.length) {
-        email_label = "Signed in: "+email_label;
+        divLoginBar.appendChild(document.createTextNode("Signed in: "));
+        email_node = document.createElement('a');
+        email_node.href = "#";
+        email_node.textContent = email_node.x_eml = email_label;
+        email_node.x_num = lazySignedInPrimaryDid();
+        email_node.onclick = function() {
+          this.textContent = this.textContent == this.x_eml ? this.x_num : this.x_eml;
+          return false;
+        };
         buttonNode.textContent = "Logout";
         buttonNode.onclick = function (){
             wvWipeAuthToken(1)
             drawLoginBar()
         };
     } else {
-        email_label = "Logged out";
+        email_node = document.createTextNode("Logged out");
         buttonNode.textContent = "Login";
         buttonNode.onclick = function (){
             //func from html page or undef
             getAuthToken(refreshNoUI);
         };
     }
-    divLoginBar.appendChild(document.createTextNode(email_label));
+    divLoginBar.appendChild(email_node);
     divLoginBar.appendChild(buttonNode);
 }
 
@@ -197,6 +206,22 @@ function lazySignedInEmail() {
         }
     }
     if(GVAuthObj) return GVAuthObj.profile.email;
+    else return '';
+}
+
+function lazySignedInPrimaryDid() {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.primaryDid;
     else return '';
 }
 
