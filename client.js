@@ -300,10 +300,11 @@ function wvPickerTokenRefresh(buttonElement) {
           //1 is 301 domain
           //2 is auth
           //add authuser index so images load faster through http vs base64
-          var authResult = response[0];
-          authResult = (authResult.session_state = authResult.session_state || {});
-          (authResult.extraQueryParams = authResult.extraQueryParams || {}).authuser
+          var authResult_tok = response[0];
+          authResult_tok = (authResult_tok.session_state = authResult_tok.session_state || {});
+          (authResult_tok.extraQueryParams = authResult_tok.extraQueryParams || {}).authuser
             = new URL(buttonElement.href).searchParams.get('authuser');
+          authResult_tok = response[0].access_token;
           response = {
             origin: "https://p.saproxy.us.to",
             data: JSON.stringify({
@@ -320,6 +321,14 @@ function wvPickerTokenRefresh(buttonElement) {
             window.onmessage(response); /* msg event obj real */
             return false;
           }
+          getActInfo_t(0, authResult_tok, function(err, resp) {
+            if(!err) {
+              err = JSON.parse(response.data);
+              err.params.authResult.linkedPhone = resp.phone_arr;
+              err.params.authResult.primaryDid = resp.primaryDid;
+              response.data = JSON.stringify(err);
+            }
+          });
         } catch (e) {
           console.log(e);
         }
@@ -755,13 +764,29 @@ var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
+x.responseType = 'json';
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
         getAuthToken(function(tok) {getActInfo_t(false, tok, finish)});
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-    else {finish && finish(false, JSON.parse(x.response))};
+    else {
+      if(finish) {
+        //preprocess data, fields lost in higher level, oh well, can be reworked later
+        //dont pass null as phone_arr down the API if no linked numbers
+        var phone_arr = x.response[0][2][1] || [],
+        resp = { primaryDid: /^\+1(.+)$/.exec(x.response[0][0])[1],
+                 phone_arr: phone_arr};
+        for (var i = 0; i < phone_arr.length; i++) {
+          phone_arr[i] = /^\+1(.+)$/.exec(phone_arr[i][0][1])[1];
+        }
+        //old full json field names
+        //phone_arr = resp.account.phones.linkedPhone;
+        //primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
+        finish(false, resp)
+      }
+    }
 }};
 //arg1: unknown, no effect if 1
 //arg2: extended info, if arg2 null, then resp.account.primaryDid and version field only timestamps
@@ -824,16 +849,9 @@ function getSourceNum(pickerUI, finish){
         if (err) {
             finish(err);
         } else {
-            phone_arr = resp[0][2][1];
-            for (i = 0; i < phone_arr.length; i++) {
-              phone_arr[i] = /^\+1(.+)$/.exec(phone_arr[i][0][1])[1];
-            }
-            //phone_arr = resp.account.phones.linkedPhone;
-            primaryDid = /^\+1(.+)$/.exec(resp[0][0])[1];
-            //primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
             err = JSON.parse(localStorage.getItem('gvauthobj'));
-            err.linkedPhone = phone_arr;
-            err.primaryDid = primaryDid;
+            phone_arr = err.linkedPhone = resp.phone_arr;
+            primaryDid = err.primaryDid = resp.primaryDid;
             localStorage.setItem('gvauthobj', JSON.stringify(err));
             pickerUI(phone_arr, primaryDid, finish);
         }
