@@ -184,8 +184,8 @@ onchange="
   //trigger refresh with UI effects
   var b = this.parentNode.previousSibling.previousSibling;
   b.onclick({target:b})"/>A</label>
-<input type=tel placeholder="New num here" size=10></input>
-<button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
+<!-- do not add whitespace btwn input and button -->
+<input type=tel placeholder="New num here" size=10></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
 <div id='threadList'></div>
 <script>
 (function(){ /*var e can't be global*/

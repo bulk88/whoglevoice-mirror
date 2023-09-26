@@ -752,7 +752,7 @@ function getActInfo(finish){
 }
 function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
-x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=json&prettyPrint=false",1);
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
@@ -763,6 +763,9 @@ x.onreadystatechange=function(){if(x.readyState==4){
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {finish && finish(false, JSON.parse(x.response))};
 }};
+//arg1: unknown, no effect if 1
+//arg2: extended info, if arg2 null, then resp.account.primaryDid and version field only timestamps
+//arg3: type error if not null
 x.send('[null,1]');
 }
 
@@ -777,7 +780,7 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
     for (i = 0; i < phone_arr.length; i++) {
         var node = newBodyNode.appendChild(document.createElement('a'));
         node.setAttribute('href', '#');
-        node.textContent = /^\+1(.+)$/.exec(phone_arr[i].phoneNumber.e164)[1];
+        node.textContent = phone_arr[i];
         node.onclick = function (e){
             e.preventDefault();
             wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
@@ -793,7 +796,7 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
     };
     }
     else if (phone_arr.length == 1) {
-        finish(false, /^\+1(.+)$/.exec(phone_arr[0].phoneNumber.e164)[1], primaryDid);
+        finish(false, phone_arr[0], primaryDid);
     }
     else {
         alert("This account has no linked phone numbers for outgoing calls");
@@ -817,12 +820,17 @@ function getSourceNum(pickerUI, finish){
         pickerUI(phone_arr, primaryDid, finish);
     }
     else {
-        getActInfo(function(err,resp){
+        getActInfo(function(err,resp,i){
         if (err) {
             finish(err);
         } else {
-            phone_arr = resp.account.phones.linkedPhone;
-            primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
+            phone_arr = resp[0][2][1];
+            for (i = 0; i < phone_arr.length; i++) {
+              phone_arr[i] = /^\+1(.+)$/.exec(phone_arr[i][0][1])[1];
+            }
+            //phone_arr = resp.account.phones.linkedPhone;
+            primaryDid = /^\+1(.+)$/.exec(resp[0][0])[1];
+            //primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
             err = JSON.parse(localStorage.getItem('gvauthobj'));
             err.linkedPhone = phone_arr;
             err.primaryDid = primaryDid;
