@@ -97,7 +97,7 @@ function drawThdList(paginationToken,r) {
             pendingNameReqs--;
             //undefined or "[]" on wire if no match
             if (r) {
-                e.textContent = r;
+                e.textContent = r[0];
                 if(pendingNameReqs===0) {
                     localStorage.setItem(av_list_type, document.getElementById('threadList').innerHTML);
                 }

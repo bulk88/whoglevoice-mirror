@@ -127,7 +127,7 @@ TokDec.nh = function() {
 TokDec.Re = function(a) {
         return /^[\s\xa0]*$/.test(a)
     }
-    
+
 TokDec.Nv = function(a, b) {
         function c(l) {
             for (; d < a.length; ) {
@@ -572,7 +572,7 @@ function getAuthToken(callbackFunc) {
         buttonNode.textContent = 'Add Account';
         buttonNode.onclick = function(e) {
             e = e.target;
-            e.href.indexOf(wvProxyPrefix) && 
+            e.href.indexOf(wvProxyPrefix) &&
                 (e.href = wvProxyPrefix+e.href.substr(e.href.indexOf('/')))
             var postAddSessionCB = function() {
                 window.removeEventListener('focus', postAddSessionCB);
@@ -755,6 +755,172 @@ x.onreadystatechange=function(){if(x.readyState==4){
 }};
 x.send('{"name":{"display_name":'+JSON.stringify(name)+'},"phone":{"value":"+1'+num+'","type":""}}');
 }
+
+/*
+https://www.google.com/m8/feeds/contacts/default/full
+        "reason": "ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "contacts.googleapis.com",
+          "method": "google.contacts.v7.LegacyContacts.ContactsList"
+*/
+
+
+function upContact(pid,name,finish){
+    getAuthToken(function(tok) {upContact_t(true,tok,pid,name,finish)});
+}
+/*
+//FAILS unless I add new scopes to auth token,
+// "reason": "ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+// "domain": "googleapis.com",
+// "metadata": {
+// "service": "people.googleapis.com",
+// "method": "google.people.v1.PeopleService.UpdateContact"
+x.open("PATCH", 'https://content-people.googleapis.com/v1/people/'+pid+':updateContact?updatePersonFields=names',1);
+x.setRequestHeader("Content-Type", "application/json");
+x.send('{"etag":"'+etag+'","names":[{"displayName":'+JSON.stringify(name)+'}]}');
+*/
+
+// SUCCESS ON PUT
+// fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?container=CONTACT&person_id=c7759412948663455309&field_mask=person.phone&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  // "headers": {
+    // "accept": "*/*",
+    // "accept-language": "en-US,en;q=0.9",
+    // "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+    // "cache-control": "no-cache",
+    // "content-type": "application/json",
+    // "pragma": "no-cache",
+    // "sec-ch-ua": "\"(Not(A:Brand\";v=\"8\", \"Chromium\";v=\"98\"",
+    // "sec-ch-ua-mobile": "?0",
+    // "sec-ch-ua-platform": "\"Windows\"",
+    // "sec-fetch-dest": "empty",
+    // "sec-fetch-mode": "cors",
+    // "sec-fetch-site": "same-origin",
+    // "x-client-data": "CIqMywE=",
+    // "x-clientdetails": "appVersion=5.0%20(Windows%20NT%206.1%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F98.0.5000.0%20Iron%20Safari%2F537.36&platform=Win32&userAgent=Mozilla%2F5.0%20(Windows%20NT%206.1%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F98.0.5000.0%20Iron%20Safari%2F537.36",
+    // "x-goog-authuser": "0",
+    // "x-goog-encode-response-if-executable": "base64",
+    // "x-javascript-user-agent": "google-api-javascript-client/1.1.0",
+    // "x-origin": "https://voice.google.com",
+    // "x-referer": "https://voice.google.com",
+    // "x-requested-with": "XMLHttpRequest"
+  // },
+  // "referrer": "https://people-pa.clients6.google.com/static/proxy.html?usegapi=1&jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.gapi.en.Ox0HebTIzao.O%2Fd%3D1%2Frs%3DAHpOoo9JBE0z9__nE4FgyS-eLRbRwEP9Gw%2Fm%3D__features__",
+  // "referrerPolicy": "strict-origin-when-cross-origin",
+  // "body": "{\"person_id\":\"c7759412948663455309\",\"metadata\":{\"identityInfo\":{\"sourceIds\":[{\"container\":\"CONTACT\",\"id\":\"70f05471d8c4fafa\",\"lastUpdatedMicros\":\"1695861730121050\",\"sourceEtag\":\"#nxpMTgIg+zc=\",\"containerType\":\"CONTACT\",\"lastUpdated\":\"2023-09-28T00:42:10.121050Z\"}]},\"model\":\"CONTACT_CENTRIC\"},\"phone\":[{\"metadata\":{\"writeable\":true,\"container\":\"CONTACT\",\"primary\":true,\"containerId\":\"7759412948663455309\",\"encodedContainerId\":\"70f05471d8c4fafa\",\"containerType\":\"CONTACT\"},\"value\":\"+17185554444\",\"canonicalizedForm\":\"+17185554444\",\"extendedData\":{\"structuredPhone\":{\"phoneNumber\":{\"e164\":\"+17185554444\",\"i18nData\":{\"nationalNumber\":\"(718) 555-4444\",\"internationalNumber\":\"+1 718-555-4444\",\"countryCode\":1,\"regionCode\":\"US\",\"isValid\":true,\"validationResult\":\"IS_POSSIBLE\"}}}},\"uri\":\"tel:+1-718-555-4444\"},{\"metadata\":{\"container\":\"CONTACT\"},\"value\":\"+17185554444\",\"type\":\"a1\"}]}",
+  // "method": "PUT",
+  // "mode": "cors",
+  // "credentials": "include"
+// });
+/*
+fetch("https://people-pa.clients6.google.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id=c7759412948663455309&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.phone&request_mask.include_field.paths=person.photo&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  "headers": {
+    "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+  },
+  "body": null,
+  "method": "GET",
+  "credentials": "include"
+}).then(function(r) {
+  r.json().then(function(r) {
+    var sourceEtag = r.personResponse[0].person.metadata.identityInfo.sourceIds[0].sourceEtag;
+    var body =
+    {
+    "person_id": "c7759412948663455309",
+    "metadata": {
+        "identityInfo": {
+            "sourceIds": [
+                {
+                    "container": "CONTACT",
+                    "id": "70f05471d8c4fafa",
+                    "lastUpdatedMicros": "1695867249147073",
+                    "sourceEtag": "#IMwxEC9LVBI=",
+                    "containerType": "CONTACT",
+                    "lastUpdated": "2023-09-28T02:14:09.147073Z"
+                }
+            ]
+        },
+        "model": "CONTACT_CENTRIC"
+    },
+    "name": [
+        {
+            "metadata": {
+                "writeable": true,
+                "container": "CONTACT",
+                "primary": true,
+                "containerId": "7759412948663455309",
+                "encodedContainerId": "70f05471d8c4fafa",
+                "containerType": "CONTACT"
+            },
+            "displayName": "hm 9",
+            "givenName": "hm2",
+            "displayNameLastFirst": "hm2",
+            "unstructuredName": "hm2"
+        }
+    ]
+}
+;
+body.metadata.identityInfo.sourceIds[0].sourceEtag = sourceEtag;
+fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?container=CONTACT&person_id=c7759412948663455309&field_mask=person.name&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  "headers": {
+    "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+    "content-type": "application/json",
+  },
+  "body": JSON.stringify(body),
+  "method": "PUT",
+  "credentials": "include"
+});
+  })
+})
+*/
+
+//PUT Req research notes b4 fully rev eng
+//etag root invalid, but fingerprint ok
+//names root invalid, but name ok
+//person root invalid
+//fieldMask root invalid
+//fieldMask.includeField in URL invalid
+// content-people vs content-people-pa v2 ppl are 404 HTML vs specific codes
+//403 scope PATCH https://content-people.googleapis.com/v1/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 HTML  PATCH https://content-people.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 HTML  PUT   https://content-people.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 html  PATCH https://content-people-pa.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//400 PUT         https://content-people-pa.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//people-pa.googleapis.com doesn't allow authorization: SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6
+//people-pa.clients6.google.com does, prob domain and cookies inclusion
+function upContact_t(canReAuth,tok,pid,name,finish){
+var x=new XMLHttpRequest;
+/* from GV Web UI */
+x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.phone&request_mask.include_field.paths=person.photo&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {upContact_t(false,tok,pid,name,finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {
+      var r = JSON.parse(x.response);
+      var sourceEtag = r.personResponse[0].person.metadata.identityInfo.sourceIds[0].sourceEtag;
+      var body = r.personResponse[0].person;
+      delete body.photo;
+      delete body.phone;
+      //delete body.fingerprint;
+      body.name[0].displayName = name;
+      x = new XMLHttpRequest;
+      /* from GV Web UI */
+      x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+'&field_mask=person.name&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
+      x.setRequestHeader("Content-Type", "application/json");
+      x.setRequestHeader("Authorization","Bearer "+tok);
+      x.onreadystatechange=function(){if(x.readyState==4){
+          if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+          else {finish && finish(false)};
+      }};
+      x.send(JSON.stringify(body));
+    };
+}};
+x.send('');
+}
+
 
 //sourceNum MUST be a verified linked num in GV, can't be random or else
 //"code": 404,
@@ -1141,6 +1307,7 @@ x.send('[[["phnnmbr","+1'+destNum+'"]],null,["phnnmbr","+1'+sourceNum+'"],null,0
 }
 
 
+//resp is array [name, peopleID]
 function getContactName(num, finish){
     getAuthToken(function(tok) {getContactName_t(true, tok, num, finish)});
 }
@@ -1161,7 +1328,10 @@ x.onreadystatechange=function(){if(x.readyState==4){
         if((x = x.response) == "[]") {
             x = undefined;
         } else {
-            x = JSON.parse(x)[1][0][1][2][0][1];
+            x = JSON.parse(x);
+            x = [ x[1][0][1][2][0][1], //name
+                  x[0][0][1][0] //pid
+                ];
         }
         finish(false, x);
     }

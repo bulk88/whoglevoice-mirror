@@ -239,7 +239,13 @@ function hashChangeHandler () {
         (function(element,num_matchStr_offsetEnd){
             getContactName(num_matchStr_offsetEnd, function(err, r) {
                 //undefined or "[]" on wire if no match
-                r && (element.textContent = r + '-')
+                if (r) {
+                  element.textContent = r[0] + '-';
+                  /*
+                  element.x_pid = r[1];
+                  */
+                  element.setAttribute('data-pid', r[1]);
+                }
             });
             //try to get Contact Name no I/O from cached threadList, UI jitter
             //99% of time cached Contact name will be live XHR name
