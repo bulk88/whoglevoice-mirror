@@ -890,7 +890,7 @@ fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?cont
 function upContact_t(canReAuth,tok,pid,name,finish){
 var x=new XMLHttpRequest;
 /* from GV Web UI */
-x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.phone&request_mask.include_field.paths=person.photo&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
+x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
@@ -899,16 +899,11 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
-      var r = JSON.parse(x.response);
-      var sourceEtag = r.personResponse[0].person.metadata.identityInfo.sourceIds[0].sourceEtag;
-      var body = r.personResponse[0].person;
-      delete body.photo;
-      delete body.phone;
-      //delete body.fingerprint;
+      var body = JSON.parse(x.response).personResponse[0].person;
       body.name[0].displayName = name;
       x = new XMLHttpRequest;
       /* from GV Web UI */
-      x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+'&field_mask=person.name&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json',1);
+      x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+'&field_mask=person.name&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
       x.setRequestHeader("Content-Type", "application/json");
       x.setRequestHeader("Authorization","Bearer "+tok);
       x.onreadystatechange=function(){if(x.readyState==4){
@@ -1315,7 +1310,7 @@ function getContactName_t(canReAuth, tok, num, finish){
 var x=new XMLHttpRequest;
 //I dont have the scope, and gauth wont let me add it
 //x.open("GET","https://content-people.googleapis.com/v1/people:searchContacts?query=1"+num+"&readMask=names&fields=results.person.names.displayName&prettyPrint=false",1);
-x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&prettyPrint=false&alt=protojson",1);
+x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name"+""/*&prettyPrint=false*/+"&alt=protojson",1);
 x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
