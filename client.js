@@ -913,7 +913,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
       x.setRequestHeader("Authorization","Bearer "+tok);
       x.onreadystatechange=function(){if(x.readyState==4){
           if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-          else {finish && finish(false)};
+          else {finish && finish(false, JSON.parse(x.response))};
       }};
       x.send(JSON.stringify(body));
     };

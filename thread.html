@@ -240,7 +240,7 @@ function hashChangeHandler () {
             getContactName(num_matchStr_offsetEnd, function(err, r) {
                 //undefined or "[]" on wire if no match
                 if (r) {
-                  element.textContent = r[0] + '-';
+                  element.textContent = r[0];
                   /*
                   element.x_pid = r[1];
                   */
@@ -259,11 +259,44 @@ function hashChangeHandler () {
                 contactOffset += num_matchStr_offsetEnd.length;
                 if((num_matchStr_offsetEnd = threadListHtml.indexOf('<', contactOffset)) != -1) {
                   threadListHtml = threadListHtml.substring(contactOffset, num_matchStr_offsetEnd);
-                  threadListHtml && (element.textContent = threadListHtml + '-')
+                  threadListHtml && (element.textContent = threadListHtml)
                 }
               }
             }
         })(f.appendChild(document.createElement('span')),t);
+        var e = f.appendChild(document.createElement('button'));
+        e.textContent = '\u270F\uFE0F';
+        //set start edit handler
+        e.onclick = function (evt) {
+          var old_onclick_evt = this.onclick,
+          span = this.previousElementSibling,
+          e = document.createElement('input'),
+          old_name = e.value = span.textContent;
+          e.setAttribute("data-pid", span.getAttribute("data-pid"));
+          //set save handler
+          this.onclick = function () {
+            var button = this,
+              input = button.previousElementSibling;
+            if(old_name !== input.value) {
+              button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
+              upContact(input.getAttribute("data-pid"), input.value, function (err,r) {
+                if (err) {
+                  button.textContent = "\u270F\uFE0F\u2718"; //X mark
+                } else {
+                  span.textContent = r.personResponse.person.name[0].displayName;
+                  button.textContent = "\u270F\uFE0F\u2714"; //Good mark
+                }
+                button.onclick = old_onclick_evt;
+                button.parentNode.replaceChild(span,input);
+              }); //end xhr callback
+            } else { //no I/O name didn't change
+              button.parentNode.replaceChild(span,input);
+              button.onclick = old_onclick_evt;
+            }
+          };//end save handler
+          this.parentNode.replaceChild(e, span);
+          e.focus();
+        }
         carrierUpdate = function (s) {
             carrierUpdate.wvnode.textContent =
             s.match(/CINGULAR/) ? 'ATTW-' :
@@ -277,7 +310,7 @@ function hashChangeHandler () {
             carrierUpdate = undefined;
         };
         carrierUpdate.wvnode = f.appendChild(document.createElement('span')); //carrier, empty RN
-        var e = document.createElement('script');
+        e = document.createElement('script');
         e.src = '//carrier.natasha.cat/'+t.substring(0,7);
         f.appendChild(e);
         e = document.createElement('a');
