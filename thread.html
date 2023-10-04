@@ -167,16 +167,16 @@ function getConvoUI(evt, paginationToken, finish) {
 function loadLinkFormatter(updateLinkFormatter) {
 //temp
 //return;
-  var googId = lazySignedGoogId();
+  var script, googId = lazySignedGoogId();
   if (googId) {
     googId = '//carrier.natasha.cat/linkfmt/id/' + googId;
-    var script = document.head.lastElementChild;
-    if (script.src != googId) {
-      document.head.removeChild(script);
+    //googId = (new URL("/linkfmt.js", document.baseURI)).href;
+    script = document.getElementById('lfmtjs');
+    if (!script || (script.src != googId && document.head.removeChild(script))) {
       script = document.createElement("script");
       script.src = googId;
       window.wvUpdateLinkFormatterRun = updateLinkFormatter;
-      document.head.appendChild(script);
+      document.head.appendChild(script).id = 'lfmtjs';
     } else {
       updateLinkFormatter && updateLinkFormatter();
     }
@@ -298,6 +298,7 @@ function hashChangeHandler () {
           e.focus();
         }
         carrierUpdate = function (s) {
+            //this obj is window obj
             carrierUpdate.wvnode.textContent =
             s.match(/CINGULAR/) ? 'ATTW-' :
             s.match(/CELLCO PARTNERSHIP/) ? 'VZW-' :

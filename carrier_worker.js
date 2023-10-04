@@ -20,12 +20,9 @@ addEventListener("fetch", event => {
     //match foo.com/2125551234 or foo.com/2125551 only
     if (!/^\d{7,10}$/.test(num)) {
       if(num.startsWith('linkfmt/id/')) {
-        num = num.substr(11);
         //Google account ID
         //customize for internal biz use on fork
-        num = num == 999999999999999999999
-              || num == 888888888888888888888
-              ? 1 : 0;
+        num = /^(?:999999999999999999999|888888888888888888888)$/.test(num.substr(11));
         resolveCB(new Response( num ?
 `function wvLinkFmt(e){return'<a href="'+e+'" target="_blank" rel="noreferrer">'+e+"</a>"}window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
 :
