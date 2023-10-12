@@ -169,7 +169,7 @@ function loadLinkFormatter(updateLinkFormatter) {
 //return;
   var script, googId = lazySignedGoogId();
   if (googId) {
-    googId = '//carrier.natasha.cat/linkfmt/id/' + googId;
+    googId = (new URL('//carrier.natasha.cat/linkfmt/id/' + googId, document.baseURI)).href;
     //googId = (new URL("/linkfmt.js", document.baseURI)).href;
     script = document.getElementById('lfmtjs');
     if (!script || (script.src != googId && document.head.removeChild(script))) {
