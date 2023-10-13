@@ -157,6 +157,29 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
             //no update needed
             } else {
                 evt.textContent ="\xa0\u25BD\u2714";//Good mark
+                for(var e, i=0; i < tdiv.children.length; i++) {
+                  e = tdiv.children[i];
+                  if( e.nodeName === 'DIV') { //skip button element
+                       //div left tag, a tag
+                    e = e.firstChild.firstChild;
+                    if (e.textContent.match(/^\+\d+$/)) {
+                      (function(e){
+                      pendingNameReqs++;
+                      getContactName(e.textContent.substring(2), function(err, r) {
+                      pendingNameReqs--;
+                      //undefined or "[]" on wire if no match
+                      if (r) {
+                          e.textContent = r[0];
+                          if (!pendingNameReqs) {
+                              localStorage.setItem(sessionStorage.getItem('wvArchView')
+                                ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
+                          }
+                      }
+                      });
+                      })(e);
+                    }
+                  }
+                }
             }
         }
     }
