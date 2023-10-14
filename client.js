@@ -1130,11 +1130,13 @@ x.send();
 
 //size is a number between 1 and 4 typically,
 //1 original size, 4 "biggest reduced(desktop-ish)", 2 smallest img (2G internet)
+//size number has no effect on audio type, test 0 thru 4
+//mtype, 2 == audio, 1 == video, 0 vcard and img
 //finish(err, no_prefix_b64str_resp)
-function attachIDtoB64(id, size, isvid, finish){
-    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, isvid, finish)});
+function attachIDtoB64(id, size, mtype, finish){
+    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, mtype, finish)});
 }
-function attachIDtoB64_t(canReAuth, tok, id, size, isvid, finish){
+function attachIDtoB64_t(canReAuth, tok, id, size, mtype, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
@@ -1142,22 +1144,23 @@ x.setRequestHeader("Authorization","Bearer "+tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, isvid, finish)});
+        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, mtype, finish)});
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
         if(finish){
-            x = JSON.parse(x.response);
-            x = x.videoContent?x.videoContent.content:x.vcardContent?x.vcardContent.content:x.imageContent.content;
-            //GAPI returns a "url safe b64" string that is not allowed in
-            //data URLs, not reg b64, convert to reg b64
-            x = x.replace(/-/g, "+"); // 62nd char of encoding
-            x = x.replace(/_/g, "/"); // 63rd char of encoding
-            finish(false, x);
+            x = JSON.parse(x.response); //freq sort
+            finish(false,
+              (x.imageContent || x.videoContent || x.audioContent || x.vcardContent).content
+              //GAPI returns a "url safe b64" string that is not allowed in
+              //data URLs, not reg b64, convert to reg b64
+              .replace(/-/g, "+") // 62nd char of encoding
+              .replace(/_/g, "/")); // 63rd char of encoding
         }
     }
 }};
-x.send('["'+id+'",'+size+','+(isvid?'null,[1,[null,null,null,null,0,null,1]]]':'1]'));
+//rev eng from android app
+x.send('["'+id+'",'+size+','+(mtype==2?'null,null,[1]]':mtype==1?'null,[1,[null,null,null,null,0,null,1]]]':'1]'));
 }
 
 /*reference, use protobuf for smaller wire size because is called on

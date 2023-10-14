@@ -65,6 +65,13 @@ function getConvoUI(evt, paginationToken, finish) {
                         a = p.appendChild(document.createElement('a'));
                         a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         a.textContent = "Download Video";
+                    } else if(m.mediaType == "audio") {
+                        img = p.appendChild(document.createElement('audio'));
+                        img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
+                        img.controls = true;
+                        a = p.appendChild(document.createElement('a'));
+                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
+                        a.textContent = "Download Audio";
                     } else if (m.mediaType == "vcard") {
                         img = p.appendChild(document.createElement('img'));
                         img.isvcard = 1;
@@ -501,7 +508,8 @@ function threadImgAltLoader(e) {
     //stop infinite recursion on img tag
     e.onerror = undefined;
     var isvid = e.isvcard || e.nodeName == 'VIDEO';
-    if (isvid) {
+    var isaud = e.nodeName == 'AUDIO';
+    if (isvid || isaud) {
         id = e.src;
     } else {
         //get anchor tag
@@ -516,11 +524,17 @@ function threadImgAltLoader(e) {
     if(lastPos == -1){lastPos = undefined}; //vcard has no url arguments
     id = id.substring(id.lastIndexOf('/')+1,lastPos);
     //use smallest quality/size aka 2 just like direct links primary method
-    attachIDtoB64(id, isvid ? 4:2, isvid, function(errTwo, r){
+    attachIDtoB64(id, isvid || isaud ? 4:2, isvid ? 1 : isaud ? 2 : 0, function(errTwo, r){
         //broken on newer Chrome, opens blank window
         //no top level navigation to data URL, TODO blob URL
         if (!errTwo) {
-            if (isvid) {
+            if (isaud) {
+                r = 'data:audio/mp3;base64,'+r;
+                e.src = r;
+                //download me link
+                e.nextElementSibling.href = r;
+            }
+            else if (isvid) {
                 r = 'data:'+(e.isvcard ? 'text/x-vcard': 'video/mp4')+';base64,'+r;
                 e.nodeName == 'VIDEO' && (e.src = r);
                 //download me link
