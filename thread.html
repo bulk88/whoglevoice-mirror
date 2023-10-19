@@ -6,7 +6,6 @@
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
 <style>img,video{width:100%}button{line-height:1.5}</style>
-<script></script>
 </head>
 <body>
 Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
@@ -180,9 +179,8 @@ function loadLinkFormatter(updateLinkFormatter) {
     //googId = (new URL("/linkfmt.js", document.baseURI)).href;
     script = document.getElementById('lfmtjs');
     if (!script || (script.src != googId && document.head.removeChild(script))) {
-      script = document.createElement("script");
-      script.src = googId;
       window.wvUpdateLinkFormatterRun = updateLinkFormatter;
+      (script = document.createElement("script")).src = googId;
       document.head.appendChild(script).id = 'lfmtjs';
     } else {
       updateLinkFormatter && updateLinkFormatter();
@@ -252,21 +250,25 @@ function hashChangeHandler () {
                   element.x_pid = r[1];
                   */
                   element.setAttribute('data-pid', r[1]);
+                  r[2] && element.setAttribute('data-url', r[2]);
                 }
             });
             //try to get Contact Name no I/O from cached threadList, UI jitter
             //99% of time cached Contact name will be live XHR name
-            num_matchStr_offsetEnd = '<a href="thread.html#'+num_matchStr_offsetEnd+'">';
+            num_matchStr_offsetEnd = '<a href="thread.html#'+num_matchStr_offsetEnd+'"';
             var threadListHtml = localStorage.getItem(sessionStorage.getItem('wvArchView')
       ? 'wvThdListA' : 'wvThdListM');
             if (threadListHtml) {
               //dont use DOMParser for performance reasons, just basic string search
               var contactOffset = threadListHtml.indexOf(num_matchStr_offsetEnd);
               if (contactOffset != -1) {
-                contactOffset += num_matchStr_offsetEnd.length;
-                if((num_matchStr_offsetEnd = threadListHtml.indexOf('<', contactOffset)) != -1) {
-                  threadListHtml = threadListHtml.substring(contactOffset, num_matchStr_offsetEnd);
-                  threadListHtml && (element.textContent = threadListHtml)
+              //not injection safe, if url field has GT, skip attributes
+                contactOffset = threadListHtml.indexOf('>', contactOffset);
+                if (contactOffset != -1) {
+                  if((num_matchStr_offsetEnd = threadListHtml.indexOf('<', contactOffset)) != -1) {
+                    threadListHtml = threadListHtml.substring(contactOffset+1, num_matchStr_offsetEnd);
+                    threadListHtml && (element.textContent = threadListHtml)
+                  }
                 }
               }
             }
@@ -286,7 +288,7 @@ function hashChangeHandler () {
               input = button.previousElementSibling;
             if(old_name !== input.value) {
               button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
-              upContact(input.getAttribute("data-pid"), input.value, function (err,r) {
+              upContact(input.getAttribute("data-pid"), input.value, null, function (err,r) {
                 if (err) {
                   button.textContent = "\u270F\uFE0F\u2718"; //X mark
                 } else {
