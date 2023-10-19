@@ -292,8 +292,12 @@ function hashChangeHandler () {
                 if (err) {
                   button.textContent = "\u270F\uFE0F\u2718"; //X mark
                 } else {
-                  span.textContent = r.personResponse.person.name[0].displayName;
+                  span.textContent = (r = r.personResponse.person).name[0].displayName;
+                  r.website && span.setAttribute('data-url', r.website[0].value);
                   button.textContent = "\u270F\uFE0F\u2714"; //Good mark
+                  r = document.forms.folderForm.folder.value;
+                  //purge cached thread lists, so name change is updated in thread list
+                  localStorage.removeItem(r == "allThreads" ? 'wvThdListM' : r == "allArchivedThreads" ? 'wvThdListA' : alert(0));
                 }
                 button.onclick = old_onclick_evt;
                 button.parentNode.replaceChild(span,input);
