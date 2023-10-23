@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://p.saproxy.us.to">
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
-<style>img,video{width:100%}button{line-height:1.5}</style>
+<style>img,video{width:100%}button{line-height:1.5}p{white-space:pre-line}</style>
 </head>
 <body>
 Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
@@ -42,7 +42,7 @@ function getConvoUI(evt, paginationToken, finish) {
             finish && finish(err);
         }
         else {
-        var urlre = /(?:(https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
+        var urlre = /(?:(?:https?|ftp):\/\/|www\.)[\w#-;!=?@\[\\\]_`{|}~]+/ig;
         var userIndex = lazySignedInUserIndex();
         var i;
         var n;
@@ -112,21 +112,23 @@ function getConvoUI(evt, paginationToken, finish) {
             }
             p.align = msgObj.type == "smsIn" ? 'left' : 'right';
             img = new Date(Number(msgObj.startTime));
+            p.appendChild(document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'- '));
             //an empty body MMS msg has as "plain text" content
             //"message_text": "MMS Received"
             //just always use MMS specific body if MMS
-            a = document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'- '
-                +(msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText)+' ');
-            img = a.textContent;
-            if (img.match(urlre)) {
-                //not 2G era anymore, prefetch a possible navigation
-                p.innerHTML = img.replace(urlre,
-                //'<a href="$&" target="_blank" rel="noreferrer">$&</a>'
-                //proprietary business logic, trigger only on certain users, noop for public
-                wvLinkFmt
-                );
-            } else {
-                p.appendChild(a);
+            n = 0;
+            img = msgObj.mmsMessage ? msgObj.mmsMessage.text : msgObj.messageText
+            while (a = urlre.exec(img)) {
+              if (a.index-n){
+                p.appendChild(document.createTextNode(img.substring(n,a.index)));
+              }
+              p.appendChild(wvLinkFmt(a[0]));
+              //update marker for next non-url text chunk
+              n = urlre.lastIndex;
+            }
+            //last non-url block
+            if(n != img.length) {
+              p.appendChild(document.createTextNode(img.slice(n)));
             }
             if(i==0) { //used for new msg poll
                 p.mid = msgObj.id;

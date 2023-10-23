@@ -24,9 +24,9 @@ addEventListener("fetch", event => {
         //customize for internal biz use on fork
         num = /^(?:999999999999999999999|888888888888888888888)$/.test(num.substr(11));
         resolveCB(new Response( num ?
-`function wvLinkFmt(e){return'<a href="'+e+'" target="_blank" rel="noreferrer">'+e+"</a>"}window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
+`function wvLinkFmt(e){var a=document.createElement('a');a.textContent=a.href=e;a.rel="noreferrer";a.target="_blank";return a;};window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
 :
-`function wvLinkFmt(e){return'<a href="'+e+'" target="_blank" rel="noreferrer">'+e+"</a>"}window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
+`function wvLinkFmt(e){var a=document.createElement('a');a.textContent=a.href=e;a.rel="noreferrer";a.target="_blank";return a;};window.wvUpdateLinkFormatterRun&&window.wvUpdateLinkFormatterRun();`
             , {
             status: 200,
             headers: {
