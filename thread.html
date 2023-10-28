@@ -319,17 +319,28 @@ function hashChangeHandler () {
           e.focus();
         }
         carrierUpdate = function (s) {
-            //this obj is window obj
-            carrierUpdate.wvnode.textContent =
-            s.match(/CINGULAR/) ? 'ATTW-' :
-            s.match(/CELLCO PARTNERSHIP/) ? 'VZW-' :
-            s.match(/OMNIPOINT|T-MOBILE USA|METROPCS/) ? 'TM-' :
-            s.match(/BANDWIDTH.COM/) ? 'BCOM-' :
-            s.match(/SPRINT SPECTRUM/) ? 'SPCS-' :
-            s.match(/Inteliquent/) ? 'ITQL-' :
-            s.match(/PEERLESS NETWORK OF NEW YORK/) ? 'PLSNY-' :
-            s + '-';
-            carrierUpdate = undefined;
+          //this obj is window obj
+          //add - unconditionally, if(){} not wor minify bytes
+          var i = 1, r = (s += '-').match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
+          if(r) {
+            //7 total
+            for (; i < 8; i++) {
+              if (r[i]) {
+                s = [,
+                  'ATTW-',
+                  'VZW-',
+                  'TM-',
+                  'BCOM-',
+                  'SPCS-',
+                  'ITQL-',
+                  'PLSNY-'
+                ][i];
+                break;
+              }
+            }
+          }
+          carrierUpdate.wvnode.textContent = s;
+          carrierUpdate = undefined;
         };
         carrierUpdate.wvnode = f.appendChild(document.createElement('span')); //carrier, empty RN
         e = document.createElement('script');
