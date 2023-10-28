@@ -287,10 +287,9 @@ function hashChangeHandler () {
           //set save handler
           this.onclick = function () {
             var button = this,
-              input = button.previousElementSibling;
-            if(old_name !== input.value) {
-              button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
-              upContact(input.getAttribute("data-pid"), input.value, null, function (err,r) {
+              input = button.previousElementSibling,
+              pid,
+              xhrCB = function (err,r) {
                 if (err) {
                   button.textContent = "\u270F\uFE0F\u2718"; //X mark
                 } else {
@@ -303,7 +302,14 @@ function hashChangeHandler () {
                 }
                 button.onclick = old_onclick_evt;
                 button.parentNode.replaceChild(span,input);
-              }); //end xhr callback
+              };
+            if(old_name !== input.value) {
+              button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
+              if((pid = input.getAttribute("data-pid")) !== 'null') {
+                upContact(pid, input.value, null, xhrCB); //end xhr callback
+              } else {
+                mkContact(input.value, location.hash.substring(1), xhrCB);
+              }
             } else { //no I/O name didn't change
               button.parentNode.replaceChild(span,input);
               button.onclick = old_onclick_evt;

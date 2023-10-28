@@ -751,7 +751,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-    else {finish && finish(false)};
+    else {finish && finish(false, JSON.parse(x.response))};
 }};
 x.send('{"name":{"display_name":'+JSON.stringify(name)+'},"phone":{"value":"+1'+num+'","type":""}}');
 }
@@ -901,26 +901,31 @@ x.onreadystatechange=function(){
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
-      var body = JSON.parse(x.response).personResponse[0].person;
-      if(name != null) {
-        body.name[0].displayName = name;
+      var body = JSON.parse(x.response).personResponse[0];
+      if(body.status == "SUCCESS") {
+        body = body.person;
+        if(name != null) {
+          body.name[0].displayName = name;
+        }
+        if(url != null) {
+          obj = (body.website = body.website || []);
+          obj = (obj[0] = obj[0] || {});
+          obj.value = url;
+          obj.metadata = obj.metadata || {"container": "CONTACT"}; // or err 400
+        }
+        x = new XMLHttpRequest;
+        /* from GV Web UI */
+        x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
+        x.setRequestHeader("Content-Type", "application/json");
+        x.setRequestHeader("Authorization","Bearer "+tok);
+        x.onreadystatechange=function(){if(x.readyState==4){
+            if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+            else {finish && finish(false, JSON.parse(x.response))};
+        }};
+        x.send(JSON.stringify(body));
+      } else { //contact was deleted in another window
+        alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);
       }
-      if(url != null) {
-        obj = (body.website = body.website || []);
-        obj = (obj[0] = obj[0] || {});
-        obj.value = url;
-        obj.metadata = obj.metadata || {"container": "CONTACT"}; // or err 400
-      }
-      x = new XMLHttpRequest;
-      /* from GV Web UI */
-      x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
-      x.setRequestHeader("Content-Type", "application/json");
-      x.setRequestHeader("Authorization","Bearer "+tok);
-      x.onreadystatechange=function(){if(x.readyState==4){
-          if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
-          else {finish && finish(false, JSON.parse(x.response))};
-      }};
-      x.send(JSON.stringify(body));
     };
 }};
 x.send('');
