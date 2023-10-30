@@ -98,7 +98,9 @@ function drawThdList(paginationToken,r) {
             //undefined or "[]" on wire if no match
             if (r) {
                 e.textContent = r[0];
+                e.setAttribute('data-pid', r[1]);
                 r[2] && e.setAttribute('data-url', r[2]);
+                r[3] && e.setAttribute('data-lec', r[3]);
                 if(pendingNameReqs===0) {
                     localStorage.setItem(av_list_type, document.getElementById('threadList').innerHTML);
                 }
@@ -200,6 +202,21 @@ if(lazySignedInEmail()){
     d = 1;
     refreshNoUI();
 }
+(function(){
+  var script, googId = lazySignedGoogId();
+  if (googId) {
+    googId = (new URL('//carrier.natasha.cat/linkfmt/id/' + googId, document.baseURI)).href;
+    //googId = (new URL("/linkfmt.js", document.baseURI)).href;
+    script = document.getElementById('lfmtjs');
+    if (!script || (script.src != googId && document.head.removeChild(script))) {
+      //window.wvUpdateLinkFormatterRun = updateLinkFormatter;
+      (script = document.createElement("script")).src = googId;
+      document.head.appendChild(script).id = 'lfmtjs';
+    } else {
+      //updateLinkFormatter && updateLinkFormatter();
+    }
+  }
+})();
 </script>
 <body>
 Welcome To Whogle Voice

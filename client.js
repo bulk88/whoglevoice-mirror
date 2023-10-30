@@ -766,8 +766,8 @@ https://www.google.com/m8/feeds/contacts/default/full
 */
 
 
-function upContact(pid,name,url,finish){
-    getAuthToken(function(tok) {upContact_t(true,tok,pid,name,url,finish)});
+function upContact(pid,name,url,urltype,finish){
+    getAuthToken(function(tok) {upContact_t(true,tok,pid,name,url,urltype,finish)});
 }
 /*
 //FAILS unless I add new scopes to auth token,
@@ -887,7 +887,7 @@ fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?cont
 //400 PUT         https://content-people-pa.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
 //people-pa.googleapis.com doesn't allow authorization: SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6
 //people-pa.clients6.google.com does, prob domain and cookies inclusion
-function upContact_t(canReAuth,tok,pid,name,url,finish){
+function upContact_t(canReAuth,tok,pid,name,url,urltype,finish){
 var x=new XMLHttpRequest;
 /* from GV Web UI */
 x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
@@ -897,7 +897,7 @@ x.onreadystatechange=function(){
   if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
-        getAuthToken(function(tok) {upContact_t(false,tok,pid,name,url,finish)});
+        getAuthToken(function(tok) {upContact_t(false,tok,pid,name,url,urltype,finish)});
     }
     else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
     else {
@@ -907,15 +907,25 @@ x.onreadystatechange=function(){
         if(name != null) {
           body.name[0].displayName = name;
         }
-        if(url != null) {
+        if(url != null || urltype != null) {
           obj = (body.website = body.website || []);
           obj = (obj[0] = obj[0] || {});
-          obj.value = url;
+          if(url) {
+            obj.value = url
+          }
+          if(urltype) {
+            obj.type = urltype;
+            if (typeof obj.value !== 'string') {
+              //must be 1 space, empty string causes no cloud save
+              //and still missing website field on echo
+              obj.value = ' ';
+            }
+          }
           obj.metadata = obj.metadata || {"container": "CONTACT"}; // or err 400
         }
         x = new XMLHttpRequest;
         /* from GV Web UI */
-        x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
+        x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null || urltype != null ?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
         x.setRequestHeader("Content-Type", "application/json");
         x.setRequestHeader("Authorization","Bearer "+tok);
         x.onreadystatechange=function(){if(x.readyState==4){
@@ -1347,7 +1357,8 @@ x.onreadystatechange=function(){
             obj = x[1][0][1];
             x = [ obj[2][0][1], //name
                   x[0][0][1][0], //pid
-                  obj[6] && obj[6][0][1]// website URL
+                  obj[6] && obj[6][0][1],// website URL
+                  obj[6] && obj[6][0][2],// website type, [3] is formattedType
 //website member has a same level as the link, metadata: {
 //"writeable": true,"container": "CONTACT","primary": true
 //,"containerId": "887544146487",

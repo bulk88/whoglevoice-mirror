@@ -136,9 +136,13 @@ function getConvoUI(evt, paginationToken, finish) {
             evt.textContent ="\xa0\u25BD\u2714";//Good mark
         }
 
-        a=document.getElementById('buddy-bar').firstChild;
-        if(a.textContent === '') {
-            a.textContent = r.thread.contact.reduce(function(a, cv) {
+        a=document.getElementById('buddy-bar').firstChild.firstChild;
+        //post 2021 r.thread.contact is always autogen numeric tel num
+        //pre 2021 it was a proper contact name thru contacts API
+        //this will be guessed from main thread HTML extraction, and later
+        //in a few MS patched by XHR to contacts API
+        if(a.nodeValue === '') {
+            a.nodeValue = r.thread.contact.reduce(function(a, cv) {
                 return cv.phoneNumber != "Unknown" ? cv : a;
             }).name + '-';
         }
@@ -157,6 +161,7 @@ function getConvoUI(evt, paginationToken, finish) {
             if(paginationToken){
                 tdiv.replaceChild(frag, tdiv.firstChild);
             } else {
+            // todo investigate https://jsben.ch/MRMSp
                 while (tdiv.lastChild) {
                     tdiv.removeChild(tdiv.lastChild);
                 }
@@ -243,38 +248,81 @@ function hashChangeHandler () {
         //get this req ASAP on wire before paints
         getConvoUI({target:{textContent: 0}},0,function(){nextPollLoop(6000)});
         var f = document.createDocumentFragment();
-        (function(element,num_matchStr_offsetEnd){
-            getContactName(num_matchStr_offsetEnd, function(err, r) {
+        var carrierTextNode = document.createTextNode('');
+        (function(element,carrierTextNode,num_matchStr_offset){
+            getContactName(num_matchStr_offset, function(err_str, r) {
                 //undefined or "[]" on wire if no match
                 if (r) {
-                  element.textContent = r[0];
                   /*
                   element.x_pid = r[1];
                   */
                   element.setAttribute('data-pid', r[1]);
-                  r[2] && element.setAttribute('data-url', r[2]);
+                  (err_str = r[2]) && element.setAttribute('data-url', err_str);
+                  //avoid paint, name
+                  if((element = element.firstChild).nodeValue != (err_str = r[0])) {
+                    element.nodeValue = err_str;
+                  }
+                  //avoid paint, carrier, carrier might be missing
+                  if((err_str = r[3]) && carrierTextNode.nodeValue != (err_str +='-')) {
+                    carrierTextNode.nodeValue = err_str;
+                  }
                 }
             });
-            //try to get Contact Name no I/O from cached threadList, UI jitter
-            //99% of time cached Contact name will be live XHR name
-            num_matchStr_offsetEnd = '<a href="thread.html#'+num_matchStr_offsetEnd+'"';
-            var threadListHtml = localStorage.getItem(sessionStorage.getItem('wvArchView')
+            //try to get Contact Name/LEC no I/O from cached threadList, UI jitter
+            //99% of time cached Contact name/LEC will be live XHR name
+            num_matchStr_offset = '<a href="thread.html#'+num_matchStr_offset+'"';
+            var contactOffset,
+            startAttrs,
+            endAttrs,
+            name = '',
+            threadListHtml = localStorage.getItem(sessionStorage.getItem('wvArchView')
       ? 'wvThdListA' : 'wvThdListM');
             if (threadListHtml) {
               //dont use DOMParser for performance reasons, just basic string search
-              var contactOffset = threadListHtml.indexOf(num_matchStr_offsetEnd);
-              if (contactOffset != -1) {
+              startAttrs = threadListHtml.indexOf(num_matchStr_offset);
+              if (startAttrs != -1) {
               //not injection safe, if url field has GT, skip attributes
-                contactOffset = threadListHtml.indexOf('>', contactOffset);
-                if (contactOffset != -1) {
-                  if((num_matchStr_offsetEnd = threadListHtml.indexOf('<', contactOffset)) != -1) {
-                    threadListHtml = threadListHtml.substring(contactOffset+1, num_matchStr_offsetEnd);
-                    threadListHtml && (element.textContent = threadListHtml)
+                endAttrs = threadListHtml.indexOf('>', startAttrs);
+                if (endAttrs != -1) {
+                  //carrier
+                  num_matchStr_offset = threadListHtml.indexOf('data-lec="', startAttrs);
+                  //check for data-lec missing or from wrong element
+                  if(num_matchStr_offset != -1 && num_matchStr_offset < endAttrs) {
+                    num_matchStr_offset+=10;
+                    //search end of attribute, escape unsafe
+                    contactOffset = threadListHtml.indexOf('"', num_matchStr_offset);
+                    if(contactOffset != -1) {
+                      //extract carrier from offsets in HTML+format
+                      //b/c this is 1st draw pass ever, dont check old value
+                      carrierTextNode.nodeValue = threadListHtml.substring(num_matchStr_offset,contactOffset) + '-';
+                    }
+                  }
+                  //pid
+                  num_matchStr_offset = threadListHtml.indexOf('data-pid="', startAttrs);
+                  //check for data-pid missing or from wrong element
+                  if(num_matchStr_offset != -1 && num_matchStr_offset < endAttrs) {
+                    num_matchStr_offset+=10;
+                    //search end of attribute, escape unsafe
+                    contactOffset = threadListHtml.indexOf('"', num_matchStr_offset);
+                    if(contactOffset != -1) {
+                      //extract PID from offsets in HTML, used by carrierUpdate before contacts API XHR finished
+                      //b/c this is 1st draw pass ever, dont check old value
+                      element.setAttribute('data-pid',threadListHtml.substring(num_matchStr_offset,contactOffset));
+                    }
+                  }
+                  //name
+                  if((num_matchStr_offset = threadListHtml.indexOf('<', endAttrs)) != -1) {
+                    num_matchStr_offset = threadListHtml.substring(endAttrs+1, num_matchStr_offset);
+                    //1st draw, don't check old value
+                    num_matchStr_offset && (name = num_matchStr_offset);
                   }
                 }
               }
-            }
-        })(f.appendChild(document.createElement('span')),t);
+            } //if (threadListHtml) {
+            //cud be guessed name, or empty str
+            //must add TN for contacts XHR CB later
+            element.appendChild(document.createTextNode(name));
+        })(f.appendChild(document.createElement('span')),carrierTextNode,t);
         var e = f.appendChild(document.createElement('button'));
         e.textContent = '\u270F\uFE0F';
         //set start edit handler
@@ -306,7 +354,7 @@ function hashChangeHandler () {
             if(old_name !== input.value) {
               button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
               if((pid = input.getAttribute("data-pid")) !== 'null') {
-                upContact(pid, input.value, null, xhrCB); //end xhr callback
+                upContact(pid, input.value, null, null, xhrCB); //end xhr callback
               } else {
                 mkContact(input.value, location.hash.substring(1), xhrCB);
               }
@@ -321,11 +369,11 @@ function hashChangeHandler () {
         carrierUpdate = function (s) {
           //this obj is window obj
           //add - unconditionally, if(){} not wor minify bytes
-          var i = 1, r = (s += '-').match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
-          if(r) {
+          var i = 1, r_pid = (s += '-').match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
+          if(r_pid) {
             //7 total
             for (; i < 8; i++) {
-              if (r[i]) {
+              if (r_pid[i]) {
                 s = [,
                   'ATTW-',
                   'VZW-',
@@ -339,10 +387,24 @@ function hashChangeHandler () {
               }
             }
           }
-          carrierUpdate.wvnode.textContent = s;
-          carrierUpdate = undefined;
+          i = carrierUpdate.wvnode; //textnode
+          //update contact if current LEC isn't cached in the contact
+          if(i.nodeValue != s) {
+            i.nodeValue = s;
+            if (r_pid = i.parentElement.parentElement.firstChild.getAttribute('data-pid')) {
+              upContact(r_pid, null, null, s.slice(0, -1)/*urltype*/
+                ,function (err/*,r*/) {
+                  if(!err) {
+                    err = document.forms.folderForm.folder.value;
+                    //purge cached thread lists, so name change is updated in thread list
+                    localStorage.removeItem(err == "allThreads" ? 'wvThdListM' : err == "allArchivedThreads" ? 'wvThdListA' : alert(0));
+                  }
+              });
+            }
+          }
+          carrierUpdate = null; //free memory just in case
         };
-        carrierUpdate.wvnode = f.appendChild(document.createElement('span')); //carrier, empty RN
+        carrierUpdate.wvnode = f.appendChild(document.createElement('span')).appendChild(carrierTextNode);
         e = document.createElement('script');
         e.src = '//carrier.natasha.cat/'+t.substring(0,7);
         f.appendChild(e);
