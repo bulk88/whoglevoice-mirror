@@ -390,10 +390,10 @@ function wvPickerTokenRefresh(buttonElement, user) {
 
 */
 
-function wvDrawAccountPicker() {
+function wvDrawAccountPicker(suppressTokRefresh) {
 
     var oldPicker = localStorage.getItem('wvAcntPicker');
-    if (oldPicker) {
+    if (oldPicker && !suppressTokRefresh) {
         wvDrawUserList(oldPicker);
     }
     var myRequest = new XMLHttpRequest();
@@ -595,7 +595,9 @@ function getAuthToken(callbackFunc) {
                     } else {
                         evt.textContent = "\u3164Logout All Accounts\u2718\u3164";
                     }
-                    wvDrawAccountPicker();
+//don't try to speculatively refresh tokens, guarenteed fail/4XX code b/c no cookies
+//less I/O, less auth proxy reqs
+                    wvDrawAccountPicker(1);
                 }
             };
             x.withCredentials = true;
