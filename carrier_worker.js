@@ -31,7 +31,8 @@ addEventListener("fetch", event => {
             status: 200,
             headers: {
             "content-type": "text/javascript",
-            "cache-control": "max-age=2629800"
+            "cache-control": "max-age=2629800",
+            "access-control-allow-origin": "*"
             }
           }));
     } else {

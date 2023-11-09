@@ -8,6 +8,8 @@
 <script src="client.js" type="text/javascript"></script>
 <style>button{line-height:1.5}</style>
 <script>
+//adds preconnects
+initLnkFmt();
 var pendingNameReqs = 0;
 var d;/*didEarlyFetch*/
 /*cleanTelNum*/
@@ -202,21 +204,6 @@ if(lazySignedInEmail()){
     d = 1;
     refreshNoUI();
 }
-(function(){
-  var script, googId = lazySignedGoogId();
-  if (googId) {
-    googId = (new URL('//carrier.natasha.cat/linkfmt/id/' + googId, document.baseURI)).href;
-    //googId = (new URL("/linkfmt.js", document.baseURI)).href;
-    script = document.getElementById('lfmtjs');
-    if (!script || (script.src != googId && document.head.removeChild(script))) {
-      //window.wvUpdateLinkFormatterRun = updateLinkFormatter;
-      (script = document.createElement("script")).src = googId;
-      document.head.appendChild(script).id = 'lfmtjs';
-    } else {
-      //updateLinkFormatter && updateLinkFormatter();
-    }
-  }
-})();
 </script>
 <body>
 Welcome To Whogle Voice<button style="visibility: hidden">B</button>

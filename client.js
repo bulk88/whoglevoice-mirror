@@ -41,6 +41,8 @@ return r;
 }
 
 function wvWipeAuthToken (logout) {
+    delete window.wvLinkFmt;
+    localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
     localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
     localStorage.setItem('wvLastExpires', lazySignedInExpires());
     localStorage.removeItem('gvauthobj');
@@ -239,6 +241,49 @@ function lazySignedGoogId() {
     }
     if(GVAuthObj) return GVAuthObj.profile.sub;
     else return '';
+}
+
+function lazyGetLinkFormatter() {
+  var g = lazySignedGoogId(), ret = [,g], GVAuthObj;
+  if(g) { //signed out
+    GVAuthObj= localStorage.getItem('linkfmt/id/'+g);
+    if (GVAuthObj) {
+      ret[0] = GVAuthObj;
+    }
+  }
+  return ret;
+}
+function initLnkFmt(finish) {
+  //skip eval if already in process
+  if(window.wvLinkFmt) {
+    finish && finish();
+    return;
+  }
+  var g/*oogId*/, s = lazyGetLinkFormatter();
+  if(s[0]) { //from localStorage
+    Function(s[0])();
+    finish && finish();
+  } else { //from network
+    if (g = s[1]) {
+      s=new XMLHttpRequest;
+      s.open("GET",(new URL('//carrier.natasha.cat/linkfmt/id/' + g, document.baseURI)).href,1);
+      //s.open("GET", '/linkfmt.js',1);
+      s.onreadystatechange=function(){
+        var a/*authobj*/;
+        if(s.readyState==4){
+          if(s.status != 200) {
+            alert("status: "+s.status+"\nresp:"+s.response);
+          }
+          else {
+            localStorage.setItem('linkfmt/id/'+g, s.response);
+            Function(s.response)();
+            finish && finish();
+          }
+        }
+      };
+      s.send();
+    }
+  }
 }
 
 function lazySignedInUserIndex() {
@@ -516,8 +561,12 @@ function getAuthToken(callbackFunc) {
             }
             window.onmessage = null;
             if (GVAuthObj) {
+                //maybe a new goog UID
+                delete window.wvLinkFmt;
+                localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
                 localStorage.setItem('gvauthobj',pasteStr);
-                callbackFunc(GVAuthObj.access_token);
+                //start req to get the per-goog UID link formatter, maybe a new goog ID
+                initLnkFmt(function(){callbackFunc(GVAuthObj.access_token);});
             } else {
                 callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
             }
