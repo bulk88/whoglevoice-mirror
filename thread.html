@@ -5,12 +5,14 @@
 <link rel="preconnect" href="https://p.saproxy.us.to">
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
-<style>img,video{width:100%}button{line-height:1.5}p{white-space:pre-line}</style>
+<style>body{margin-top:0px;}img,video{width:100%}button{line-height:1.5}p{white-space:pre-line}</style>
 </head>
 <body>
+<div style="position:sticky;top:0px;background-color:white;">
 Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 <div id='sign-in-bar'></div>
 <div id='buddy-bar'></div>
+</div>
 <div id='thread'></div>
 <script>
 //adds preconnects ASAP
@@ -447,6 +449,7 @@ window.ononline = function () {
 <br/>
 <button onclick="history.back()">&#x25C0;Back</button>
 <button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+<button onclick="sendUI(event,0,function(e){e||history.back()})">&#x2709;&#x25C0;&nbsp;&nbsp;&nbsp;</button>
 <button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;Top&#x3164;</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
 <button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button>
@@ -485,7 +488,7 @@ function clearPrvImg() {
     //node doesn't remove the img, only cloneNode works (AKA new node)
     p.insertBefore(i.cloneNode(), s);
 }
-function sendUI(b, skip_paste) { //b button
+function sendUI(b, skip_paste, finish) { //b button
     var b64 = document.getElementById('prv').src;
     var msgElem = document.getElementById('msg');
     if(msgElem.value.length == 0 && !b64 && !skip_paste) {
@@ -495,7 +498,7 @@ function sendUI(b, skip_paste) { //b button
             .then(function(t){
                 msgElem.value = t;
                 if(t.length == 0) {
-                    sendUI(b,1)
+                    sendUI(b,1,finish)
                 }
             })
         }
@@ -503,7 +506,7 @@ function sendUI(b, skip_paste) { //b button
     }
     //avoid banging API rate
     clearTimeout(pollLastTimer);
-    b = b.target;
+    b = b.target.firstChild;
     var t = location.hash.substring(1);
     //for now if no number, "invalid argument" error from API
     //if(t != "no num specified in url anchor"){
@@ -517,14 +520,14 @@ function sendUI(b, skip_paste) { //b button
                 b64 = b64.substr(b64StartPos+1);
             }
         }
-        b.textContent = "\xa0\u2709\u231B\xa0"; //hourglass mark
+        b.nodeValue = b.nodeValue.slice(0,2)+"\u231B\xa0"; //hourglass mark
         sendsms(t,msgElem.value,b64,function(err, r){
             if (err) {
-                b.textContent = "\xa0\u2709\u2718\xa0"; //X mark
+                b.nodeValue = b.nodeValue.slice(0,2)+"\u2718\xa0"; //X mark
                 nextPollLoop();
             } else {
                 var latestOutPostHash= r[2];
-                b.textContent = "\xa0\u2709\u2714\xa0"; //Good mark
+                b.nodeValue = b.nodeValue.slice(0,2)+"\u2714\xa0"; //Good mark
                 getConvoUI({target:{textContent: 0}}, 0, function (err, r) {
                    if (!err) {
                         //sometimes proxy drops outgoing msgs IDK why, retry auto
@@ -546,9 +549,10 @@ function sendUI(b, skip_paste) { //b button
                 }
                 );
             }
+            finish && finish(err)
         });
     //} else { //no tel num given
-    //    b.textContent = "\xa0\u2709\u2718\xa0"; //X mark
+    //   b.nodeValue = b.nodeValue.slice(0,2)+"\u2718\xa0"; //X mark
     //}
 }
 function threadImgAltLoaderClick (e) {
