@@ -452,8 +452,8 @@ window.ononline = function () {
 <button onclick="sendUI(event,0,function(e){e||history.back()})">&#x2709;&#x25C0;&nbsp;&nbsp;&nbsp;</button>
 <button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;Top&#x3164;</button>
 <button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
-<button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button>
-<br/>
+<!-- do not add whitespace between button and BR, JS conditional/minify -->
+<button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button><br/>
 <!-- remove newline caused by form element -->
 <form name="folderForm" style="display:inline">
   <label>
