@@ -62,7 +62,25 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send((fullreq?'['+(archive?6:2)+',100,1':'['+(archive?6:2)+',1,1')+(paginationToken?',"'+paginationToken+'"]':']'));
 }
 
-function drawThdList(paginationToken,r) {
+function buildContactCache() {
+  var i = 0,
+  contact_cache = {},
+  name,
+  n,
+  //build cache old HTML view contact names, anti UI jerk, 99% accurate
+  arr = document.getElementById('threadList').querySelectorAll('a');
+  for (; i < arr.length; i++) {
+    n = arr[i];
+    name = n.firstChild.nodeValue;
+    //dont add 5 digit codes
+    if (!name.match(/^\+?\d+$/)) {
+      contact_cache['+1' + n.hash.slice(1)] = name;
+    }
+  }
+  return contact_cache;
+}
+
+function drawThdList(paginationToken,r,contact_cache) {
     var av_list_type = sessionStorage.getItem('wvArchView')
       ? 'wvThdListA' : 'wvThdListM';
     var frag = document.createDocumentFragment();
@@ -91,7 +109,12 @@ function drawThdList(paginationToken,r) {
         n = n.appendChild(document.createElement('a'));
         n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
         var name = msgObj.contact.name;
-        n.textContent = name;
+        //use cached name for UI jerk, maybe updated in some ms later below
+        //dont copy data-* or A element direct, incase old data-* missing
+        //from fresh contact API fetch, attr was deleted for example, this
+        //could be fixed in future by removeAttribute || setAttribute
+        //but I'm lazy, virgin A tag, so use textContent, not nodeValue
+        n.textContent = contact_cache[name] ? contact_cache[name] : name;
         if (name.match(/^\+\d+$/)) {
             (function(e){
             pendingNameReqs++;
@@ -99,7 +122,10 @@ function drawThdList(paginationToken,r) {
             pendingNameReqs--;
             //undefined or "[]" on wire if no match
             if (r) {
-                e.textContent = r[0];
+                //avoid repaint, 99% cached so block doesn't run
+                if(e.firstChild.nodeValue !== r[0]) {
+                  e.firstChild.nodeValue = r[0];
+                }
                 e.setAttribute('data-pid', r[1]);
                 r[2] && e.setAttribute('data-url', r[2]);
                 r[3] && e.setAttribute('data-lec', r[3]);
@@ -131,7 +157,8 @@ function drawThdList(paginationToken,r) {
 function g(evt) {
 evt = evt.target;
 evt.textContent ="\xa0\u25BD\u231B";
-var paginationToken = (evt.dataset||{}).wvPgTok;
+var contact_cache,
+  paginationToken = (evt.dataset||{}).wvPgTok;
 //even on virgin page load, we still do tiny net req/full net req, not straight
 //to full network req
 //because old HTML code and base page aren't done parsing yet and threadList
@@ -144,7 +171,7 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
     }
     else {
         if(paginationToken) {
-            drawThdList(paginationToken,r);
+            drawThdList(paginationToken,r,contact_cache);
         } else {
             var tdiv = document.getElementById('threadList');
             //lastest server MID doesn't match local MID aka new msg
@@ -155,10 +182,11 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
                         evt.textContent ="\xa0\u25BD\u2718";//X mark
                     }
                     else {
-                        drawThdList(0,r);
+                        drawThdList(0,r,contact_cache);
                         evt.textContent ="\xa0\u25BD\u2714";//Good mark
                     }
-                });
+                }); //build while idle waiting on IO
+                contact_cache = buildContactCache();
             //no update needed
             } else {
                 evt.textContent ="\xa0\u25BD\u2714";//Good mark
@@ -178,8 +206,13 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
                       pendingNameReqs--;
                       //undefined or "[]" on wire if no match
                       if (r) {
-                          e.textContent = r[0];
+                          //avoid repaint, 99% cached so block doesn't run
+                          if(e.firstChild.nodeValue !== r[0]) {
+                            e.firstChild.nodeValue = r[0];
+                          }
+                          e.setAttribute('data-pid', r[1]);
                           r[2] && e.setAttribute('data-url', r[2]);
+                          r[3] && e.setAttribute('data-lec', r[3]);
                           if (!pendingNameReqs) {
                               localStorage.setItem(sessionStorage.getItem('wvArchView')
                                 ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
@@ -194,6 +227,9 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
         }
     }
 });
+if(paginationToken) {//build while idle waiting on IO
+  contact_cache = buildContactCache();
+}
 }
 
 function refreshNoUI() {
