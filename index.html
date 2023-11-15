@@ -63,7 +63,7 @@ function g(evt) {
 evt = evt.target;
 evt.textContent ="\xa0\u25BD\u231B";
 var contact_cache,
-  paginationToken = (evt.dataset||{}).wvPgTok;
+  paginationToken = evt.getAttribute('data-pgtok')
 //even on virgin page load, we still do tiny net req/full net req, not straight
 //to full network req
 //because old HTML code and base page aren't done parsing yet and threadList
@@ -80,7 +80,7 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
         } else {
             var tdiv = document.getElementById('threadList');
             //lastest server MID doesn't match local MID aka new msg
-            var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
+            var oldmid = tdiv.firstChild && tdiv.firstChild.getAttribute('data-mid');
             if(r.substr(25,40) != oldmid) {
                 getThreadList(1,0,sessionStorage.getItem('wvArchView'),function(e,r){
                     if (e) { /*error*/
@@ -106,26 +106,7 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
                     //if very fast user navigate thd list->thd view b4 all contact name
                     //load over the wire
                     if (t.nodeValue.match(/^\+\d+$/)) {
-                      (function(e,t){ //mk closure for var e
-                      pendingNameReqs++;
-                      getContactName(t.nodeValue.substring(2), function(err, r) {
-                      pendingNameReqs--;
-                      //undefined or "[]" on wire if no match
-                      if (r) {
-                          //avoid repaint, 99% cached so block doesn't run
-                          if(t.nodeValue !== r[0]) {
-                            t.nodeValue = r[0];
-                          }
-                          e.setAttribute('data-pid', r[1]);
-                          r[2] && e.setAttribute('data-url', r[2]);
-                          r[3] && e.setAttribute('data-lec', r[3]);
-                          if (!pendingNameReqs) {
-                              localStorage.setItem(sessionStorage.getItem('wvArchView')
-                                ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
-                          }
-                      }
-                      });
-                      })(e,t); //mk closure for var e
+                      updateContactNameEl(e,t.nodeValue);
                     }
                   }
                 }
@@ -139,7 +120,7 @@ if(paginationToken) {//build while idle waiting on IO
 }
 
 function refreshNoUI() {
-    g({target:{textContent: 0}})
+    g({target:{textContent: 0, getAttribute: function(){}}})
 }
 
 if(lazySignedInEmail()){
@@ -164,6 +145,29 @@ onchange="
 <input type=tel placeholder="New num here" size=10></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
 <div id='threadList'></div>
 <script>
+function updateContactNameEl(e, num) { //e is A tag, num "+1" tel num
+  pendingNameReqs++;
+  getContactName(num.slice(2), function (err_tn, r) {
+    //err unchecked, lets assume it always passes, not found is 200 & [] resp
+    pendingNameReqs--;
+    //undefined or "[]" on wire if no match
+    if (r) {
+      //avoid repaint, 99% cached so block doesn't run
+      if ((err_tn = e.firstChild).nodeValue !== r[0]) {
+        err_tn.nodeValue = r[0];
+      }
+      e.setAttribute('data-pid', r[1]);
+      r[2] && e.setAttribute('data-url', r[2]);
+      r[3] && e.setAttribute('data-lec', r[3]);
+      //dont exec innerHTML O(n)
+      if (!pendingNameReqs/*==0*/) {
+        localStorage.setItem(sessionStorage.getItem('wvArchView')
+           ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
+      }
+    }
+  });
+}
+
 /*cleanTelNum*/
 function c(t) {
     return /1?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/.exec(t)[0].replace(/\D/g, '').substr(-10, 10);
@@ -188,14 +192,12 @@ function buildContactCache() {
 }
 
 function drawThdList(paginationToken,r,contact_cache) {
-    var av_list_type = sessionStorage.getItem('wvArchView')
-      ? 'wvThdListA' : 'wvThdListM';
     var frag = document.createDocumentFragment();
     if (r.paginationToken) {
         var moreButton = document.createElement('button');
         moreButton.textContent = "\xa0Load More\xa0";
         //survive serialization of HTML
-        moreButton.dataset.wvPgTok = r.paginationToken;
+        moreButton.setAttribute('data-pgtok', r.paginationToken);
         moreButton.setAttribute('onclick', "g(event)");
     }
     r = r.thread;
@@ -203,7 +205,7 @@ function drawThdList(paginationToken,r,contact_cache) {
         //p=paragraph
         var p = document.createElement('div');
         var msgObj = r[i].item[0];
-        if (!i)p.dataset.wvMid = msgObj.id;
+        if (!i)p.setAttribute('data-mid',msgObj.id);
 
         frag.appendChild(p);
         if(msgObj.isArtificialErrorMessage) {
@@ -227,25 +229,7 @@ function drawThdList(paginationToken,r,contact_cache) {
         //but I'm lazy, virgin A tag, so use textContent, not nodeValue
         n.textContent = contact_cache[name] ? contact_cache[name] : name;
         if (name.match(/^\+\d+$/)) {
-            (function(e){
-            pendingNameReqs++;
-            getContactName(name.substring(2), function(err, r) {
-            pendingNameReqs--;
-            //undefined or "[]" on wire if no match
-            if (r) {
-                //avoid repaint, 99% cached so block doesn't run
-                if(e.firstChild.nodeValue !== r[0]) {
-                  e.firstChild.nodeValue = r[0];
-                }
-                e.setAttribute('data-pid', r[1]);
-                r[2] && e.setAttribute('data-url', r[2]);
-                r[3] && e.setAttribute('data-lec', r[3]);
-                if(pendingNameReqs===0) {
-                    localStorage.setItem(av_list_type, document.getElementById('threadList').innerHTML);
-                }
-            }
-            });
-            })(n);
+          updateContactNameEl(n,name);
         }
         n = p.appendChild(document.createElement('div'));
         n.align = msgObj.type == "smsIn" ? 'left' : 'right';
@@ -260,7 +244,8 @@ function drawThdList(paginationToken,r,contact_cache) {
             tdiv.removeChild(tdiv.lastChild);
         }
         tdiv.appendChild(frag);
-        localStorage.setItem(av_list_type, tdiv.innerHTML);
+        localStorage.setItem(sessionStorage.getItem('wvArchView')
+      ? 'wvThdListA' : 'wvThdListM', tdiv.innerHTML);
     }
 }
 
