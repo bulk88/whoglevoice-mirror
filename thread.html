@@ -20,6 +20,7 @@ initLnkFmt();
 var altImgLoaderWarn;
 function getConvoUI(evt, paginationToken, finish) {
     var t = location.hash.substring(1);
+    t.length === 10 && (t = "+1"+t);
     evt = evt.target;
     evt.textContent ="\xa0\u25BD\u231B";
     getThread(t, paginationToken,
@@ -193,11 +194,17 @@ function nextPollLoop (t) {
                 t = 6000;
             }
         }
-        pollLastTimer = setTimeout(function(){chkNewMsg(location.hash.substring(1), function(e,r){
+        pollLastTimer = setTimeout(function(){
+            var t = location.hash.substring(1);
+            t.length === 10 && (t = "+1"+t);
+            chkNewMsg(t, function(e,r){
+            //don't bother testing for e error arg, initial page load proved thread exists
             var t = document.getElementById('thread');
-            if (t && t.lastChild) { //if login prompt there is no thread element
+            if (t && (t = t.lastChild)) { //if login prompt there is no thread element
                 //if have new messge, compare server newest msg ID to client side
-                if(r.substr(24,40) != t.lastChild.mid){
+                //can't use abs positioning b/c nums are var length, SMS short codes for ex
+                e = r.indexOf('[["',3)+3;
+                if(r.slice(e, r.indexOf('"', e)) != t.mid){
                     //bug will wipe load mores on top, count nodes & use as input?
                     getConvoUI({target:{textContent: 0}}, 0, nextFastPollLoop);
                 } else { // nothing new slowly decay poll
@@ -350,48 +357,50 @@ function hashChangeHandler () {
           this.parentNode.replaceChild(e, span);
           e.focus();
         }
-        carrierUpdate = function (s) {
-          //this obj is window obj
-          //add - unconditionally, if(){} not wor minify bytes
-          var i = 1, r_pid = (s += '-').match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
-          if(r_pid) {
-            //7 total
-            for (; i < 8; i++) {
-              if (r_pid[i]) {
-                s = [,
-                  'ATTW-',
-                  'VZW-',
-                  'TM-',
-                  'BCOM-',
-                  'SPCS-',
-                  'ITQL-',
-                  'PLSNY-'
-                ][i];
-                break;
+        if(t.length === 10) { //if tel is 10 chars long (not a short code)
+          carrierUpdate = function (s) {
+            //this obj is window obj
+            //add - unconditionally, if(){} not wor minify bytes
+            var i = 1, r_pid = (s += '-').match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
+            if(r_pid) {
+              //7 total
+              for (; i < 8; i++) {
+                if (r_pid[i]) {
+                  s = [,
+                    'ATTW-',
+                    'VZW-',
+                    'TM-',
+                    'BCOM-',
+                    'SPCS-',
+                    'ITQL-',
+                    'PLSNY-'
+                  ][i];
+                  break;
+                }
               }
             }
-          }
-          i = carrierUpdate.wvnode; //textnode
-          //update contact if current LEC isn't cached in the contact
-          if(i.nodeValue != s) {
-            i.nodeValue = s;
-            if (r_pid = i.parentElement.parentElement.firstChild.getAttribute('data-pid')) {
-              upContact(r_pid, null, null, s.slice(0, -1)/*urltype*/
-                ,function (err/*,r*/) {
-                  if(!err) {
-                    err = document.forms.folderForm.folder.value;
-                    //purge cached thread lists, so name change is updated in thread list
-                    localStorage.removeItem(err == "allThreads" ? 'wvThdListM' : err == "allArchivedThreads" ? 'wvThdListA' : alert(0));
-                  }
-              });
+            i = carrierUpdate.wvnode; //textnode
+            //update contact if current LEC isn't cached in the contact
+            if(i.nodeValue != s) {
+              i.nodeValue = s;
+              if (r_pid = i.parentElement.parentElement.firstChild.getAttribute('data-pid')) {
+                upContact(r_pid, null, null, s.slice(0, -1)/*urltype*/
+                  ,function (err/*,r*/) {
+                    if(!err) {
+                      err = document.forms.folderForm.folder.value;
+                      //purge cached thread lists, so name change is updated in thread list
+                      localStorage.removeItem(err == "allThreads" ? 'wvThdListM' : err == "allArchivedThreads" ? 'wvThdListA' : alert(0));
+                    }
+                });
+              }
             }
-          }
-          carrierUpdate = null; //free memory just in case
-        };
-        carrierUpdate.wvnode = f.appendChild(document.createElement('span')).appendChild(carrierTextNode);
-        e = document.createElement('script');
-        e.src = '//carrier.natasha.cat/'+t.substring(0,7);
-        f.appendChild(e);
+            carrierUpdate = null; //free memory just in case
+          };
+          carrierUpdate.wvnode = f.appendChild(document.createElement('span')).appendChild(carrierTextNode);
+          e = document.createElement('script');
+          e.src = '//carrier.natasha.cat/'+t.substring(0,7);
+          f.appendChild(e);
+        } //if tel is 10 chars long (not a short code)
         e = document.createElement('a');
         e.textContent = t;
         e.href = 'https://www.telcodata.us/search-area-code-exchange-detail?npa='+t.substr(0,3)+'&exchange='+t.substr(3,3);

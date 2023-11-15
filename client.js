@@ -783,7 +783,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
         //    a = u(a, 2, !0);
         //    return u(a, 3, !0)
         //};
-x.send('["t.+1'+num+'",'+(items?items:100)+(pagination_token?',"'+pagination_token+'"]':']'));
+x.send('["t.'+num+'",'+(items?items:100)+(pagination_token?',"'+pagination_token+'"]':']'));
 }
 
 function mkContact(name,num,finish){
@@ -1340,7 +1340,7 @@ x.onreadystatechange=function(){if(x.readyState==4){
     }
     else {finish && finish(false,x.response)};
 }};
-x.send('["t.+1'+num+'",1]');
+x.send('["t.'+num+'",1]');
 }
 
 function getProxyNumWithSrc(sourceNum, destNum, finish){

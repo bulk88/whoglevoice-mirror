@@ -107,8 +107,12 @@ function drawThdList(paginationToken,r,contact_cache) {
         var n = p.appendChild(document.createElement('div'));
         n.align = 'left';
         n = n.appendChild(document.createElement('a'));
-        n.href = 'thread.html#'+msgObj.contact.phoneNumber.substring(2);
-        var name = msgObj.contact.name;
+        var name = msgObj.contact.phoneNumber;
+        if (name.length === 12 && name[0] === '+' && name[1] === '1') {
+          name = name.slice(2);
+        }
+        n.href = 'thread.html#'+name;
+        name = msgObj.contact.name;
         //use cached name for UI jerk, maybe updated in some ms later below
         //dont copy data-* or A element direct, incase old data-* missing
         //from fresh contact API fetch, attr was deleted for example, this
@@ -190,25 +194,26 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
             //no update needed
             } else {
                 evt.textContent ="\xa0\u25BD\u2714";//Good mark
-                for(var e, i=0; i < tdiv.children.length; i++) {
+                for(var e, t, i=0; i < tdiv.children.length; i++) {
                   e = tdiv.children[i];
                   if( e.nodeName === 'DIV') { //skip button element
-                       //div left tag, a tag
+                    //div left tag, a tag
                     e = e.firstChild.firstChild;
+                    t = e.firstChild; //text node of A tag
                     //retry fetch contact names, for tels for all cached draws
                     //localstorage cached view might be partial contact names
                     //if very fast user navigate thd list->thd view b4 all contact name
                     //load over the wire
-                    if (e.textContent.match(/^\+\d+$/)) {
-                      (function(e){
+                    if (t.nodeValue.match(/^\+\d+$/)) {
+                      (function(e,t){ //mk closure for var e
                       pendingNameReqs++;
-                      getContactName(e.textContent.substring(2), function(err, r) {
+                      getContactName(t.nodeValue.substring(2), function(err, r) {
                       pendingNameReqs--;
                       //undefined or "[]" on wire if no match
                       if (r) {
                           //avoid repaint, 99% cached so block doesn't run
-                          if(e.firstChild.nodeValue !== r[0]) {
-                            e.firstChild.nodeValue = r[0];
+                          if(t.nodeValue !== r[0]) {
+                            t.nodeValue = r[0];
                           }
                           e.setAttribute('data-pid', r[1]);
                           r[2] && e.setAttribute('data-url', r[2]);
@@ -219,7 +224,7 @@ getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView
                           }
                       }
                       });
-                      })(e);
+                      })(e,t); //mk closure for var e
                     }
                   }
                 }
