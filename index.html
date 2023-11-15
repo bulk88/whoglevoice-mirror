@@ -12,10 +12,6 @@
 initLnkFmt();
 var pendingNameReqs = 0;
 var d;/*didEarlyFetch*/
-/*cleanTelNum*/
-function c(t) {
-    return /1?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/.exec(t)[0].replace(/\D/g, '').substr(-10, 10);
-}
 
 //finish(err, resp)
 function getThreadList(fullreq, paginationToken, archive, finish){
@@ -60,6 +56,117 @@ x.onreadystatechange=function(){if(x.readyState==4){
 //extra struct elements not needed
 //x.send('[2, 100, 1, null, null, [null, true, true]]');
 x.send((fullreq?'['+(archive?6:2)+',100,1':'['+(archive?6:2)+',1,1')+(paginationToken?',"'+paginationToken+'"]':']'));
+}
+
+/*getThreadListUI(evt)*/
+function g(evt) {
+evt = evt.target;
+evt.textContent ="\xa0\u25BD\u231B";
+var contact_cache,
+  paginationToken = (evt.dataset||{}).wvPgTok;
+//even on virgin page load, we still do tiny net req/full net req, not straight
+//to full network req
+//because old HTML code and base page aren't done parsing yet and threadList
+//DIV doesn't exist yet
+
+/*            Full req Flag   pag token num */
+getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView'),function(e,r){
+    if (e) { /*error*/
+        evt.textContent ="\xa0\u25BD\u2718";//X mark
+    }
+    else {
+        if(paginationToken) {
+            drawThdList(paginationToken,r,contact_cache);
+        } else {
+            var tdiv = document.getElementById('threadList');
+            //lastest server MID doesn't match local MID aka new msg
+            var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
+            if(r.substr(25,40) != oldmid) {
+                getThreadList(1,0,sessionStorage.getItem('wvArchView'),function(e,r){
+                    if (e) { /*error*/
+                        evt.textContent ="\xa0\u25BD\u2718";//X mark
+                    }
+                    else {
+                        drawThdList(0,r,contact_cache);
+                        evt.textContent ="\xa0\u25BD\u2714";//Good mark
+                    }
+                }); //build while idle waiting on IO
+                contact_cache = buildContactCache();
+            //no update needed
+            } else {
+                evt.textContent ="\xa0\u25BD\u2714";//Good mark
+                for(var e, t, i=0; i < tdiv.children.length; i++) {
+                  e = tdiv.children[i];
+                  if( e.nodeName === 'DIV') { //skip button element
+                    //div left tag, a tag
+                    e = e.firstChild.firstChild;
+                    t = e.firstChild; //text node of A tag
+                    //retry fetch contact names, for tels for all cached draws
+                    //localstorage cached view might be partial contact names
+                    //if very fast user navigate thd list->thd view b4 all contact name
+                    //load over the wire
+                    if (t.nodeValue.match(/^\+\d+$/)) {
+                      (function(e,t){ //mk closure for var e
+                      pendingNameReqs++;
+                      getContactName(t.nodeValue.substring(2), function(err, r) {
+                      pendingNameReqs--;
+                      //undefined or "[]" on wire if no match
+                      if (r) {
+                          //avoid repaint, 99% cached so block doesn't run
+                          if(t.nodeValue !== r[0]) {
+                            t.nodeValue = r[0];
+                          }
+                          e.setAttribute('data-pid', r[1]);
+                          r[2] && e.setAttribute('data-url', r[2]);
+                          r[3] && e.setAttribute('data-lec', r[3]);
+                          if (!pendingNameReqs) {
+                              localStorage.setItem(sessionStorage.getItem('wvArchView')
+                                ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
+                          }
+                      }
+                      });
+                      })(e,t); //mk closure for var e
+                    }
+                  }
+                }
+            }
+        }
+    }
+});
+if(paginationToken) {//build while idle waiting on IO
+  contact_cache = buildContactCache();
+}
+}
+
+function refreshNoUI() {
+    g({target:{textContent: 0}})
+}
+
+if(lazySignedInEmail()){
+    d = 1;
+    refreshNoUI();
+}
+</script>
+<body>
+<!--button is UI spacer, jerk between index.html and thread.html-->
+Welcome To Whogle Voice<button style="visibility:hidden">B</button>
+<div id='sign-in-bar'></div>
+<!--all 1 line on purpose, dont add newlines-->
+<button title="Refresh" style="width:4em;height:2em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
+<label><input title="Archive" type="checkbox" id="archive"
+onchange="
+  sessionStorage.setItem('wvArchView',this.checked ? '1' : '');
+  document.getElementById('threadList').innerHTML = localStorage.getItem(this.checked?'wvThdListA':'wvThdListM');
+  //trigger refresh with UI effects
+  var b = this.parentNode.previousSibling.previousSibling;
+  b.onclick({target:b})"/>A</label>
+<!-- do not add whitespace btwn input and button -->
+<input type=tel placeholder="New num here" size=10></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
+<div id='threadList'></div>
+<script>
+/*cleanTelNum*/
+function c(t) {
+    return /1?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/.exec(t)[0].replace(/\D/g, '').substr(-10, 10);
 }
 
 function buildContactCache() {
@@ -157,111 +264,6 @@ function drawThdList(paginationToken,r,contact_cache) {
     }
 }
 
-/*getThreadListUI(evt)*/
-function g(evt) {
-evt = evt.target;
-evt.textContent ="\xa0\u25BD\u231B";
-var contact_cache,
-  paginationToken = (evt.dataset||{}).wvPgTok;
-//even on virgin page load, we still do tiny net req/full net req, not straight
-//to full network req
-//because old HTML code and base page aren't done parsing yet and threadList
-//DIV doesn't exist yet
-
-/*            Full req Flag   pag token num */
-getThreadList(paginationToken,paginationToken,sessionStorage.getItem('wvArchView'),function(e,r){
-    if (e) { /*error*/
-        evt.textContent ="\xa0\u25BD\u2718";//X mark
-    }
-    else {
-        if(paginationToken) {
-            drawThdList(paginationToken,r,contact_cache);
-        } else {
-            var tdiv = document.getElementById('threadList');
-            //lastest server MID doesn't match local MID aka new msg
-            var oldmid = tdiv.firstChild && tdiv.firstChild.dataset.wvMid;
-            if(r.substr(25,40) != oldmid) {
-                getThreadList(1,0,sessionStorage.getItem('wvArchView'),function(e,r){
-                    if (e) { /*error*/
-                        evt.textContent ="\xa0\u25BD\u2718";//X mark
-                    }
-                    else {
-                        drawThdList(0,r,contact_cache);
-                        evt.textContent ="\xa0\u25BD\u2714";//Good mark
-                    }
-                }); //build while idle waiting on IO
-                contact_cache = buildContactCache();
-            //no update needed
-            } else {
-                evt.textContent ="\xa0\u25BD\u2714";//Good mark
-                for(var e, t, i=0; i < tdiv.children.length; i++) {
-                  e = tdiv.children[i];
-                  if( e.nodeName === 'DIV') { //skip button element
-                    //div left tag, a tag
-                    e = e.firstChild.firstChild;
-                    t = e.firstChild; //text node of A tag
-                    //retry fetch contact names, for tels for all cached draws
-                    //localstorage cached view might be partial contact names
-                    //if very fast user navigate thd list->thd view b4 all contact name
-                    //load over the wire
-                    if (t.nodeValue.match(/^\+\d+$/)) {
-                      (function(e,t){ //mk closure for var e
-                      pendingNameReqs++;
-                      getContactName(t.nodeValue.substring(2), function(err, r) {
-                      pendingNameReqs--;
-                      //undefined or "[]" on wire if no match
-                      if (r) {
-                          //avoid repaint, 99% cached so block doesn't run
-                          if(t.nodeValue !== r[0]) {
-                            t.nodeValue = r[0];
-                          }
-                          e.setAttribute('data-pid', r[1]);
-                          r[2] && e.setAttribute('data-url', r[2]);
-                          r[3] && e.setAttribute('data-lec', r[3]);
-                          if (!pendingNameReqs) {
-                              localStorage.setItem(sessionStorage.getItem('wvArchView')
-                                ? 'wvThdListA' : 'wvThdListM', document.getElementById('threadList').innerHTML);
-                          }
-                      }
-                      });
-                      })(e,t); //mk closure for var e
-                    }
-                  }
-                }
-            }
-        }
-    }
-});
-if(paginationToken) {//build while idle waiting on IO
-  contact_cache = buildContactCache();
-}
-}
-
-function refreshNoUI() {
-    g({target:{textContent: 0}})
-}
-
-if(lazySignedInEmail()){
-    d = 1;
-    refreshNoUI();
-}
-</script>
-<body>
-Welcome To Whogle Voice<button style="visibility: hidden">B</button>
-<div id='sign-in-bar'></div>
-<!--all 1 line on purpose, dont add newlines-->
-<button title="Refresh" style="width:4em;height:2em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
-<label><input title="Archive" type="checkbox" id="archive"
-onchange="
-  sessionStorage.setItem('wvArchView',this.checked ? '1' : '');
-  document.getElementById('threadList').innerHTML = localStorage.getItem(this.checked?'wvThdListA':'wvThdListM');
-  //trigger refresh with UI effects
-  var b = this.parentNode.previousSibling.previousSibling;
-  b.onclick({target:b})"/>A</label>
-<!-- do not add whitespace btwn input and button -->
-<input type=tel placeholder="New num here" size=10></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
-<div id='threadList'></div>
-<script>
 (function(){ /*var e can't be global*/
         var av = sessionStorage.getItem('wvArchView');
         document.getElementById('archive').checked = av;
