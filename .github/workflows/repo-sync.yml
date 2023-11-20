@@ -1,0 +1,17 @@
+
+name: sync wvoice to wvoice alt domain
+on: push
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: sync wvoice to wvoice alt domain
+        run: |
+            git clone -n --filter=tree:0 "https://github.com/bulk88/whoglevoice.git"
+            cd whoglevoice
+            git remote add -f mirror-remote "https://${{secrets.WVOICE_PAT}}@github.com/bulk88/whoglevoice-mirror.git"
+            git checkout master docs/CNAME ;     git checkout master docs/CNAME
+            sed -i 's/wvoice\.us\.to/www.voice.tel/g' ./docs/CNAME
+            git add ./docs/CNAME
+            git -c user.name="Domain Change Bot" -c user.email="no-reply@no-reply.com" commit -o ./docs/CNAME -m "change CNAME domain (bot)"
+            git push --progress --force --all mirror-remote
