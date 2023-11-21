@@ -255,7 +255,7 @@ function lazyGetLinkFormatter() {
 }
 function initLnkFmt(finish) {
   //skip eval if already in process
-  if(window.wvLinkFmt) {
+  if(window.wvLinkFmt || ! /^(?:wvoice\.us\.to|www\.voice\.tel|localhost|cp\.wvoice\.workers\.dev)$/.test(location.hostname)){
     finish && finish();
     return;
   }
