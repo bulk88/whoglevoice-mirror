@@ -320,9 +320,56 @@ function lazySignedInExpires() {
 
 var wvProxyPrefix = 'https:';
 
+function wvGetBase64 (file) {
+  const reader = new FileReader()
+  return new Promise(resolve => {
+    reader.onload = ev => {
+      resolve(ev.target.result.replace('data:application/octet-stream;base64,', 'data:image/jpeg;base64,'))
+    }
+    reader.readAsDataURL(file)
+  })
+}
+//always do this fetch() because actual cache lifespan of the prof image is unk
+//to us at DOM level
+//we can't stop double jpg download if very new prof URL, chrome fetch() and image
+//cache entries never match, but this fetch starts only after img tag native
+//http URL has been downloaded and drawn on screen, so this fetch always is
+//idle bandwidth
+function wvPickerProfImgUrltoData(e) {e=e.target;fetch(e.wvSrc,{referrerPolicy:"no-referrer"}).then(function(r){return r.blob().then(function(r){return wvGetBase64(r).then(function(r){
+  var src = e.wvSrc, pCache = e.wvPCache;
+  if(pCache[src] !== r) {
+    pCache = localStorage.getItem('wvAcntPickerPCache');
+    if(pCache) {
+      pCache = JSON.parse(pCache);
+    } else {
+      pCache = {};
+    }
+    pCache[src] = r;
+    localStorage.setItem('wvAcntPickerPCache',JSON.stringify(pCache));
+  }
+  //update data URL if needed, don't repaint http: urls to data: urls
+  //bytestream identical
+  src = e.src;
+  if(!src.indexOf('data:') && src !== r) {
+    e.src = r;
+  }
+  //anti-leak, unused after this
+  delete e.wvPCache;
+  delete e.wvSrc;
+}
+)})})}
+
 function wvDrawUserList(d) { //jsonText
   var p = document.getElementById('picker');
   var frag = document.createDocumentFragment();
+  var pCache = localStorage.getItem('wvAcntPickerPCache');
+  var pCacheNew = {};
+  var imgURL;
+  if(pCache) {
+    pCache = JSON.parse(pCache);
+  } else {
+    pCache = {};
+  }
   try {
     d = JSON.parse(d);
     d = d[1];
@@ -334,12 +381,44 @@ function wvDrawUserList(d) { //jsonText
       n.target = "_blank";
       n.rel = "opener";
       var i = n.appendChild(document.createElement('img'));
-      i.src = u[4];
       i.referrerPolicy = "no-referrer";
+      //anti-closure, anti alot of LS/JSON.* calls if cloud==LS (99.999% true)
+      i.wvPCache = pCache;
+      i.wvSrc = imgURL = u[4];
+      pCacheNew[imgURL] = 1;
+      if(pCache[imgURL]) {
+        i.src = pCache[imgURL];
+        //chk if img binary diff on cloud, hits cache or cloud depending w/e
+        //google cache headers say
+        //fake a event obj
+        wvPickerProfImgUrltoData({target:i});
+      } else {
+        //fire fetch() after img tag load event, use idle bandwidth
+        i.onload = wvPickerProfImgUrltoData;
+        //http url
+        i.src = imgURL;
+      }
       i.style.height = 48;
       i.style.width = 48;
       n.appendChild(document.createElement('div')).textContent = u[2];
       n.appendChild(document.createElement('div')).textContent = u[3];
+    }//end for loop
+
+    pCache = Object.keys(pCache);
+    //check if Cloud img collection == LS img cache
+    //flush cache, if needed sign out/sign in, etc
+    //dont leave old prof imgs URLs in cache from really old users
+    if(pCache.length === Object.keys(pCacheNew).length) {
+      for (e = 0; e < pCache.length; e++) {
+        if(!pCacheNew[pCache[e]]) {
+          pCache = {};
+          localStorage.setItem('wvAcntPickerPCache','{}');
+          break;
+        }
+      }
+    } else {
+      pCache = {};
+      localStorage.setItem('wvAcntPickerPCache','{}');
     }
   } catch (e) {
     frag.textContent = e;
