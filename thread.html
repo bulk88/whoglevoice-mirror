@@ -18,7 +18,7 @@ Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 //adds preconnects ASAP
 initLnkFmt();
 var altImgLoaderWarn;
-function getConvoUI(evt, paginationToken, finish) {
+function getConvoUI(evt, paginationToken, finish, imgFinish) {
     var t = location.hash.substring(1);
     t.length === 10 && (t = "+1"+t);
     evt = evt.target;
@@ -83,6 +83,10 @@ function getConvoUI(evt, paginationToken, finish) {
                         //a.onclick = altVcardLoader;
                     } else {
                         img = document.createElement('img'); //start img download ASAP
+                        //trigger re-scroll to bottom, init page load only
+                        if (imgFinish) {
+                          img.onload = imgFinish
+                        }
 //"u/0" the 0 is sessionIndex, it separates simultanious logins into GV, 0 is most
 //common, second login is 1, this determines what google.com cookie
 //is used for voice.google.com images, if the browser
@@ -179,6 +183,12 @@ function getConvoUI(evt, paginationToken, finish) {
       });
 }
 
+//typ called as event, so 1st arg exists
+function wvScrollBot(scrollingElement) {
+  scrollingElement = (document.scrollingElement || document.body);
+  scrollingElement.scrollTop = scrollingElement.scrollHeight;
+};
+
 //15 seconds high speed, 15 slow
 var pollDelay = [2000,2000,2000,2500,2500,2500,2500,2500];
 var pollDelayIdx = 0;
@@ -237,7 +247,11 @@ function hashChangeHandler () {
     if(t != '' && t != '#') {
         t = t.substring(1); //strip front off '#', its now only USA area+7
         //get this req ASAP on wire before paints
-        getConvoUI({target:{textContent: 0}},0,function(){nextPollLoop(6000)});
+        getConvoUI({target:{textContent: 0}},0,function(){
+          wvScrollBot();
+          nextPollLoop(6000);
+        },
+        wvScrollBot);
         var f = document.createDocumentFragment();
         var carrierTextNode = document.createTextNode('');
         (function(element,carrierTextNode,num_matchStr_offset){
@@ -434,10 +448,7 @@ function hashChangeHandler () {
         };
         e = f.appendChild(document.createElement('button'));
         e.textContent = "\xa0Bottom\u2B07\xa0";
-        e.onclick = function (scrollingElement){
-            scrollingElement = (document.scrollingElement || document.body);
-            scrollingElement.scrollTop = scrollingElement.scrollHeight;
-        };
+        e.onclick = wvScrollBot;
         divBuddyBar.appendChild(f);
     } else {
         divBuddyBar.appendChild(document.createElement('span'));
@@ -636,10 +647,7 @@ function threadImgAltLoader(e) {
             //then doesn't slide down page once pics load and they are big and
             //leaves user in middle of the thread
                 if(!('addEventHandler'in e.firstChild)) {
-                    setTimeout(function(){
-                        var scrollingElement = (document.scrollingElement || document.body);
-                        scrollingElement.scrollTop = scrollingElement.scrollHeight;
-                    },100);
+                    setTimeout(wvScrollBot,100);
                 }
             }
         }
