@@ -118,7 +118,8 @@ function getConvoUI(evt, paginationToken, finish, imgFinish) {
             }
             p.align = msgObj.type == "smsIn" ? 'left' : 'right';
             img = new Date(Number(msgObj.startTime));
-            p.appendChild(document.createTextNode(img.toDateString().substring(0,11)+img.toLocaleTimeString()+'- '));
+            a = img.toDateString();
+            p.appendChild(document.createTextNode(a.slice(0,12)+a.slice(14)+' '+img.toLocaleTimeString()+'- '));
             //an empty body MMS msg has as "plain text" content
             //"message_text": "MMS Received"
             //just always use MMS specific body if MMS
