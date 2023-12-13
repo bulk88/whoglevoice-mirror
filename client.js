@@ -1,7 +1,9 @@
+(function(){
 /* triggerElement, UI element that user interacted with to trigger the
    copy, it will be replaced with a text box if browser doesn't support
    programmatic copy */
-function wvCopyToClipboard(text, triggerElem, restoreOnBlurCB) {
+/*public*/
+window.wvCopyToClipboard = function (text, triggerElem, restoreOnBlurCB) {
 var r;
 var input = document.createElement("input");
 input.value = text;
@@ -40,7 +42,8 @@ document.body.removeChild(input);
 return r;
 }
 
-function wvWipeAuthToken (logout) {
+/*public*/
+window.wvWipeAuthToken = function (logout) {
     delete window.wvLinkFmt;
     localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
     localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
@@ -51,7 +54,8 @@ function wvWipeAuthToken (logout) {
     localStorage.removeItem('wvArchView');
 }
 
-function drawLoginBar()
+/*public*/
+window.drawLoginBar = function ()
 {
     var divLoginBar = document.getElementById('sign-in-bar');
 //if IPL getConvoUI throws up login prompt, there is temporarily no login bar
@@ -108,7 +112,7 @@ function drawLoginBar()
     divLoginBar.appendChild(buttonNode);
 }
 
-TokDec = {};
+var TokDec = {};
 TokDec.kh = {};
 TokDec.lh = null;
 TokDec.nh = function() {
@@ -195,7 +199,7 @@ TokDec.DecodeToken = function(a) {
         return JSON.parse(b);
     }
 
-function lazySignedInEmail() {
+window.lazySignedInEmail = function () {
     var GVAuthObj= localStorage.getItem('gvauthobj');
     if (GVAuthObj) {
         try {
@@ -243,6 +247,38 @@ function lazySignedGoogId() {
     else return '';
 }
 
+window.lazySignedInUserIndex = function () {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.session_state.extraQueryParams.authuser;
+    else throw "Not logged in.";
+}
+
+function lazySignedInExpires() {
+    var GVAuthObj= localStorage.getItem('gvauthobj');
+    if (GVAuthObj) {
+        try {
+            GVAuthObj = JSON.parse(GVAuthObj);
+            if(! ('access_token' in GVAuthObj)) {
+                GVAuthObj = undefined;
+            }
+        } catch (e) {
+            GVAuthObj = undefined;
+        }
+    }
+    if(GVAuthObj) return GVAuthObj.expires_at;
+    else return 0;
+}
+
 function lazyGetLinkFormatter() {
   var g = lazySignedGoogId(), ret = [,g], GVAuthObj;
   if(g) { //signed out
@@ -253,7 +289,8 @@ function lazyGetLinkFormatter() {
   }
   return ret;
 }
-function initLnkFmt(finish) {
+/*public*/
+window.initLnkFmt = function (finish) {
   //skip eval if already in process
   if(window.wvLinkFmt || ! /^(?:wvoice\.us\.to|www\.voice\.tel|localhost|cp\.wvoice\.workers\.dev)$/.test(location.hostname)){
     finish && finish();
@@ -284,38 +321,6 @@ function initLnkFmt(finish) {
       s.send();
     }
   }
-}
-
-function lazySignedInUserIndex() {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
-    if(GVAuthObj) return GVAuthObj.session_state.extraQueryParams.authuser;
-    else throw "Not logged in.";
-}
-
-function lazySignedInExpires() {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
-    if(GVAuthObj) return GVAuthObj.expires_at;
-    else return 0;
 }
 
 var wvProxyPrefix = 'https:';
@@ -538,7 +543,8 @@ function wvDrawAccountPicker(suppressTokRefresh) {
     myRequest.send();
 }
 
-function getAuthToken(callbackFunc) {
+/*public*/
+window.getAuthToken = function (callbackFunc) {
     var GVAuthObj = localStorage.getItem('gvauthobj');
     if (GVAuthObj) {
         try {
@@ -776,11 +782,12 @@ crypto = window.crypto ||
     }
   };
 
+/*public*/
 //img is http URL or bytes in a string or false (no img)
-function sendsms(num, body, img, finish){
+window.sendsms = function (num, body, img, finish){
     getAuthToken(function(tok) {sendsms_t(true, tok, num, body, img, finish)});
 }
-window.sendsms_t = (function (){
+var sendsms_t = (function (){
 /*anti replay/msg dedup if network errors, body was sent, but resp had CORS or timeout */
 var lastNum, lastBody, lastImg, msg_id;
 return function (canReAuth, tok, num, body, img, finish){
@@ -831,8 +838,9 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null,null,null,null,'+JSON.stringify(body)+',null,["+1'+num+'"],null,['+msg_id+']'+imgPBArrStr+']');
 }})();
 
+/*public*/
 //finish(err, resp)
-function getThread(num,pagination_token,finish,items){
+window.getThread = function (num,pagination_token,finish,items){
     getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish, items)});
 }
 function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
@@ -861,7 +869,8 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('["t.'+num+'",'+(items?items:100)+(pagination_token?',"'+pagination_token+'"]':']'));
 }
 
-function mkContact(name,num,finish){
+/*public*/
+window.mkContact = function (name,num,finish){
     getAuthToken(function(tok) {mkContact_t(true,tok,name,num,finish)});
 }
 /*not sure what app I got this link this link from, but google's CORS headers only
@@ -891,8 +900,8 @@ https://www.google.com/m8/feeds/contacts/default/full
           "method": "google.contacts.v7.LegacyContacts.ContactsList"
 */
 
-
-function upContact(pid,name,url,urltype,finish){
+/*public*/
+window.upContact = function (pid,name,url,urltype,finish){
     getAuthToken(function(tok) {upContact_t(true,tok,pid,name,url,urltype,finish)});
 }
 /*
@@ -1200,7 +1209,8 @@ function getSourceNum(pickerUI, finish){
 //not called if no Source Num, will ask user with blocking UI if
 //Account has multiple source numbers
 //dir=direction, 0 incoming, 1 outwards online, 2 outwards offline (no data)
-function mkCall(elem, destNum, dir, finish){
+/*public*/
+window.mkCall = function (elem, destNum, dir, finish){
     dir == 1 ?
     //source number is ignored by GV server atleast for USA nums, same proxy num
     //for all linked phones AFAIK, dont ask user to pick a source line, source
@@ -1244,7 +1254,8 @@ function mkOfflineCall(elem, acntNum, destNum, finish) {
     finish(false);
 }
 
-function resp401Unauth(jstr) {
+/*public*/
+window.resp401Unauth = function (jstr) {
     try {
         jstr = JSON.parse(jstr);
         //https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
@@ -1284,7 +1295,8 @@ x.send();
 //size number has no effect on audio type, test 0 thru 4
 //mtype, 2 == audio, 1 == video, 0 vcard and img
 //finish(err, no_prefix_b64str_resp)
-function attachIDtoB64(id, size, mtype, finish){
+/*public*/
+window.attachIDtoB64 = function (id, size, mtype, finish){
     getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, mtype, finish)});
 }
 function attachIDtoB64_t(canReAuth, tok, id, size, mtype, finish){
@@ -1397,7 +1409,8 @@ getThdInfo(function(e,r){
 //finish(err, resp), resp is newest message ID on server, compare it to newest
 //message ID on user's screen if to redraw/full refetch, uses protobuf for size
 //reasons
-function chkNewMsg(num, finish){
+/*public*/
+window.chkNewMsg = function (num, finish){
     getAuthToken(function(tok) {chkNewMsg_t(true, tok, num, finish)});
 }
 function chkNewMsg_t(canReAuth, tok, num, finish){
@@ -1457,7 +1470,8 @@ x.send('[[["phnnmbr","+1'+destNum+'"]],null,["phnnmbr","+1'+sourceNum+'"],null,0
 
 
 //resp is array [name, peopleID]
-function getContactName(num, finish){
+/*public*/
+window.getContactName = function (num, finish){
     getAuthToken(function(tok) {getContactName_t(true, tok, num, finish)});
 }
 function getContactName_t(canReAuth, tok, num, finish){
@@ -1497,3 +1511,6 @@ x.onreadystatechange=function(){
 }};
 x.send();
 }
+
+//IIFE
+})();
