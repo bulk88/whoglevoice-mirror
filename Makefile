@@ -27,7 +27,7 @@ docs/getCredStub.js : getCredStub.js
 
 docs/client.js : client.js
 	copy /y client.js "$@"
-	uglifyjs -c -m toplevel -m eval --keep-fnames -m reserved=['wvProxyPrefix'] "$@" -o "$@"
+	uglifyjs -c -m toplevel -m eval "$@" -o "$@"
 
 docs/favicon.ico : WV_Logo.png
 	copy /y WV_Logo.png "$@"
