@@ -173,6 +173,7 @@ function getConvoUI(evt, paginationToken, finish, imgFinish) {
                     tdiv.removeChild(tdiv.lastChild);
                 }
                 tdiv.appendChild(frag);
+                wvScrollBot();
             }
             //set radio folder flag
             tdiv = document.forms.folderForm.folder;
@@ -466,6 +467,8 @@ window.ononline = function () {
     nextPollLoop(1); //instant
 };
 </script>
+
+<div>
 <textarea id="msg" placeholder="Type outgoing msg here" style="width:100%"></textarea>
 <br/>
 <button onclick="history.back()">&#x25C0;Back</button>
@@ -489,6 +492,7 @@ window.ononline = function () {
 <input id="ipk" type="file" accept="image/*" onchange="loadFile(event)">
 <br/>
 <img id="prv"/>
+</div>
 <script>
   var loadFile = function(evt) {
     var reader = new FileReader();
@@ -568,6 +572,7 @@ function sendUI(b, skip_paste, finish) { //b button
                         }
                    }
                 }
+                , wvScrollBot
                 );
             }
             finish && finish(err)
