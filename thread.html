@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
 <link rel="preconnect" href="//carrier.natasha.cat">
 <link rel="preconnect" href="https://content-people-pa.googleapis.com" crossorigin>
-<link rel="preconnect" href="https://p.saproxy.us.to">
+<link rel="preconnect" href="https://proxya6d0.us.to">
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
 <style>body{margin-top:0px;}img,video{width:100%}button{line-height:1.5}p{white-space:pre-line}</style>
@@ -61,24 +61,24 @@ function getConvoUI(evt, paginationToken, finish, imgFinish) {
                     m=msgObj.mmsMessage.attachment[n];
                     if(m.mediaType == "video") {
                         img = p.appendChild(document.createElement('video'));
-                        img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
+                        img.src = 'https://proxya6d0.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         img.controls = true;
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
+                        a.href = 'https://proxya6d0.us.to/u/'+userIndex+'/a/vi/'+m.id+'?m=content';
                         a.textContent = "Download Video";
                     } else if(m.mediaType == "audio") {
                         img = p.appendChild(document.createElement('audio'));
-                        img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
+                        img.src = 'https://proxya6d0.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
                         img.controls = true;
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
+                        a.href = 'https://proxya6d0.us.to/u/'+userIndex+'/a/au/'+m.id+'?m=content';
                         a.textContent = "Download Audio";
                     } else if (m.mediaType == "vcard") {
                         img = p.appendChild(document.createElement('img'));
                         img.isvcard = 1;
-                        img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/vc/'+m.id;
+                        img.src = 'https://proxya6d0.us.to/u/'+userIndex+'/a/vc/'+m.id;
                         a = p.appendChild(document.createElement('a'));
-                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/vc/'+m.id;
+                        a.href = 'https://proxya6d0.us.to/u/'+userIndex+'/a/vc/'+m.id;
                         a.textContent = "Download Vcard";
                         //a.onclick = altVcardLoader;
                     } else {
@@ -94,14 +94,14 @@ function getConvoUI(evt, paginationToken, finish, imgFinish) {
 //then the alt image loader is used where the image is fetched
 //with a token used to get the chat log, not a cookie
 //smallest file size for initial view
-                        img.src = 'https://p.saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=2';
+                        img.src = 'https://proxya6d0.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=2';
                         a = document.createElement('a');
 //GV Web always shows size 3 (in url 4) (1280px), not original size 0 (in url 1)
 //0: {size_spec: "ORIGINAL", width: 11, height: 10}
 //1: {size_spec: "S_128", width: 11, height: 10}
 //2: {size_spec: "S_512", width: 11, height: 10}
 //3: {size_spec: "S_1280", width: 11, height: 10}
-                        a.href = 'https://p.saproxy.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=4';
+                        a.href = 'https://proxya6d0.us.to/u/'+userIndex+'/a/i/'+m.id+'?s=4';
                         a.onclick = imgLoaderClick;
                         a.appendChild(img);
                         p.appendChild(a);

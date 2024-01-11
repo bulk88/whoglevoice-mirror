@@ -385,7 +385,7 @@ function wvDrawUserList(d) { //jsonText
     for (var e = 0; e < d.length; e++) {
       var u = d[e]; //user
       var n = frag.appendChild(document.createElement('a'));
-      n.href = wvProxyPrefix + '//p.saproxy.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&authuser='+e+'&login_hint=' + encodeURIComponent(u[3]);
+      n.href = wvProxyPrefix + '//proxya6d0.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&authuser='+e+'&login_hint=' + encodeURIComponent(u[3]);
       wvPickerTokenRefresh(n);
       n.target = "_blank";
       n.rel = "opener";
@@ -456,7 +456,7 @@ function wvPickerTokenRefresh(buttonElement) {
             = new URL(buttonElement.href).searchParams.get('authuser');
           authResult_tok = response[0].access_token;
           response = {
-            origin: "https://p.saproxy.us.to",
+            origin: "https://proxya6d0.us.to",
             data: JSON.stringify({
               params: {
                 authResult: response[0],
@@ -497,7 +497,7 @@ function wvPickerTokenRefresh(buttonElement, user) {
   var myRequest = new XMLHttpRequest();
   debugger;
 //https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDLj6KEP9MzDcsaSxXgEfSczj3V-Al96OoAboO9hrh7Jy9wgL5c-3hYtG3iPXgOzw2cJUgmFPCVzMxAN7bUwf5PLWlYn0Sz5A&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
-  myRequest.open('GET', wvProxyPrefix + '//p.saproxy.us.to/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com&login_hint=' +user[10], !0);
+  myRequest.open('GET', wvProxyPrefix + '//proxya6d0.us.to/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com&login_hint=' +user[10], !0);
   myRequest.onreadystatechange = function() {
       if (4 == myRequest.readyState) {
           if (200 == myRequest.status) {
@@ -523,7 +523,7 @@ function wvDrawAccountPicker(suppressTokRefresh) {
     }
     var myRequest = new XMLHttpRequest();
     //mo=1 prop required for profile pics to be user specific vs generic
-    myRequest.open('GET', wvProxyPrefix + '//p.saproxy.us.to/ListAccounts?mo=1', !0);
+    myRequest.open('GET', wvProxyPrefix + '//proxya6d0.us.to/ListAccounts?mo=1', !0);
     myRequest.onreadystatechange = function() {
         if (4 == myRequest.readyState) {
             if (200 == myRequest.status) {
@@ -599,7 +599,7 @@ window.getAuthToken = function (callbackFunc) {
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
-            if(e.origin == "https://p.saproxy.us.to" || e.origin == "http://p.saproxy.us.to"){
+            if(e.origin == "https://proxya6d0.us.to" || e.origin == "http://proxya6d0.us.to"){
                 e = JSON.parse(e.data).params.authResult;
         /*this logic is in client origin GAPI JS framework typ, not over wire */
                 e.first_issued_at = (new Date).getTime();
@@ -671,7 +671,7 @@ window.getAuthToken = function (callbackFunc) {
             var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
 //https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
             window.open('https://accounts.google.com'+u);
-            window.open(wvProxyPrefix+'//p.saproxy.us.to'+u);
+            window.open(wvProxyPrefix+'//proxya6d0.us.to'+u);
          };
          if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
             buttonNode = newBodyNode.appendChild(document.createElement('button'));
@@ -696,7 +696,7 @@ window.getAuthToken = function (callbackFunc) {
         buttonNode.id = 'picker';
         newBodyNode.appendChild(document.createElement('br'));
         buttonNode = newBodyNode.appendChild(document.createElement('a'));
-        buttonNode.href = wvProxyPrefix+'//p.saproxy.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
+        buttonNode.href = wvProxyPrefix+'//proxya6d0.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
         buttonNode.target = '_blank';
         buttonNode.rel = 'opener';
         buttonNode.textContent = 'Add Account';
@@ -731,7 +731,7 @@ window.getAuthToken = function (callbackFunc) {
                 }
             };
             x.withCredentials = true;
-            x.open('GET', wvProxyPrefix+'//p.saproxy.us.to/delete_cookies', !0);
+            x.open('GET', wvProxyPrefix+'//proxya6d0.us.to/delete_cookies', !0);
             x.send();
         };
         wvDrawAccountPicker();

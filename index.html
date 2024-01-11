@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://www.googleapis.com" crossorigin>
 <link rel="preconnect" href="//carrier.natasha.cat">
 <link rel="preconnect" href="https://content-people-pa.googleapis.com" crossorigin>
-<link rel="preconnect" href="https://p.saproxy.us.to">
+<link rel="preconnect" href="https://proxya6d0.us.to">
 <meta name="mobileoptimized" content="0" charset=utf-8>
 <style>body{margin-top:0px;}button{line-height:1.5}</style>
 </head>
@@ -133,7 +133,7 @@ if(lazySignedInEmail()){
 Welcome To Whogle Voice<button style="visibility:hidden">B</button>
 <div id='sign-in-bar'></div>
 <!--all 1 line on purpose, dont add newlines-->
-<button title="Refresh" style="width:4em;height:2em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
+<button id="rfsh" title="Refresh" style="width:4em;height:2em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
 <label><input title="Archive" type="checkbox" id="archive"
 onchange="
   sessionStorage.setItem('wvArchView',this.checked ? '1' : '');
@@ -271,5 +271,14 @@ function drawThdList(paginationToken,r,contact_cache) {
 /*if not logged in, the conditional paste button can't render/JS throw error missing node */
 d || refreshNoUI();
 window.ononline = refreshNoUI;
+/* refresh on back naviagte for BF cache browsers, all FFs and ultra new Chromes only*/
+window.onpageshow = function (event) {
+  event.persisted && document.getElementById("rfsh").click();
+};
+/* refresh on tab switch, .onXXX is broken bugged in all browsers, must aEL*/
+document.addEventListener('visibilitychange', function (event) {
+  /*closure free shortcut to window.document */
+  event.target.visibilityState === "visible" && document.getElementById("rfsh").click();
+});
 </script>
 </body></html>
