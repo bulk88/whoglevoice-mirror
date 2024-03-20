@@ -156,14 +156,15 @@ function drawSug(val) {
       if(!err && resp.thread && resp.thread.length) {
         var batchedCNUpdate = {};
         var el = document.createElement('select');
-        el.size = resp.thread.length+1;
         el.style.width="100%";
-        el.onchange = function (name) {
-          name = name.target.value;
+        el.onchange = function (selEL) {
+          selEL = selEL.target;
+          name = selEL.value;
           if(name) {
             if (name.length === 12 && name[0] === '+' && name[1] === '1') {
               name = name.slice(2);
             }
+            selEL.selectedIndex = -1;
             window.location = 'thread.html#'+name;
           } else {
             search_res_count += 5;
@@ -184,13 +185,22 @@ function drawSug(val) {
             }
           }
           o.value = e.contact[0].phoneNumber;
-          o.innerText =
+          o.textContent =
             name+' - '+
             e.item[0].messageText;
         });
-        resp = el.appendChild(document.createElement('option'));
-        resp.innerText = "More";
-        resp.value = '';
+        //if 1 item, its selected automatic, and no onchange evt fires
+        //deselect the box always
+        el.selectedIndex = -1;
+        //always keep blank at end, so full list shown, no double taps for
+        //single item lists (open/select)
+        resp = resp.thread.length;
+        el.size = resp+1;
+        if(resp === search_res_count) {
+          resp = el.appendChild(document.createElement('option'));
+          resp.textContent = "More";
+          resp.value = '';
+        }
         err = threadListEl.parentNode;
         //can't be factored out, no debounce on key strokes, oth double draw
         if ((resp = threadListEl.previousElementSibling).nodeName === "SELECT") {
@@ -219,7 +229,7 @@ function goSearchClickOnInput(event) {
     } else if (lbl === 'To Num') {
       buttonTN.nodeValue = 'Clear';
       drawSug(textboxEl.value);
-    } else if('Clear') {
+    } else if(lbl === 'Clear') {
       drawSug(textboxEl.value);
     }
   } else {
