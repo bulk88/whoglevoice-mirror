@@ -13,6 +13,9 @@
 initLnkFmt();
 var pendingNameReqs = 0;
 var d;/*didEarlyFetch*/
+var contact_cache;
+var search_neg_contact_cache;
+var search_res_count;
 
 //finish(err, resp)
 function getThreadList(fullreq, paginationToken, archive, finish){
@@ -63,8 +66,7 @@ x.send((fullreq?'['+(archive?6:2)+',100,1':'['+(archive?6:2)+',1,1')+(pagination
 function g(evt) {
 evt = evt.target;
 evt.textContent ="\xa0\u25BD\u231B";
-var contact_cache,
-  paginationToken = evt.getAttribute('data-pgtok')
+var paginationToken = evt.getAttribute('data-pgtok')
 //even on virgin page load, we still do tiny net req/full net req, not straight
 //to full network req
 //because old HTML code and base page aren't done parsing yet and threadList
@@ -143,9 +145,150 @@ onchange="
   var b = this.parentNode.previousSibling.previousSibling;
   b.onclick({target:b})"/>A</label>
 <!-- do not add whitespace btwn input and button -->
-<input type=tel placeholder="New num here" size=10></input><button onclick='window.location="thread.html#"+c(event.target.previousSibling.value)'>&#x3164;Go #&#x3164;</button>
+<input type=tel placeholder="New num here" size=10 oninput='goSearchClickOnInput(event)'></input><button style="min-width:5em" onclick='goSearchClick(event)'>To ABC</button>
 <div id='threadList'></div>
 <script>
+
+function drawSug(val) {
+  var threadListEl = document.getElementById('threadList');
+  if (val.length) {
+    getSearch(val, search_res_count, function (err, resp) {
+      if(!err && resp.thread && resp.thread.length) {
+        var batchedCNUpdate = {};
+        var el = document.createElement('select');
+        el.size = resp.thread.length+1;
+        el.style.width="100%";
+        el.onchange = function (name) {
+          name = name.target.value;
+          if(name) {
+            if (name.length === 12 && name[0] === '+' && name[1] === '1') {
+              name = name.slice(2);
+            }
+            window.location = 'thread.html#'+name;
+          } else {
+            search_res_count += 5;
+            drawSug(val);
+          }
+        }
+        resp.thread.forEach(function (e) {
+          var arr;
+          var o = el.appendChild(document.createElement('option'));
+          var name = e.contact[0].name;
+          name = contact_cache[name] ? contact_cache[name] : name;
+          if(!search_neg_contact_cache[name]){
+            if (name.match(/^\+\d+$/)) {
+              if(!(arr = batchedCNUpdate[name])) {
+              batchedCNUpdate[name] = arr = [];
+              }
+              arr.push(o);
+            }
+          }
+          o.value = e.contact[0].phoneNumber;
+          o.innerText =
+            name+' - '+
+            e.item[0].messageText;
+        });
+        resp = el.appendChild(document.createElement('option'));
+        resp.innerText = "More";
+        resp.value = '';
+        err = threadListEl.parentNode;
+        //can't be factored out, no debounce on key strokes, oth double draw
+        if ((resp = threadListEl.previousElementSibling).nodeName === "SELECT") {
+          err.replaceChild(el, resp);
+        } else {
+          err.insertBefore(el, threadListEl);
+        }
+        for (err in batchedCNUpdate) {
+          updateContactNameSearch(batchedCNUpdate[err],err);
+        }
+      } else {
+        drawSug('');
+      }
+    });
+  } else if ((val = threadListEl.previousElementSibling).nodeName === "SELECT") {
+    threadListEl.parentNode.removeChild(val);
+  }
+}
+function goSearchClickOnInput(event) {
+  var textboxEl = event.target;
+  var buttonTN = textboxEl.nextElementSibling.firstChild;
+  var lbl = buttonTN.nodeValue;
+  if (textboxEl.value.length) {
+    if (lbl === 'To ABC') {
+      buttonTN.nodeValue = 'Go #';
+    } else if (lbl === 'To Num') {
+      buttonTN.nodeValue = 'Clear';
+      drawSug(textboxEl.value);
+    } else if('Clear') {
+      drawSug(textboxEl.value);
+    }
+  } else {
+    if (lbl === 'Go #') {
+      buttonTN.nodeValue = 'To ABC';
+    } else if (lbl === 'Clear') {
+      buttonTN.nodeValue = 'To Num';
+      drawSug('');
+    }
+  }
+}
+function goSearchClick(event) {
+  var buttonTN = (event = event.target).firstChild;
+  var inputEl = event.previousSibling;
+  var l = buttonTN.nodeValue;
+  if (l === 'To ABC') {
+    search_res_count = 5;
+    inputEl.type = 'text';
+    inputEl.placeholder = "Search Contacts";
+    inputEl.removeAttribute('size');
+    buttonTN.nodeValue = 'To Num';
+    inputEl.focus();
+    //build while idle waiting for type
+    search_neg_contact_cache = {};
+    if(!contact_cache)
+      contact_cache = buildContactCache();
+  } else if (l === 'To Num') {
+    inputEl.type = 'tel';
+    inputEl.placeholder = "New num here";
+    inputEl.size = 10;
+    buttonTN.nodeValue = 'To ABC';
+    inputEl.focus();
+  } else if (l === 'Go #') {
+    window.location = "thread.html#" + c(inputEl.value)
+  } else if (l === 'Clear') {
+    buttonTN.nodeValue = 'To Num';
+    inputEl.value = '';
+    drawSug('');
+  } else {
+    alert('unk state');
+  }
+}
+//finish(err, resp)
+function getSearch(query, count, finish){
+    getAuthToken(function(tok) {getSearch_t(true, tok, query, count, finish)});
+}
+function getSearch_t(canReAuth, tok, query, count, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/search?alt=json&prettyPrint=false",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization","Bearer "+tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(x.status == 503) { //temorary random failure, just retry
+        getSearch_t(canReAuth, tok, query, count, finish);
+    }
+    else if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getSearch_t(false, tok, query, count, finish)});
+    }
+    else if(x.status != 200) {
+        x.status != 401 && alert("status: "+x.status+"\nresp:"+x.response);
+        finish(x.response||-1); /* opera 12 for 401 has empty x.response, mk fake error */
+    }
+    else {finish(false, JSON.parse(x.response))};
+}};
+
+x.send('['+JSON.stringify(query)+','+count+',null,null,null,[null,1,1]]');
+}
+
 function updateContactNameEl(e, num) { //e is A tag, num "+1" tel num
   pendingNameReqs++;
   getContactName(num.slice(2), function (err_tn, r) {
@@ -168,6 +311,25 @@ function updateContactNameEl(e, num) { //e is A tag, num "+1" tel num
     }
   });
 }
+
+function updateContactNameSearch(eArr, num) { //e is A tag, num "+1" tel num
+  getContactName(num.slice(2), function (err, r) {
+    if(!err) {
+      if (r) {
+        contact_cache[num] = r[0];
+        for(err in eArr) {
+        (err = err.firstChild).nodeValue = r[0]+err.nodeValue.slice(num.length);
+        }
+      }
+      else {
+        //store negs
+        search_neg_contact_cache[num] = 1;
+      }
+    }
+  }
+  );
+}
+
 
 /*cleanTelNum*/
 function c(t) {
@@ -279,7 +441,9 @@ window.onpageshow = function (event) {
 /* refresh on tab switch, .onXXX is broken bugged in all browsers, must aEL*/
 document.addEventListener('visibilitychange', function (event) {
   /*closure free shortcut to window.document */
-  event.target.visibilityState === "visible" && document.getElementById("rfsh").click();
+  event.target.visibilityState === "visible"
+  //Chrome bug, XHR's are pending/frozen forever, unless spin event loop
+    && setTimeout(function(){document.getElementById("rfsh").click();},0);
 });
 </script>
 </body></html>
