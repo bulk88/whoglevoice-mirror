@@ -1,3 +1,5 @@
+SHELL=cmd
+
 first: all
 
 .PHONY: all MNRR LIRRMKF SUBMKF package

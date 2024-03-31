@@ -331,7 +331,7 @@ function hashChangeHandler () {
             element.appendChild(document.createTextNode(name));
         })(f.appendChild(document.createElement('span')),carrierTextNode,t);
         var e = f.appendChild(document.createElement('button'));
-        e.textContent = '\u270F\uFE0F';
+        e.textContent = '\u270F\ufe0f';
         //set start edit handler
         e.onclick = function (evt) {
           var old_onclick_evt = this.onclick,
@@ -346,11 +346,11 @@ function hashChangeHandler () {
               pid,
               xhrCB = function (err,r) {
                 if (err) {
-                  button.textContent = "\u270F\uFE0F\u2718"; //X mark
+                  button.textContent = "\u270F\ufe0f\u2718"; //X mark
                 } else {
                   span.textContent = (r = r.personResponse.person).name[0].displayName;
                   r.website && span.setAttribute('data-url', r.website[0].value);
-                  button.textContent = "\u270F\uFE0F\u2714"; //Good mark
+                  button.textContent = "\u270F\ufe0f\u2714"; //Good mark
                   r = document.forms.folderForm.folder.value;
                   //purge cached thread lists, so name change is updated in thread list
                   localStorage.removeItem(r == "allThreads" ? 'wvThdListM' : r == "allArchivedThreads" ? 'wvThdListA' : alert(0));
@@ -359,7 +359,7 @@ function hashChangeHandler () {
                 button.parentNode.replaceChild(span,input);
               };
             if(old_name !== input.value) {
-              button.textContent = "\u270F\uFE0F\u231B"; //hourglass mark
+              button.textContent = "\u270F\ufe0f\u231B"; //hourglass mark
               if((pid = input.getAttribute("data-pid")) !== 'null') {
                 upContact(pid, input.value, null, null, xhrCB); //end xhr callback
               } else {
@@ -449,7 +449,7 @@ function hashChangeHandler () {
             });
         };
         e = f.appendChild(document.createElement('button'));
-        e.textContent = "\xa0Bottom\u2B07\xa0";
+        e.textContent = "\xa0Bottom\u2B07\ufe0f\xa0";
         e.onclick = wvScrollBot;
         divBuddyBar.appendChild(f);
     } else {
@@ -471,11 +471,11 @@ window.ononline = function () {
 <div>
 <textarea id="msg" placeholder="Type outgoing msg here" style="width:100%"></textarea>
 <br/>
-<button onclick="history.back()">&#x25C0;Back</button>
-<button onclick="sendUI(event)">&nbsp;&#x2709;&nbsp;&nbsp;&nbsp;&nbsp;</button>
-<button onclick="sendUI(event,0,function(e){e||history.back()})">&#x2709;&#x25C0;&nbsp;&nbsp;&nbsp;</button>
-<button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;Top&#x3164;</button>
-<button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&nbsp;</button>
+<button onclick="history.back()">&#x25C0;&#xfe0f;Back</button>
+<button onclick="sendUI(event)">&nbsp;&#x2709;&#xfe0f;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+<button onclick="sendUI(event,0,function(e){e||history.back()})">&#x2709;&#xfe0f;&#x25C0;&nbsp;&nbsp;&nbsp;</button>
+<button onclick="window.scrollTo(0,0)">&#x3164;&#x2B06;&#xfe0f;Top&#x3164;</button>
+<button onclick="document.getElementById('msg').value=''">&#8199;&#x2716;&#xfe0f;&nbsp;</button>
 <!-- do not add whitespace between button and BR, JS conditional/minify -->
 <button style="width:3.5em;text-align:left;" onclick="getConvoUI(event)" id="rfsh">&nbsp;&#x25BD;&nbsp;</button><br/>
 <!-- remove newline caused by form element -->
