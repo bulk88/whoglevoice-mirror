@@ -44,10 +44,13 @@ return r;
 
 /*public*/
 window.wvWipeAuthToken = function (logout) {
+    var email_isSignedIn = lazySignedInEmail();
     delete window.wvLinkFmt;
-    localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
-    localStorage.setItem('wvCurAcnt',logout ? '' :lazySignedInEmail());
-    localStorage.setItem('wvLastExpires', lazySignedInExpires());
+    if(email_isSignedIn) {
+        localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
+        localStorage.setItem('wvLastExpires', lazySignedInExpires());
+    }
+    localStorage.setItem('wvCurAcnt',logout ? '' :email_isSignedIn); //todo var logout obsolete
     localStorage.removeItem('gvauthobj');
     localStorage.removeItem('wvThdListA');
     localStorage.removeItem('wvThdListM');
@@ -199,88 +202,69 @@ TokDec.DecodeToken = function(a) {
         return JSON.parse(b);
     }
 
-window.lazySignedInEmail = function () {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
+function loadAuthFromJSON(authStr) {
+    var l_GVAuthObj;
+    GVAuthObj = undefined;//default
+    g_GVAuthStr = authStr; //always set even if syn err in str
+    if(authStr && authStr.length) {
         try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
+            l_GVAuthObj = JSON.parse(authStr);
+            //null is type obj but false
+            if(l_GVAuthObj && typeof l_GVAuthObj === "object") {
+                GVAuthObj = l_GVAuthObj;
             }
         } catch (e) {
-            GVAuthObj = undefined;
         }
     }
-    if(GVAuthObj) return GVAuthObj.profile.email;
-    else return '';
 }
 
-function lazySignedInPrimaryDid() {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
+function lazyGenericGet () {
+    var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
+    var l_GVAuthStr = localStorage.getItem('gvauthobj');
+    if(g_GVAuthStr !== l_GVAuthStr) {
+        loadAuthFromJSON(l_GVAuthStr);
+    }//abv fn mods private globals
     if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
+        switch(fieldIdx) {
+            case 0:
+                return GVAuthObj.profile.email;
+            case 1:
+                return GVAuthObj.primaryDid;
+            case 2:
+                return GVAuthObj.profile.sub;
+            case 3:
+                return GVAuthObj.session_state.extraQueryParams.authuser;
+            case 4:
+                return GVAuthObj.expires_at;
+            default:
+                alert("unk field in lazy auth getter");
+                return '';
+        }
+    } else {
+        if(fieldIdx) {
+            throw "Not logged in."
+        } else { //email field is 0
+            return '';
         }
     }
-    if(GVAuthObj) return GVAuthObj.primaryDid;
-    else return '';
 }
+window.lazySignedInEmail = lazyGenericGet.bind(0);
 
-function lazySignedGoogId() {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
-    if(GVAuthObj) return GVAuthObj.profile.sub;
-    else return '';
-}
+window.lazySignedInUserIndex = lazyGenericGet.bind(3);
 
-window.lazySignedInUserIndex = function () {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
-    if(GVAuthObj) return GVAuthObj.session_state.extraQueryParams.authuser;
-    else throw "Not logged in.";
-}
+var lazySignedInPrimaryDid = lazyGenericGet.bind(1);
 
-function lazySignedInExpires() {
-    var GVAuthObj= localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
-    if(GVAuthObj) return GVAuthObj.expires_at;
-    else return 0;
-}
+var lazySignedGoogId = lazyGenericGet.bind(2);
+
+var lazySignedInExpires = lazyGenericGet.bind(4);
+
+var g_GVAuthStr;
+
+var GVAuthObj;
 
 function lazyGetLinkFormatter() {
-  var g = lazySignedGoogId(), ret = [,g], GVAuthObj;
+  //GogID() throws if signed out, email() is sentinal
+  var g = (lazySignedInEmail() && lazySignedGoogId()), ret = [,g], GVAuthObj;
   if(g) { //signed out
     GVAuthObj= localStorage.getItem('linkfmt/id/'+g);
     if (GVAuthObj) {
@@ -525,9 +509,26 @@ function wvDrawAccountPicker(suppressTokRefresh) {
     //mo=1 prop required for profile pics to be user specific vs generic
     myRequest.open('GET', wvProxyPrefix + '//proxya6d0.us.to/ListAccounts?mo=1', !0);
     myRequest.onreadystatechange = function() {
+        var d;
         if (4 == myRequest.readyState) {
             if (200 == myRequest.status) {
-                var d = myRequest.responseText; //403 responseXML is null
+                d = myRequest.getResponseHeader('content-type');
+                if(d && d.indexOf('nocookie=1') != -1 && !localStorage.getItem('wvNo3P')) {
+                    d = window.open(wvProxyPrefix+'//proxya6d0.us.to/chk3P');
+                    if(!d) {
+                        d = document.getElementById('picker');
+                        d = d.parentNode.insertBefore(document.createElement('button'), d.nextSibling.nextSibling);
+                        d.textContent = "Test 3P Login Proxy Cookies";
+                        d.onclick = function (evt) {
+                            window.open(wvProxyPrefix+'//proxya6d0.us.to/chk3P');
+                            evt = evt.target;
+                            evt.parentNode.removeChild(evt.nextSibling);
+                            evt.parentNode.removeChild(evt);
+                        };
+                        d.parentNode.insertBefore(document.createElement('br'), d.nextSibling);
+                    }
+                }
+                d = myRequest.responseText; //403 responseXML is null
                 //don't draw HTML 2nd time, dont trigger token prefetch 2nd time
                 if (d != oldPicker) {
                     wvDrawUserList(d);
@@ -599,17 +600,28 @@ window.getAuthToken = function (callbackFunc) {
         var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
+            var data = e.data;
             if(e.origin == "https://proxya6d0.us.to" || e.origin == "http://proxya6d0.us.to"){
-                e = JSON.parse(e.data).params.authResult;
-        /*this logic is in client origin GAPI JS framework typ, not over wire */
-                e.first_issued_at = (new Date).getTime();
-                e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
-                e.profile = TokDec.DecodeToken(e);
-                delete e.id_token; //useless and very long
-                gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
+                if(typeof data === 'string') {
+                    e = JSON.parse(data).params.authResult;
+            /*this logic is in client origin GAPI JS framework typ, not over wire */
+                    e.first_issued_at = (new Date).getTime();
+                    e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
+                    e.profile = TokDec.DecodeToken(e);
+                    delete e.id_token; //useless and very long
+                    gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
+                } else if(typeof data === 'object') {
+                    if(typeof data.chk3P === 'string') { //empty string maybe
+                        if(data.chk3P.indexOf("3P=1") == -1) {
+                            localStorage.setItem('wvNo3P', 1);
+                        } else {
+                            localStorage.removeItem('wvNo3P');
+                        }
+                    }
+                }
             }
             if(e.origin == "https://voice.google.com") {
-                gotAuthPasteCB({type: 'input', target: {value: e.data}});
+                gotAuthPasteCB({type: 'input', target: {value: data}});
             }
         };
         var gotAuthPasteCB = function (e){
@@ -644,7 +656,9 @@ window.getAuthToken = function (callbackFunc) {
             if (GVAuthObj) {
                 //maybe a new goog UID
                 delete window.wvLinkFmt;
-                localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
+                if (lazySignedInEmail()) {
+                    localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
+                }
                 localStorage.setItem('gvauthobj',pasteStr);
                 //start req to get the per-goog UID link formatter, maybe a new goog ID
                 initLnkFmt(function(){callbackFunc(GVAuthObj.access_token);});
