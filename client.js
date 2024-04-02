@@ -264,11 +264,11 @@ var GVAuthObj;
 
 function lazyGetLinkFormatter() {
   //GogID() throws if signed out, email() is sentinal
-  var g = (lazySignedInEmail() && lazySignedGoogId()), ret = [,g], GVAuthObj;
+  var g = (lazySignedInEmail() && lazySignedGoogId()), ret = [,g], lnkFmtJsStr;
   if(g) { //signed out
-    GVAuthObj= localStorage.getItem('linkfmt/id/'+g);
-    if (GVAuthObj) {
-      ret[0] = GVAuthObj;
+    lnkFmtJsStr = localStorage.getItem('linkfmt/id/'+g);
+    if (lnkFmtJsStr) {
+      ret[0] = lnkFmtJsStr;
     }
   }
   return ret;
@@ -587,17 +587,10 @@ function wvDrawAccountPicker(suppressTokRefresh) {
 
 /*public*/
 window.getAuthToken = function (callbackFunc) {
-    var GVAuthObj = localStorage.getItem('gvauthobj');
-    if (GVAuthObj) {
-        try {
-            GVAuthObj = JSON.parse(GVAuthObj);
-            if(! ('access_token' in GVAuthObj)) {
-                GVAuthObj = undefined;
-            }
-        } catch (e) {
-            GVAuthObj = undefined;
-        }
-    }
+    var l_GVAuthStr = localStorage.getItem('gvauthobj');
+    if(g_GVAuthStr !== l_GVAuthStr) {
+        loadAuthFromJSON(l_GVAuthStr);
+    }//abv fn mods private globals
     if (GVAuthObj) {
         callbackFunc(GVAuthObj.access_token);
     }
@@ -669,20 +662,21 @@ window.getAuthToken = function (callbackFunc) {
             }
         };
         var gotAuthPasteCB = function (e){
+            var l_GVAuthObj;
             var pasteStr =  e.type == 'input' ?
                 e.target.value /*Android Stock Browser 4.1.2 has no paste event, only input */
                 :((e.clipboardData /*newer browsers*/
                 || (event && event.clipboardData) /*psuedo IE window.event prop*/
                 || window.clipboardData).getData('text'));
             try {
-                GVAuthObj = JSON.parse(pasteStr);
-                if (!('access_token' in GVAuthObj)) {
+                l_GVAuthObj = JSON.parse(pasteStr);
+                if (!('access_token' in l_GVAuthObj)) {
                     alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
-                    GVAuthObj = undefined;
+                    l_GVAuthObj = undefined;
                 }
             } catch (e) {
                 alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
-                GVAuthObj = undefined;
+                l_GVAuthObj = undefined;
             }
             //callbackFunc needs its body DOM back
             if (oldBodyNode) {
@@ -698,15 +692,16 @@ window.getAuthToken = function (callbackFunc) {
             }
             gcSavedProfImgEls();
             window.onmessage = null;
-            if (GVAuthObj) {
+            if (l_GVAuthObj) {
                 //maybe a new goog UID
                 delete window.wvLinkFmt;
                 if (lazySignedInEmail()) {
                     localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
                 }
-                localStorage.setItem('gvauthobj',pasteStr);
+                GVAuthObj = l_GVAuthObj;
+                localStorage.setItem('gvauthobj', (g_GVAuthStr = pasteStr));
                 //start req to get the per-goog UID link formatter, maybe a new goog ID
-                initLnkFmt(function(){callbackFunc(GVAuthObj.access_token);});
+                initLnkFmt(function(){callbackFunc(l_GVAuthObj.access_token);});
             } else {
                 callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
             }
