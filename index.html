@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://proxya6d0.us.to">
 <link rel="prefetch"   href="thread.html">
 <meta name="mobileoptimized" content="0" charset=utf-8>
-<style>body{margin-top:0px;}button{line-height:1.5}</style>
+<style>body{margin-top:0px;}button{line-height:1.5;font-family:segoe ui emoji}</style>
 </head>
 <script src="client.js" type="text/javascript"></script>
 <script>
@@ -25,7 +25,7 @@ function getThreadList_t(canReAuth, tok, fullreq, paginationToken, archive, fini
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/list?alt="+(fullreq?"json&prettyPrint=false":"protojson"),1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization", tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status == 503) { //temorary random failure, just retry
         getThreadList_t(canReAuth, tok, fullreq, paginationToken, archive, finish);
@@ -280,7 +280,7 @@ function getSearch_t(canReAuth, tok, query, count, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/search?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization", tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status == 503) { //temorary random failure, just retry
         getSearch_t(canReAuth, tok, query, count, finish);
@@ -453,7 +453,8 @@ document.addEventListener('visibilitychange', function (event) {
   /*closure free shortcut to window.document */
   event.target.visibilityState === "visible"
   //Chrome bug, XHR's are pending/frozen forever, unless spin event loop
-    && setTimeout(function(){document.getElementById("rfsh").click();},0);
+  //rfsh El missing if login screen
+    && setTimeout(function(r){r=document.getElementById("rfsh"); r&&r.click();},0);
 });
 </script>
 </body></html>

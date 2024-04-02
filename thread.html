@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://proxya6d0.us.to">
 <script src="client.js" type="text/javascript"></script>
 <meta name="mobileoptimized" content="0" charset=utf-8>
-<style>body{margin-top:0px;}img,video{width:100%}button{line-height:1.5}p{white-space:pre-line}</style>
+<style>body{margin-top:0px;}img,video{width:100%}button{line-height:1.5;font-family:segoe ui emoji}p{white-space:pre-line}</style>
 </head>
 <body>
 <div style="position:sticky;top:0px;background-color:white;">
@@ -729,7 +729,7 @@ function updateAttributes_t(canReAuth, tok, num, block, spam, read, archive, fin
   setField(body, archive, 5);
   x.open("POST", "https://www.googleapis.com/voice/v1/voiceclient/thread/updateattributes?alt=json&prettyPrint=false", 1);
   x.setRequestHeader("Content-Type", "application/json+protobuf");
-  x.setRequestHeader("Authorization", "Bearer " + tok);
+  x.setRequestHeader("Authorization", tok);
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
       if (canReAuth && x.status == 401 && resp401Unauth(x.response)) {
@@ -778,8 +778,8 @@ function updateAttributes_t(canReAuth, tok, num, block, spam, read, archive, fin
 
     resize(t);
 
-    t.oninput = function() { resize(t); };
-    t.onmouseup = function() { resize(t); }; // set height after user resize
+     // set height after user resize
+    t.oninput = t.onmouseup = function() { resize(t); };
 })();
 
 

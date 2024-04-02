@@ -318,51 +318,118 @@ function wvGetBase64 (file) {
     reader.readAsDataURL(file)
   })
 }
-//always do this fetch() because actual cache lifespan of the prof image is unk
-//to us at DOM level
+
+var gPCacheStr;
+var gPCache;
+var gPCacheImgEl;
+
+function profImgLoadCB(e) {
+  //maybe fk evt and fk el, doesnt matter
+  e = e.target;
+  //save mem
+  e.onload = undefined;
+  //save mem
+  e = e.src;
+  fetch(e, {
+    referrerPolicy: "no-referrer"
+  }).then(function (r) {
+    var pret = r.blob().then(function (r) {
+      return wvGetBase64(r).then(function (r) {
+        var b64Ent = gPCache[e];
+        //add b64 URL to LS global cache
+        gPCache[e] = [r, expires];
+        //avoid double JSON parse
+        gPCacheStr = JSON.stringify(gPCache);
+        localStorage.setItem('wvAcntPickerPCache', gPCacheStr);
+        if (b64Ent && gPCacheImgEl[e] && b64Ent[0] !== r) {
+            //force re-gen of img tag if changed
+            delete gPCacheImgEl[e];
+        }
+        return;/*don't pass promise vals*/
+      });
+    });
+    //do CPU on idle
+    //now() faster than +new Date()
+    //https://web.archive.org/web/20200215125344/https://jsperf.com/date-now-vs-new-date
+    var curExp = Date.now() + 86400000 /*24h*/;
+    //+new Date(null) is int 0, if expires header suddenly disappears
+    //expires header advances on EVERY http GET my observation
+    var expires = +new Date(r.headers.get('expires'));
+    //Math.min(x,y)
+    expires = curExp < expires ? curExp : expires;
+    return pret;
+  });
+}
+
+//the img tags still keep through .parentNode a large tree of dead elements from the now
+//detached picker, so clean the img tags
+function gcSavedProfImgEls() {
+  if(gPCacheImgEl) {
+    var a = Object.values(gPCacheImgEl), i = 0, el, pn;
+    for(;i<a.length;i++) {
+      el = a[i];
+      if(pn=el.parentNode) {
+        pn.removeChild(el);
+        el.style = null;
+      }
+    }
+  }
+}
 //we can't stop double jpg download if very new prof URL, chrome fetch() and image
 //cache entries never match, but this fetch starts only after img tag native
 //http URL has been downloaded and drawn on screen, so this fetch always is
 //idle bandwidth
 
-//wvSrc is [url,pcacheidx]
-//pCache is [url,datauri]
-function wvPickerProfImgUrltoData(e) {e=e.target;fetch(e.wvSrc[0],{referrerPolicy:"no-referrer"}).then(function(r){return r.blob().then(function(r){return wvGetBase64(r).then(function(r){
-  var wvSrc = e.wvSrc, pCache = e.wvPCache, pCacheEnt;
-  if(!(pCacheEnt=pCache[wvSrc[1]]) || pCacheEnt[1] !== r) {
-    pCache = localStorage.getItem('wvAcntPickerPCache');
-    if(pCache) {
-      pCache = JSON.parse(pCache);
-    } else {
-      pCache = [];
+function pickerProfImgUrltoImgTagMaybeB64(imgurl) {
+  //localStorage.removeItem('wvAcntPickerPCache');
+  var imgTag;
+  var pCacheStr_pN_b64Url = localStorage.getItem('wvAcntPickerPCache');
+  if (pCacheStr_pN_b64Url) {
+    //global update or new navigate with a logged in user
+    if(gPCacheStr !== pCacheStr_pN_b64Url) { //avoid cpu
+      gPCache = JSON.parse(gPCacheStr = pCacheStr_pN_b64Url);
     }
-    pCache[wvSrc[1]] = [wvSrc[0],r];
-    localStorage.setItem('wvAcntPickerPCache',JSON.stringify(pCache));
+  } else { //new navigate, no logged in user
+    gPCache = {};
   }
-  //update data URL if needed, don't repaint http: urls to data: urls
-  //bytestream identical
-  wvSrc = e.src;
-  if(!wvSrc.indexOf('data:') && wvSrc !== r) {
-    e.src = r;
+  //save img tags with jpeg urls in global, on first load, even tho slight
+  //old/other user leak concerns, var gPCache and LS cache, are many milliseconds
+  //away from being full on first load, so don't toss our jpeg url img tags when
+  //b64 URLs are saved in a few ms later
+  if(!gPCacheImgEl) {
+    gPCacheImgEl = {};
   }
-  //anti-leak, unused after this
-  delete e.wvPCache;
-  delete e.wvSrc;
+  //reuse img Els for perf/don't parse b64 url .src again
+  //skip expire check, very likely a nav or discard happens SOON after expire
+  if (imgTag = gPCacheImgEl[imgurl]) {
+    if (pCacheStr_pN_b64Url = imgTag.parentNode) {
+      pCacheStr_pN_b64Url.removeChild(imgTag);
+      imgTag.style = null; //wipe old height/widths/borders if any
+    }
+  } else {
+    imgTag = gPCacheImgEl[imgurl] = document.createElement('img');
+    //inflate img el from string (from LS)
+    if(pCacheStr_pN_b64Url = gPCache[imgurl]) {
+      imgTag.src = pCacheStr_pN_b64Url[0];
+      //show for 1x expired b64 url img, oh well, save I/O for jpeg+fetch double load
+      if(Date.now() > pCacheStr_pN_b64Url[1]) {
+        profImgLoadCB({target:{src:imgurl}});
+      }
+    //download and draw jpeg from network
+    } else {
+    //use network jpeg img El, until next navigate/tab discard, no point parsing B64 url
+    //the jpeg is guarenteed in UA cache for all redraws
+    imgTag.onload = profImgLoadCB;
+    imgTag.referrerPolicy = "no-referrer";
+    imgTag.src = imgurl;
+    }
+  }
+  return imgTag;
 }
-)})})}
 
 function wvDrawUserList(d) { //jsonText
   var p = document.getElementById('picker');
   var frag = document.createDocumentFragment();
-  var pCache = localStorage.getItem('wvAcntPickerPCache');
-  var imgURL;
-  var pCacheDirty;
-  var pCacheEnt;
-  if(pCache) {
-    pCache = JSON.parse(pCache);
-  } else {
-    pCache = [];
-  }
   try {
     d = JSON.parse(d);
     d = d[1];
@@ -373,38 +440,12 @@ function wvDrawUserList(d) { //jsonText
       wvPickerTokenRefresh(n);
       n.target = "_blank";
       n.rel = "opener";
-      var i = n.appendChild(document.createElement('img'));
-      i.referrerPolicy = "no-referrer";
-      //anti-closure, anti alot of LS/JSON.* calls if cloud==LS (99.999% true)
-      i.wvPCache = pCache;
-      i.wvSrc = [(imgURL = u[4]), e];
-
-      if((pCacheEnt=pCache[e]) && pCacheEnt[0] === imgURL) {
-        i.src = pCacheEnt[1];
-        //chk if img binary diff on cloud, hits cache or cloud depending w/e
-        //google cache headers say
-        //fake a event obj
-        wvPickerProfImgUrltoData({target:i});
-      } else {
-        pCacheDirty = 1;
-        //fire fetch() after img tag load event, use idle bandwidth
-        i.onload = wvPickerProfImgUrltoData;
-        //http url
-        i.src = imgURL;
-      }
+      var i = n.appendChild(pickerProfImgUrltoImgTagMaybeB64(u[4]));
       i.style.height = 48;
       i.style.width = 48;
       n.appendChild(document.createElement('div')).textContent = u[2];
       n.appendChild(document.createElement('div')).textContent = u[3];
     }//end for loop
-
-    if(d.length !== pCache.length) {
-      pCacheDirty = 1;
-    }
-    if(pCacheDirty) {
-      pCache = [];
-      localStorage.setItem('wvAcntPickerPCache','[]');
-    }
   } catch (e) {
     frag.textContent = e;
   }
@@ -455,8 +496,8 @@ function wvPickerTokenRefresh(buttonElement) {
             window.onmessage(response); /* msg event obj real */
             return false;
           }
-          getActInfo_t(0, authResult_tok, function(err, resp) {
-            if(!err) {
+          getActInfo_t(0, "Bearer "+authResult_tok, function(err, resp) {
+				if(!err) {
               err = JSON.parse(response.data);
               err.params.authResult.linkedPhone = resp.phone_arr;
               err.params.authResult.primaryDid = resp.primaryDid;
@@ -601,18 +642,21 @@ window.getAuthToken = function (callbackFunc) {
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
             var data = e.data;
+			tyof_data = typeof data;
             if(e.origin == "https://proxya6d0.us.to" || e.origin == "http://proxya6d0.us.to"){
-                if(typeof data === 'string') {
+                if(tyof_data === 'string') {
                     e = JSON.parse(data).params.authResult;
             /*this logic is in client origin GAPI JS framework typ, not over wire */
                     e.first_issued_at = (new Date).getTime();
                     e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
                     e.profile = TokDec.DecodeToken(e);
                     delete e.id_token; //useless and very long
+					e.access_token = "Bearer " +e.access_token;
                     gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
-                } else if(typeof data === 'object') {
-                    if(typeof data.chk3P === 'string') { //empty string maybe
-                        if(data.chk3P.indexOf("3P=1") == -1) {
+                } else if(tyof_data === 'object') {
+					data = data.chk3P;
+                    if(typeof data === 'string') { //empty string maybe
+                        if(data.indexOf("3P=1") == -1) {
                             localStorage.setItem('wvNo3P', 1);
                         } else {
                             localStorage.removeItem('wvNo3P');
@@ -652,6 +696,7 @@ window.getAuthToken = function (callbackFunc) {
             } else {
                 document.documentElement.removeChild(newBodyNode);
             }
+            gcSavedProfImgEls();
             window.onmessage = null;
             if (GVAuthObj) {
                 //maybe a new goog UID
@@ -675,6 +720,7 @@ window.getAuthToken = function (callbackFunc) {
          buttonNode.onclick = function (){
             oldBodyNode?wvDocumentElement.replaceChild(oldBodyNode, newBodyNode)
             :wvDocumentElement.removeChild(newBodyNode);
+            gcSavedProfImgEls();
             window.onmessage = null;
             callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
             drawLoginBar();
@@ -731,6 +777,8 @@ window.getAuthToken = function (callbackFunc) {
         buttonNode.onclick = function (evt){
             evt = evt.target;
             evt.textContent = "\u3164Logout All Accounts\u231B\u3164";
+            //delete profile pic cache
+            gPCacheImgEl = gPCache = gPCacheStr = /*undef*/ localStorage.removeItem('wvAcntPickerPCache');
             var x = new XMLHttpRequest();
             x.onreadystatechange = function() {
                 if (4 == x.readyState) {
@@ -816,7 +864,7 @@ if (num != lastNum || body != lastBody || img != lastImg) {
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 var imgPBArrStr = '';
 if (img) {
     if (/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(img)) {
@@ -861,7 +909,7 @@ function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(x.status == 503) { //temorary random failure, just retry
       getThread_t(canReAuth, tok, num, pagination_token, finish, items);
@@ -893,7 +941,7 @@ function mkContact_t(canReAuth,tok,name,num,finish){
 var x=new XMLHttpRequest;
 x.open("POST", 'https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&prettyPrint=false',1);
 x.setRequestHeader("Content-Type", "application/json");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -1040,7 +1088,7 @@ function upContact_t(canReAuth,tok,pid,name,url,urltype,finish){
 var x=new XMLHttpRequest;
 /* from GV Web UI */
 x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){
   var obj;
   if(x.readyState==4){
@@ -1076,7 +1124,7 @@ x.onreadystatechange=function(){
         /* from GV Web UI */
         x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null || urltype != null ?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
         x.setRequestHeader("Content-Type", "application/json");
-        x.setRequestHeader("Authorization","Bearer "+tok);
+        x.setRequestHeader("Authorization",tok);
         x.onreadystatechange=function(){if(x.readyState==4){
             if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
             else {finish && finish(false, JSON.parse(x.response))};
@@ -1101,7 +1149,7 @@ function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -1123,7 +1171,7 @@ function getActInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.responseType = 'json';
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
@@ -1169,6 +1217,7 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
         node.onclick = function (e){
             e.preventDefault();
             wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+            gcSavedProfImgEls();
             finish(false, e.target.textContent, primaryDid);
         };
         newBodyNode.appendChild(document.createElement('br'));
@@ -1177,6 +1226,7 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
      node.textContent = "Cancel/Return";
      node.onclick = function (){
         wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+        gcSavedProfImgEls();
         finish("USER_CLICKED_CANCEL");
     };
     }
@@ -1317,7 +1367,7 @@ function attachIDtoB64_t(canReAuth, tok, id, size, mtype, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -1393,7 +1443,7 @@ function getThdInfo_t(canReAuth, tok, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/threadinginfo/get?alt=protojson",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -1431,7 +1481,7 @@ function chkNewMsg_t(canReAuth, tok, num, finish){
 var x=new XMLHttpRequest;
 x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     //404 thread doesnt exist, 0 is timeout/network failure
     //401 no credentials, dont reauth, too annoying popups
@@ -1453,7 +1503,7 @@ var x=new XMLHttpRequest;
 //x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
 x.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json&prettyPrint=false",1);
 x.setRequestHeader("Content-Type", "application/json+protobuf");
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){if(x.readyState==4){
     if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
         wvWipeAuthToken();
@@ -1493,7 +1543,7 @@ var x=new XMLHttpRequest;
 //I dont have the scope, and gauth wont let me add it
 //x.open("GET","https://content-people.googleapis.com/v1/people:searchContacts?query=1"+num+"&readMask=names&fields=results.person.names.displayName&prettyPrint=false",1);
 x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website"+""/*&prettyPrint=false*/+"&alt=protojson",1);
-x.setRequestHeader("Authorization","Bearer "+tok);
+x.setRequestHeader("Authorization",tok);
 x.onreadystatechange=function(){
     var obj;
     if(x.readyState==4){
