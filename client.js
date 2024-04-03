@@ -60,65 +60,37 @@ window.wvWipeAuthToken = function (logout) {
 /*public*/
 window.drawLoginBar = function ()
 {
+	var email_label, emailEl;
     var divLoginBar = document.getElementById('sign-in-bar');
 //if IPL getConvoUI throws up login prompt, there is temporarily no login bar
 //bc html body swap, but answering the login prompt draws login bar again anyways
 //so this return is safe
     if(!divLoginBar) return;
-    //wipe div contents first
-    //https://jsperf.com/innerhtml-vs-removechild/15
-    while (divLoginBar.lastChild) {
-        divLoginBar.removeChild(divLoginBar.lastChild);
+	divLoginBar = divLoginBar.firstChild;
+    if (location.protocol[4] === 's'/*https*/) {
+        divLoginBar.textContent = 'S'; /*TC not perf crit*/
+        divLoginBar.style.backgroundColor = 'lime';
     }
-    var buttonNode = divLoginBar.appendChild(document.createElement('a'));
-    if (window.location.protocol == 'http:') {
-        buttonNode.textContent = ' ̵S̵ '
-        buttonNode.style.backgroundColor = 'red';
-        buttonNode.onclick = function () {
-        // no ;, see https://bugzilla.mozilla.org/show_bug.cgi?id=726779
-            window.location.protocol = 'https'
-        };
+	divLoginBar = divLoginBar.nextSibling;
+	emailEl = divLoginBar.nextSibling;
+    if (email_label = lazySignedInEmail()) {
+		if(emailEl.x_eml) { //if not first draw, skip DOM asssigns
+			divLoginBar.nodeValue = "Signed in: ";
+			emailEl.nextSibling.textContent = "Logout";/*TC not perf crit*/
+		} else {
+		emailEl.x_eml = email_label; /*intial draw*/
+		}
     } else {
-        buttonNode.textContent = 'S'
-        buttonNode.style.backgroundColor = 'lime';
-        buttonNode.onclick = function () {
-            window.location.protocol = 'http'
-        };
+        divLoginBar.nodeValue = "Logged out";
+        emailEl.nextSibling.textContent  = "Login";
     }
-    var email_label = lazySignedInEmail()
-      , email_node;
-    buttonNode = document.createElement('button');
-    if (email_label.length) {
-        divLoginBar.appendChild(document.createTextNode("Signed in: "));
-        email_node = document.createElement('a');
-        email_node.href = "#";
-        email_node.textContent = email_node.x_eml = email_label;
-        email_node.x_num = lazySignedInPrimaryDid();
-        email_node.onclick = function() {
-          this.textContent = this.textContent == this.x_eml ? this.x_num : this.x_eml;
-          return false;
-        };
-        buttonNode.textContent = "Logout";
-        buttonNode.onclick = function (){
-            wvWipeAuthToken(1)
-            drawLoginBar()
-        };
-    } else {
-        email_node = document.createTextNode("Logged out");
-        buttonNode.textContent = "Login";
-        buttonNode.onclick = function (){
-            //func from html page or undef
-            getAuthToken(refreshNoUI);
-        };
-    }
-    divLoginBar.appendChild(email_node);
-    divLoginBar.appendChild(buttonNode);
+	emailEl.firstChild.nodeValue = email_label;
 }
 
-var TokDec = {};
-TokDec.kh = {};
-TokDec.lh = null;
-TokDec.nh = function() {
+var TokDec = {
+kh:{},
+lh:null,
+nh:function() {
         if (!TokDec.lh) {
             TokDec.lh = {};
             for (var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""), b = ["+/=", "+/", "-_=", "-_.", "-_"], c = 0; 5 > c; c++) {
@@ -130,14 +102,13 @@ TokDec.nh = function() {
                 }
             }
         }
-    }
-    ;
+    },
 
-TokDec.Re = function(a) {
+Re: function(a) {
         return /^[\s\xa0]*$/.test(a)
-    }
+    },
 
-TokDec.Nv = function(a, b) {
+Nv: function(a, b) {
         function c(l) {
             for (; d < a.length; ) {
                 var m = a.charAt(d++)
@@ -161,10 +132,9 @@ TokDec.Nv = function(a, b) {
             64 != g && (b(f << 4 & 240 | g >> 2),
             64 != k && b(g << 6 & 192 | k))
         }
-    }
-    ;
+    },
 
-TokDec.Mv = function(a) {
+Mv: function(a) {
         for (var b = [], c = 0, d = 0; c < a.length; ) {
             var e = a[c++];
             if (128 > e)
@@ -185,15 +155,15 @@ TokDec.Mv = function(a) {
                 b[d++] = String.fromCharCode((e & 15) << 12 | (f & 63) << 6 | g & 63)
         }
         return b.join("")
-    }
-TokDec.Ov = function(a) {
+    },
+Ov: function(a) {
         var b = [];
         TokDec.Nv(a, function(c) {
             b.push(c)
         });
         return b
-    }
-TokDec.DecodeToken = function(a) {
+    },
+DecodeToken: function(a) {
         a = a && a.id_token;
         if (!a || !a.split(".")[1])
             return null;
@@ -201,6 +171,7 @@ TokDec.DecodeToken = function(a) {
         var b = TokDec.Mv(TokDec.Ov(a));
         return JSON.parse(b);
     }
+};
 
 function loadAuthFromJSON(authStr) {
     var l_GVAuthObj;
@@ -252,7 +223,7 @@ window.lazySignedInEmail = lazyGenericGet.bind(0);
 
 window.lazySignedInUserIndex = lazyGenericGet.bind(3);
 
-var lazySignedInPrimaryDid = lazyGenericGet.bind(1);
+window.lazySignedInPrimaryDid = lazyGenericGet.bind(1);
 
 var lazySignedGoogId = lazyGenericGet.bind(2);
 
@@ -384,7 +355,8 @@ function pickerProfImgUrltoImgTagMaybeB64(imgurl) {
   //localStorage.removeItem('wvAcntPickerPCache');
   var imgTag;
   var pCacheStr_pN_b64Url = localStorage.getItem('wvAcntPickerPCache');
-  if (pCacheStr_pN_b64Url) {
+  //guard against array based old rev pcache
+  if (pCacheStr_pN_b64Url && pCacheStr_pN_b64Url[0] == '{') {
     //global update or new navigate with a logged in user
     if(gPCacheStr !== pCacheStr_pN_b64Url) { //avoid cpu
       gPCache = JSON.parse(gPCacheStr = pCacheStr_pN_b64Url);
@@ -516,29 +488,6 @@ function wvPickerTokenRefresh(buttonElement) {
   myRequest_divarr.withCredentials = true;
   myRequest_divarr.send();
 }
-
-/*
-function wvPickerTokenRefresh(buttonElement, user) {
-  var myRequest = new XMLHttpRequest();
-  debugger;
-//https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDLj6KEP9MzDcsaSxXgEfSczj3V-Al96OoAboO9hrh7Jy9wgL5c-3hYtG3iPXgOzw2cJUgmFPCVzMxAN7bUwf5PLWlYn0Sz5A&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
-  myRequest.open('GET', wvProxyPrefix + '//proxya6d0.us.to/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com&login_hint=' +user[10], !0);
-  myRequest.onreadystatechange = function() {
-      if (4 == myRequest.readyState) {
-          if (200 == myRequest.status) {
-              var d = myRequest.responseText; //403 responseXML is null
-              debugger;
-          } else if (0 == myRequest.status && wvProxyPrefix == 'https:') {
-              wvProxyPrefix = 'http:';
-              wvPickerTokenRefresh(buttonElement, user);
-          }
-      }
-  };
-  myRequest.withCredentials = true;
-  myRequest.send();
-}
-
-*/
 
 function wvDrawAccountPicker(suppressTokRefresh) {
 
@@ -1250,7 +1199,7 @@ function getSourceNum(pickerUI, finish){
         pickerUI(phone_arr, primaryDid, finish);
     }
     else {
-        getActInfo(function(err,resp,i){
+        getActInfo(function(err,resp){
         if (err) {
             finish(err);
         } else {
