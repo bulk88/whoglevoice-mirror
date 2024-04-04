@@ -58,33 +58,33 @@ window.wvWipeAuthToken = function (logout) {
 }
 
 /*public*/
-window.drawLoginBar = function ()
-{
-	var email_label, emailEl;
-    var divLoginBar = document.getElementById('sign-in-bar');
-//if IPL getConvoUI throws up login prompt, there is temporarily no login bar
-//bc html body swap, but answering the login prompt draws login bar again anyways
-//so this return is safe
-    if(!divLoginBar) return;
-	divLoginBar = divLoginBar.firstChild;
-    if (location.protocol[4] === 's'/*https*/) {
-        divLoginBar.textContent = 'S'; /*TC not perf crit*/
-        divLoginBar.style.backgroundColor = 'lime';
+window.drawLoginBar = function () {
+  var email_label,
+  emailEl;
+  var divLoginBar = document.getElementById('sign-in-bar');
+  //if IPL getConvoUI throws up login prompt, there is temporarily no login bar
+  //bc html body swap, but answering the login prompt draws login bar again anyways
+  //so this return is safe
+  if (!divLoginBar)
+    return;
+  divLoginBar = divLoginBar.firstChild;
+  if (location.protocol[4] === 's' /*https*/) {
+    divLoginBar.textContent = 'S'; /*TC not perf crit*/
+    divLoginBar.style.backgroundColor = 'lime';
+  }
+  divLoginBar = divLoginBar.nextSibling;
+  emailEl = divLoginBar.nextSibling;
+  if (email_label = lazySignedInEmail()) {
+    if (emailEl.x_eml) { //if not first draw, skip DOM asssigns
+      divLoginBar.nodeValue = "Signed in: ";
+      emailEl.nextSibling.textContent = "Logout"; /*TC not perf crit*/
     }
-	divLoginBar = divLoginBar.nextSibling;
-	emailEl = divLoginBar.nextSibling;
-    if (email_label = lazySignedInEmail()) {
-		if(emailEl.x_eml) { //if not first draw, skip DOM asssigns
-			divLoginBar.nodeValue = "Signed in: ";
-			emailEl.nextSibling.textContent = "Logout";/*TC not perf crit*/
-		} else {
-		emailEl.x_eml = email_label; /*intial draw*/
-		}
-    } else {
-        divLoginBar.nodeValue = "Logged out";
-        emailEl.nextSibling.textContent  = "Login";
-    }
-	emailEl.firstChild.nodeValue = email_label;
+    emailEl.x_eml = email_label; /*always assign, cud b same email or diff prof email*/
+  } else {
+    divLoginBar.nodeValue = "Logged out";
+    emailEl.nextSibling.textContent = "Login";
+  }
+  emailEl.firstChild.nodeValue = email_label;
 }
 
 var TokDec = {
@@ -189,6 +189,28 @@ function loadAuthFromJSON(authStr) {
     }
 }
 
+function lazyGenericSet (a1,a2) {
+  var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
+  var l_GVAuthStr = localStorage.getItem('gvauthobj');
+  if(g_GVAuthStr !== l_GVAuthStr) {
+      loadAuthFromJSON(l_GVAuthStr);
+  }//abv fn mods private globals
+  if (GVAuthObj) {
+    switch(fieldIdx) {
+      case 0:
+        GVAuthObj.primaryDid = a1;
+        GVAuthObj.linkedPhone = a2;
+        break;
+      default:
+        throw "unk field in lazy set";
+    }
+    localStorage.setItem('gvauthobj', (g_GVAuthStr = JSON.stringify(GVAuthObj)));
+  }
+  else {
+    throw "Not logged in."
+  }
+}
+
 function lazyGenericGet () {
     var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
     var l_GVAuthStr = localStorage.getItem('gvauthobj');
@@ -207,6 +229,8 @@ function lazyGenericGet () {
                 return GVAuthObj.session_state.extraQueryParams.authuser;
             case 4:
                 return GVAuthObj.expires_at;
+            case 5:
+                return (fieldIdx = GVAuthObj.primaryDid) ? [fieldIdx, GVAuthObj.linkedPhone] : fieldIdx;
             default:
                 alert("unk field in lazy auth getter");
                 return '';
@@ -228,6 +252,10 @@ window.lazySignedInPrimaryDid = lazyGenericGet.bind(1);
 var lazySignedGoogId = lazyGenericGet.bind(2);
 
 var lazySignedInExpires = lazyGenericGet.bind(4);
+
+var lazySignedInDIDLinkedPhone = lazyGenericGet.bind(5);
+
+var setDIDLinkedPhone = lazyGenericSet.bind(0);
 
 var g_GVAuthStr;
 
@@ -1184,33 +1212,22 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
 }
 //finish(err, sourceNum, acntNum)
 //pickerUI(phone_arr, primaryDid, finish)
-function getSourceNum(pickerUI, finish){
-    var phone_arr;
-    var primaryDid;
-    try {
-        phone_arr = JSON.parse(localStorage.getItem('gvauthobj'));
-        primaryDid = phone_arr.primaryDid;
-        phone_arr = phone_arr.linkedPhone;
-    } catch (e) {
-        phone_arr = undefined;
-    }
-    if(phone_arr) { /* warning cache doesn't deal with settings changes, changed
+function getSourceNum(pickerUI, finish) {
+  var phone_arr = lazySignedInDIDLinkedPhone();
+  if (phone_arr) {
+    /* warning cache doesn't deal with settings changes, changed
     once an hour by token relogin*/
-        pickerUI(phone_arr, primaryDid, finish);
-    }
-    else {
-        getActInfo(function(err,resp){
-        if (err) {
-            finish(err);
-        } else {
-            err = JSON.parse(localStorage.getItem('gvauthobj'));
-            phone_arr = err.linkedPhone = resp.phone_arr;
-            primaryDid = err.primaryDid = resp.primaryDid;
-            localStorage.setItem('gvauthobj', JSON.stringify(err));
-            pickerUI(phone_arr, primaryDid, finish);
-        }
-        });
-    }
+    pickerUI(phone_arr[1], phone_arr[0], finish);
+  } else {
+    getActInfo(function (err_did, resp) {
+      if (err_did) {
+        finish(err_did);
+      } else {
+        setDIDLinkedPhone(err_did = resp.primaryDid, phone_arr = resp.phone_arr);
+        pickerUI(phone_arr, err_did, finish);
+      }
+    });
+  }
 }
 
 //finish(err)
