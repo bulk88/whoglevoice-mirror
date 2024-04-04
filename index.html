@@ -134,7 +134,7 @@ if(lazySignedInEmail()){
 <body>
 <!--button is UI spacer, jerk between index.html and thread.html-->
 Welcome To Whogle Voice<button style="visibility:hidden">B</button>
-<div id='sign-in-bar'><a style="background-color:red;" onclick="location.protocol=location.protocol=='http:'?'https':'http'"> &#821;S&#821; </a>Signed in: <a href="#" onclick="this.textContent=this.textContent==this.x_eml?lazySignedInPrimaryDid():this.x_eml;event.preventDefault();"> </a><button onclick="'Login'==this.textContent?getAuthToken(refreshNoUI):(wvWipeAuthToken(1),drawLoginBar())">Logout</button></div>
+<div id='sign-in-bar'><a style="background-color:red;" onclick="location.protocol=location.protocol=='http:'?'https':'http'"> &#821;S&#821; </a>Signed in: <a href="#" onclick="this.textContent=this.textContent==this.x_eml?lazySignedInPrimaryDid():this.x_eml;event.preventDefault();">&nbsp;</a><button onclick="'Login'==this.textContent?getAuthToken(refreshNoUI):(wvWipeAuthToken(1),drawLoginBar())">Logout</button></div>
 <!--all 1 line on purpose, dont add newlines-->
 <button id="rfsh" title="Refresh" style="width:4em;height:2em;text-align:left;" onclick='g(event)'>&nbsp;&#x25BD;</button>
 <label><input title="Archive" type="checkbox" id="archive"

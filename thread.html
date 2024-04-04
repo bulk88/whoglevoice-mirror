@@ -11,7 +11,7 @@
 <div style="position:sticky;top:0px;background-color:white;">
 Welcome To Whogle Voice<button onclick="history.back()">&#x25C0;Back</button>
 <!-- no ;, see https://bugzilla.mozilla.org/show_bug.cgi?id=726779 -->
-<div id='sign-in-bar'><a style="background-color:red;" onclick="location.protocol=location.protocol=='http:'?'https':'http'"> &#821;S&#821; </a>Signed in: <a href="#" onclick="this.textContent=this.textContent==this.x_eml?lazySignedInPrimaryDid():this.x_eml;event.preventDefault();"> </a><button onclick="'Login'==this.textContent?getAuthToken(refreshNoUI):(wvWipeAuthToken(1),drawLoginBar())">Logout</button></div>
+<div id='sign-in-bar'><a style="background-color:red;" onclick="location.protocol=location.protocol=='http:'?'https':'http'"> &#821;S&#821; </a>Signed in: <a href="#" onclick="this.textContent=this.textContent==this.x_eml?lazySignedInPrimaryDid():this.x_eml;event.preventDefault();">&nbsp;</a><button onclick="'Login'==this.textContent?getAuthToken(refreshNoUI):(wvWipeAuthToken(1),drawLoginBar())">Logout</button></div>
 <div id='buddy-bar'></div>
 </div>
 <div id='thread'></div>
