@@ -1188,10 +1188,17 @@ function getCarrierForLinked(numIdx, node, nextCarrierCB) {
   return function () {
     carrierUpdate = function (s) {
       //this obj is window obj
-      var i = 1, actInfo_rPid = s.match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
+      var actInfo_rPid;
+      var oldCarrierUpdate = carrierUpdate;
+      var i = oldCarrierUpdate.next;
+      //free memory of window. global 1x use function
+      carrierUpdate = null;
+      i && i(); //run next carrier getter ASAP for I/O, note the JSONP api only allows 1 cb at a time
+
+      actInfo_rPid = s.match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
       if(actInfo_rPid) {
         //7 total
-        for (; i < 8; i++) {
+        for (i = 1; i < 8; i++) {
           if (actInfo_rPid[i]) {
             s = [,
               'ATTW',
@@ -1207,14 +1214,10 @@ function getCarrierForLinked(numIdx, node, nextCarrierCB) {
         }
       }
       actInfo_rPid = lazySignedInDIDLinkedPhone();
-      carrierUpdate.wvnode.nodeValue = actInfo_rPid[ACTNUM_LINKED()][numIdx][LINKED_CARRIER()] = "\xa0"+s;
+      oldCarrierUpdate.wvnode.nodeValue = actInfo_rPid[ACTNUM_LINKED()][numIdx][LINKED_CARRIER()] = "\xa0"+s;
       setDIDLinkedPhone(actInfo_rPid);
       //rmv script tag, they build up if SPA
-      (i=carrierUpdate.script).parentNode.removeChild(i);
-      //free memory of window. global 1x use function
-      i = carrierUpdate.next;
-      carrierUpdate = null; //wipe global
-      i && i(); //run next carrier getter, note the JSONP api only allows 1 cb at a time
+      (i=oldCarrierUpdate.script).parentNode.removeChild(i);
     }
     carrierUpdate.wvnode = node;
     carrierUpdate.next = nextCarrierCB;
