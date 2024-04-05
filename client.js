@@ -189,7 +189,7 @@ function loadAuthFromJSON(authStr) {
     }
 }
 
-function lazyGenericSet (a1,a2) {
+function lazyGenericSet (arg1) {
   var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
   var l_GVAuthStr = localStorage.getItem('gvauthobj');
   if(g_GVAuthStr !== l_GVAuthStr) {
@@ -198,8 +198,7 @@ function lazyGenericSet (a1,a2) {
   if (GVAuthObj) {
     switch(fieldIdx) {
       case 0:
-        GVAuthObj.primaryDid = a1;
-        GVAuthObj.linkedPhone = a2;
+        GVAuthObj.actNums = arg1;
         break;
       default:
         throw "unk field in lazy set";
@@ -222,7 +221,7 @@ function lazyGenericGet () {
             case 0:
                 return GVAuthObj.profile.email;
             case 1:
-                return GVAuthObj.primaryDid;
+                return (fieldIdx = GVAuthObj.actNums) && fieldIdx[ACTNUM_PDID()];
             case 2:
                 return GVAuthObj.profile.sub;
             case 3:
@@ -230,7 +229,7 @@ function lazyGenericGet () {
             case 4:
                 return GVAuthObj.expires_at;
             case 5:
-                return (fieldIdx = GVAuthObj.primaryDid) ? [fieldIdx, GVAuthObj.linkedPhone] : fieldIdx;
+                return GVAuthObj.actNums;
             default:
                 alert("unk field in lazy auth getter");
                 return '';
@@ -497,10 +496,9 @@ function wvPickerTokenRefresh(buttonElement) {
             return false;
           }
           getActInfo_t(0, "Bearer "+authResult_tok, function(err, resp) {
-				if(!err) {
+                if(!err) {
               err = JSON.parse(response.data);
-              err.params.authResult.linkedPhone = resp.phone_arr;
-              err.params.authResult.primaryDid = resp.primaryDid;
+              err.params.authResult.actNums = resp;
               response.data = JSON.stringify(err);
             }
           });
@@ -612,7 +610,7 @@ window.getAuthToken = function (callbackFunc) {
         textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
         var wvMsgEvtCB = function (e) {
             var data = e.data;
-			tyof_data = typeof data;
+            tyof_data = typeof data;
             if(e.origin == "https://proxya6d0.us.to" || e.origin == "http://proxya6d0.us.to"){
                 if(tyof_data === 'string') {
                     e = JSON.parse(data).params.authResult;
@@ -621,10 +619,10 @@ window.getAuthToken = function (callbackFunc) {
                     e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
                     e.profile = TokDec.DecodeToken(e);
                     delete e.id_token; //useless and very long
-					e.access_token = "Bearer " +e.access_token;
+                    e.access_token = "Bearer " +e.access_token;
                     gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
                 } else if(tyof_data === 'object') {
-					data = data.chk3P;
+                    data = data.chk3P;
                     if(typeof data === 'string') { //empty string maybe
                         if(data.indexOf("3P=1") == -1) {
                             localStorage.setItem('wvNo3P', 1);
@@ -1135,6 +1133,11 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
 }
 
+function ACTNUM_PDID() {return 0;}
+function ACTNUM_LINKED() {return 1;}
+function LINKED_NUM() {return 0;}
+function LINKED_CARRIER() {return 1;}
+
 //finish(err, resp)
 function getActInfo(finish){
     getAuthToken(function(tok) {getActInfo_t(true, tok, finish)});
@@ -1155,11 +1158,17 @@ x.onreadystatechange=function(){if(x.readyState==4){
       if(finish) {
         //preprocess data, fields lost in higher level, oh well, can be reworked later
         //dont pass null as phone_arr down the API if no linked numbers
-        var phone_arr = x.response[0][2][1] || [],
-        resp = { primaryDid: /^\+1(.+)$/.exec(x.response[0][0])[1],
-                 phone_arr: phone_arr};
+        var phone_arr = x.response[0][2][1] || [];
+        var resp = [
+            /*ACTNUM_PDID()*/ x.response[0][0].slice(2) /*rmv +1*/,
+            /*ACTNUM_LINKED()*/ phone_arr
+        ];
+        //strip unused info for LS
         for (var i = 0; i < phone_arr.length; i++) {
-          phone_arr[i] = /^\+1(.+)$/.exec(phone_arr[i][0][1])[1];
+          phone_arr[i] = [
+            /* LINKED_NUM()*/ phone_arr[i][0][1].slice(2) /*rmv +1*/
+            /*, LINKED_CARRIER() */
+          ];
         }
         //old full json field names
         //phone_arr = resp.account.phones.linkedPhone;
@@ -1213,18 +1222,18 @@ function getSourceNumUI(phone_arr, primaryDid, finish) {
 //finish(err, sourceNum, acntNum)
 //pickerUI(phone_arr, primaryDid, finish)
 function getSourceNum(pickerUI, finish) {
-  var phone_arr = lazySignedInDIDLinkedPhone();
-  if (phone_arr) {
+  var actNums = lazySignedInDIDLinkedPhone();
+  if (actNums) {
     /* warning cache doesn't deal with settings changes, changed
     once an hour by token relogin*/
-    pickerUI(phone_arr[1], phone_arr[0], finish);
+    pickerUI(actNums[ACTNUM_LINKED()], actNums[ACTNUM_PDID()], finish);
   } else {
-    getActInfo(function (err_did, resp) {
-      if (err_did) {
-        finish(err_did);
+    getActInfo(function (err_actNums, resp) {
+      if (err_actNums) {
+        finish(err_actNums);
       } else {
-        setDIDLinkedPhone(err_did = resp.primaryDid, phone_arr = resp.phone_arr);
-        pickerUI(phone_arr, err_did, finish);
+        setDIDLinkedPhone(err_actNums = resp);
+        pickerUI(err_actNums[ACTNUM_LINKED()], err_actNums[ACTNUM_PDID()], finish);
       }
     });
   }

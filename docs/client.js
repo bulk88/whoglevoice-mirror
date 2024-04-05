@@ -1,1 +1,1550 @@
-!function(){window.wvCopyToClipboard=function(t,n,o){var a,e=document.createElement("input");e.value=t,document.body.appendChild(e),e.select(),e.setSelectionRange(0,99999);try{if(!(a=document.execCommand("copy")))throw'document.execCommand("copy") returned false';a=1}catch(e){(a=document.createElement("textarea")).value=t,o?a.onblur=function(e){e=e.target.parentNode;e.parentNode.replaceChild(n,e),o()}:alert("Copy Failed: "+e),(a=document.createElement("label").appendChild(a).parentNode).insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),a.firstChild),n.parentNode.replaceChild(a,n),(a=a.lastChild).select(),a.setSelectionRange(0,99999),a=0}return document.body.removeChild(e),a},window.wvWipeAuthToken=function(e){var t=lazySignedInEmail();delete window.wvLinkFmt,t&&(localStorage.removeItem("linkfmt/id/"+h()),localStorage.setItem("wvLastExpires",n())),localStorage.setItem("wvCurAcnt",e?"":t),localStorage.removeItem("gvauthobj"),localStorage.removeItem("wvThdListA"),localStorage.removeItem("wvThdListM"),localStorage.removeItem("wvArchView")},window.drawLoginBar=function(){var e,t,n=document.getElementById("sign-in-bar");n&&(n=n.firstChild,"s"===location.protocol[4]&&(n.textContent="S",n.style.backgroundColor="lime"),t=(n=n.nextSibling).nextSibling,(e=lazySignedInEmail())?(t.x_eml&&(n.nodeValue="Signed in: ",t.nextSibling.textContent="Logout"),t.x_eml=e):(n.nodeValue="Logged out",t.nextSibling.textContent="Login"),t.firstChild.nodeValue=e)};var p={kh:{},lh:null,nh:function(){if(!p.lh){p.lh={};for(var e="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""),t=["+/=","+/","-_=","-_.","-_"],n=0;n<5;n++){var o=e.concat(t[n].split(""));p.kh[n]=o;for(var a=0;a<o.length;a++){var r=o[a];void 0===p.lh[r]&&(p.lh[r]=a)}}}},Re:function(e){return/^[\s\xa0]*$/.test(e)},Nv:function(o,e){function t(e){for(;a<o.length;){var t=o.charAt(a++),n=p.lh[t];if(null!=n)return n;if(!p.Re(t))throw Error("x`"+t)}return e}p.nh();for(var a=0;;){var n=t(-1),r=t(0),s=t(64),i=t(64);if(64===i&&-1===n)break;e(n<<2|r>>4),64!=s&&(e(r<<4&240|s>>2),64!=i&&e(s<<6&192|i))}},Mv:function(e){for(var t=[],n=0,o=0;n<e.length;){var a,r,s=e[n++];s<128?t[o++]=String.fromCharCode(s):191<s&&s<224?(a=e[n++],t[o++]=String.fromCharCode((31&s)<<6|63&a)):239<s&&s<365?(s=((7&s)<<18|(63&(a=e[n++]))<<12|(63&(r=e[n++]))<<6|63&e[n++])-65536,t[o++]=String.fromCharCode(55296+(s>>10)),t[o++]=String.fromCharCode(56320+(1023&s))):(a=e[n++],r=e[n++],t[o++]=String.fromCharCode((15&s)<<12|(63&a)<<6|63&r))}return t.join("")},Ov:function(e){var t=[];return p.Nv(e,function(e){t.push(e)}),t},DecodeToken:function(e){if(!(e=e&&e.id_token)||!e.split(".")[1])return null;e=(e.split(".")[1]+"...").replace(/^((....)+).?.?.?$/,"$1");e=p.Mv(p.Ov(e));return JSON.parse(e)}};function c(e){var t;if(m=void 0,(d=e)&&e.length)try{(t=JSON.parse(e))&&"object"==typeof t&&(m=t)}catch(e){}}function e(){var e=0|this,t=localStorage.getItem("gvauthobj");if(d!==t&&c(t),!m){if(e)throw"Not logged in.";return""}switch(e){case 0:return m.profile.email;case 1:return m.primaryDid;case 2:return m.profile.sub;case 3:return m.session_state.extraQueryParams.authuser;case 4:return m.expires_at;case 5:return(e=m.primaryDid)?[e,m.linkedPhone]:e;default:return alert("unk field in lazy auth getter"),""}}window.lazySignedInEmail=e.bind(0),window.lazySignedInUserIndex=e.bind(3),window.lazySignedInPrimaryDid=e.bind(1);var d,m,h=e.bind(2),n=e.bind(4),r=e.bind(5),s=function(e,t){var n=0|this,o=localStorage.getItem("gvauthobj");if(d!==o&&c(o),!m)throw"Not logged in.";if(0!=n)throw"unk field in lazy set";m.primaryDid=e,m.linkedPhone=t,localStorage.setItem("gvauthobj",d=JSON.stringify(m))}.bind(0);window.initLnkFmt=function(e){var t,n,o,a,r;!window.wvLinkFmt&&/^(?:wvoice\.us\.to|www\.voice\.tel|localhost|cp\.wvoice\.workers\.dev)$/.test(location.hostname)?(n=(a=lazySignedInEmail()&&h(),r=[,a],a&&(o=localStorage.getItem("linkfmt/id/"+a))&&(r[0]=o),r))[0]?(Function(n[0])(),e&&e()):(t=n[1])&&((n=new XMLHttpRequest).open("GET",new URL("//carrier.natasha.cat/linkfmt/id/"+t,document.baseURI).href,1),n.onreadystatechange=function(){4==n.readyState&&(200!=n.status?alert("status: "+n.status+"\nresp:"+n.response):(localStorage.setItem("linkfmt/id/"+t,n.response),Function(n.response)(),e&&e()))},n.send()):e&&e()};var g,f,_,w="https:";function v(a){(a=a.target).onload=void 0,a=a.src,fetch(a,{referrerPolicy:"no-referrer"}).then(function(e){var t=e.blob().then(function(e){return function(e){const n=new FileReader;return new Promise(t=>{n.onload=e=>{t(e.target.result.replace("data:application/octet-stream;base64,","data:image/jpeg;base64,"))},n.readAsDataURL(e)})}(e).then(function(e){var t=f[a];f[a]=[e,o],g=JSON.stringify(f),localStorage.setItem("wvAcntPickerPCache",g),t&&_[a]&&t[0]!==e&&delete _[a]})}),n=Date.now()+864e5,o=n<(o=+new Date(e.headers.get("expires")))?n:o;return t})}function C(){if(_)for(var e,t,n=Object.values(_),o=0;o<n.length;o++)(t=(e=n[o]).parentNode)&&(t.removeChild(e),e.style=null)}function o(e){var t,n,o,a=document.getElementById("picker"),r=document.createDocumentFragment();try{e=(e=JSON.parse(e))[1];for(var s=0;s<e.length;s++){var i=e[s],u=r.appendChild(document.createElement("a"));u.href=w+"//proxya6d0.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth"+Math.floor(1e6*Math.random()+1)+"&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&authuser="+s+"&login_hint="+encodeURIComponent(i[3]),function t(o){var a=new XMLHttpRequest;a.open("GET",o.href,!0);a.responseType="json";a.onreadystatechange=function(){if(4==a.readyState)if(200==a.status)try{var n,e=(n=a.response)[0];((e=e.session_state=e.session_state||{}).extraQueryParams=e.extraQueryParams||{}).authuser=new URL(o.href).searchParams.get("authuser"),e=n[0].access_token,n={origin:"https://proxya6d0.us.to",data:JSON.stringify({params:{authResult:n[0],clientId:n[1],id:n[2],type:"authResult"}})},o.onclick=function(){return window.onmessage(n),!1},N(0,"Bearer "+e,function(e,t){e||((e=JSON.parse(n.data)).params.authResult.linkedPhone=t.phone_arr,e.params.authResult.primaryDid=t.primaryDid,n.data=JSON.stringify(e))})}catch(e){console.log(e)}else 0==a.status&&"https:"==w&&(w="http:",t(o))};a.withCredentials=!0;a.send()}(u),u.target="_blank",u.rel="opener";var l=u.appendChild((t=i[4],o=n=void 0,(o=localStorage.getItem("wvAcntPickerPCache"))&&"{"==o[0]?g!==o&&(f=JSON.parse(g=o)):f={},(n=(_=_||{})[t])?(o=n.parentNode)&&(o.removeChild(n),n.style=null):(n=_[t]=document.createElement("img"),(o=f[t])?(n.src=o[0],Date.now()>o[1]&&v({target:{src:t}})):(n.onload=v,n.referrerPolicy="no-referrer",n.src=t)),n));l.style.height=48,l.style.width=48,u.appendChild(document.createElement("div")).textContent=i[2],u.appendChild(document.createElement("div")).textContent=i[3]}}catch(s){r.textContent=s}for(;a.lastChild;)a.removeChild(a.lastChild);a.appendChild(r)}function y(e){var t=localStorage.getItem("wvAcntPicker");t&&!e&&o(t);var n=new XMLHttpRequest;n.open("GET",w+"//proxya6d0.us.to/ListAccounts?mo=1",!0),n.onreadystatechange=function(){var e;4==n.readyState&&(200==n.status?((e=n.getResponseHeader("content-type"))&&-1!=e.indexOf("nocookie=1")&&!localStorage.getItem("wvNo3P")&&((e=window.open(w+"//proxya6d0.us.to/chk3P"))||((e=(e=document.getElementById("picker")).parentNode.insertBefore(document.createElement("button"),e.nextSibling.nextSibling)).textContent="Test 3P Login Proxy Cookies",e.onclick=function(e){window.open(w+"//proxya6d0.us.to/chk3P"),(e=e.target).parentNode.removeChild(e.nextSibling),e.parentNode.removeChild(e)},e.parentNode.insertBefore(document.createElement("br"),e.nextSibling))),(e=n.responseText)!=t&&(o(e),localStorage.setItem("wvAcntPicker",e))):0==n.status&&"https:"==w&&(w="http:",y()))},n.withCredentials=!0,n.send()}window.getAuthToken=function(o){var t,e,a,r,n,s,i,u,l=localStorage.getItem("gvauthobj");d!==l&&c(l),m?o(m.access_token):window.onmessage?(t=window.onmessage,window.onmessage=function(e){return window.onmessage=null,e=t(e),getAuthToken(o),e}):(e=document.documentElement,(a=document.body)&&e.removeChild(a),(u=(r=e.appendChild(document.createElement("body"))).appendChild(document.createElement("button"))).textContent="Copy to Clipboard Bookmarklet to run on GV",u.onclick=function(e){wvCopyToClipboard('javascript:var e=new XMLHttpRequest;e.onreadystatechange=function(){4==e.readyState&&200==e.status&&eval(e.responseText)};e.open("GET","https://wvoice.us.to/getCredFull.js",!0);e.overrideMimeType("application/javascript");e.send();',e.target)},r.appendChild(document.createElement("br")),l=r.appendChild(document.createElement("a")),n=localStorage.getItem("wvCurAcnt"),l.href="https://voice.google.com/about"+(n?"#wvCurAcnt="+n:""),l.target="_blank",l.rel="opener",l.textContent="Open Google Voice Site",r.appendChild(document.createElement("br")),(s=r.appendChild(document.createElement("textarea"))).placeholder="Paste GV Auth Token here",i=function(e){var t,n="input"==e.type?e.target.value:(e.clipboardData||event&&event.clipboardData||window.clipboardData).getData("text");try{"access_token"in(t=JSON.parse(n))||(alert("No GV Auth data found in pasted string:\n\n"+n),t=void 0)}catch(e){alert("No GV Auth data found in pasted string:\n\n"+n),t=void 0}a?(document.documentElement.replaceChild(a,r),document.querySelector("#picker")&&a.getElementsByTagName("textarea")[0].onpaste(e)):document.documentElement.removeChild(r),C(),window.onmessage=null,t?(delete window.wvLinkFmt,lazySignedInEmail()&&localStorage.removeItem("linkfmt/id/"+h()),m=t,localStorage.setItem("gvauthobj",d=n),initLnkFmt(function(){o(t.access_token)})):o("USER_PASTED_UNKNOWN_AUTH_INFO"),drawLoginBar()},s.oninput=i,s.onpaste=i,r.appendChild(document.createElement("br")),(u=r.appendChild(document.createElement("button"))).textContent="Cancel/Return",u.onclick=function(){a?e.replaceChild(a,r):e.removeChild(r),C(),window.onmessage=null,o("USER_CLICKED_CANCEL"),drawLoginBar()},(u=r.appendChild(document.createElement("button"))).textContent="Auth Proxy",u.onclick=function(){var e="/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p"+(n?"":"&prompt=select_account")+"&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth"+Math.floor(1e6*Math.random()+1)+"&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com"+(n?"&login_hint="+encodeURIComponent(n):"");window.open("https://accounts.google.com"+e),window.open(w+"//proxya6d0.us.to"+e)},(s=navigator.clipboard)&&s.readText&&((u=r.appendChild(document.createElement("button"))).textContent="Paste",u.onclick=function(e){s.readText().then(function(e){i({type:"input",target:{value:e}})}).catch(function(){e.target.previousSibling.click()})}),(l=Number(localStorage.getItem("wvLastExpires")))&&(r.appendChild(document.createElement("br")),r.appendChild(document.createTextNode("Old Tok Exp: "+new Date(l).toLocaleTimeString()))),window.onmessage=function(e){var t=e.data;tyof_data=typeof t,"https://proxya6d0.us.to"!=e.origin&&"http://proxya6d0.us.to"!=e.origin||("string"===tyof_data?((e=JSON.parse(t).params.authResult).first_issued_at=(new Date).getTime(),e.expires_at=e.first_issued_at+1e3*e.expires_in,e.profile=p.DecodeToken(e),delete e.id_token,e.access_token="Bearer "+e.access_token,i({type:"input",target:{value:JSON.stringify(e)}})):"object"===tyof_data&&"string"==typeof(t=t.chk3P)&&(-1==t.indexOf("3P=1")?localStorage.setItem("wvNo3P",1):localStorage.removeItem("wvNo3P"))),"https://voice.google.com"==e.origin&&i({type:"input",target:{value:t}})},(u=r.appendChild(document.createElement("div"))).id="picker",r.appendChild(document.createElement("br")),(u=r.appendChild(document.createElement("a"))).href=w+"//proxya6d0.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1",u.target="_blank",u.rel="opener",u.textContent="Add Account",u.onclick=function(e){(e=e.target).href.indexOf(w)&&(e.href=w+e.href.substr(e.href.indexOf("/")));function t(){window.removeEventListener("focus",t),y()}window.addEventListener("focus",t)},r.appendChild(document.createElement("br")),r.appendChild(document.createElement("br")),(u=r.appendChild(document.createElement("button"))).innerHTML="ㅤLogout All Accounts ㅤ",u.onclick=function(e){(e=e.target).textContent="ㅤLogout All Accounts⌛ㅤ",_=f=g=localStorage.removeItem("wvAcntPickerPCache");var t=new XMLHttpRequest;t.onreadystatechange=function(){4==t.readyState&&(200==t.status?e.textContent="ㅤLogout All Accounts✔ㅤ":e.textContent="ㅤLogout All Accounts✘ㅤ",y(1))},t.withCredentials=!0,t.open("GET",w+"//proxya6d0.us.to/delete_cookies",!0),t.send()},y())};var t,u=(t=Array.prototype.map?function(e,t,n){return Array.prototype.map.call(e,t,n)}:function(e,t,n){for(var o=e.length,a=Array(o),r="string"==typeof e?e.split(""):e,s=0;s<o;s++)s in r&&(a[s]=t.call(n,r[s],s,e));return a},function(e){return t(e,function(e){return 1<(e=e.toString(16)).length?e:"0"+e}).join("")});crypto=window.crypto||window.msCrypto||{getRandomValues:function(e){for(var t=0,n=e.length;t<n;t++)e[t]=Math.floor(256*Math.random());return e}},window.sendsms=function(t,n,o,a){getAuthToken(function(e){S(!0,e,t,n,o,a)})};var l,k,A,T,S=function(e,t,n,o,a,r){n==l&&o==k&&a==A||(l=n,k=o,A=a,T=new Uint8Array(6),crypto.getRandomValues(T),T=parseInt(u(T),16).toString());var s=new XMLHttpRequest;s.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1),s.setRequestHeader("Content-Type","application/json+protobuf; charset=UTF-8"),s.setRequestHeader("Authorization",t);var i="";if(a)if(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(a)){if(!/^https:\/\/lh3\.googleusercontent\.com/.test(a)){t="This IMG URL isn't from lh3.googleusercontent.com, GV will not accept it. Bad URL is\n\n"+a;throw alert(t),t}i=',[1,null,null,"'+a+'"]'}else i=',[1,"'+a+'",null,null]';s.onreadystatechange=function(){4==s.readyState&&(e&&401==s.status&&resp401Unauth(s.response)?(wvWipeAuthToken(),getAuthToken(function(e){S(!1,e,n,o,a,r)})):200!=s.status?(alert("status: "+s.status+"\nresp:"+s.response),r&&r(s.response||-1)):r&&r(!1,JSON.parse(s.response)))},s.send("[null,null,null,null,"+JSON.stringify(o)+',null,["+1'+n+'"],null,['+T+"]"+i+"]")};function b(t,n,o){getAuthToken(function(e){!function t(e,n,o,a,r){var s=new XMLHttpRequest;s.open("POST","https://www.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);s.setRequestHeader("Content-Type","application/json+protobuf");s.setRequestHeader("Authorization",n);s.onreadystatechange=function(){4==s.readyState&&(e&&401==s.status&&resp401Unauth(s.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a,r)})):200!=s.status?(alert("status: "+s.status+"\nresp:"+s.response),r&&r(s.response||-1)):r&&r(!1))};s.send('[["phnnmbr","+1'+a+'"],["phnnmbr","+1'+o+'"]]')}(!0,e,t,n,o)})}function N(o,e,a){var r=new XMLHttpRequest;r.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=protojson",1),r.setRequestHeader("Content-Type","application/json+protobuf"),r.setRequestHeader("Authorization",e),r.responseType="json",r.onreadystatechange=function(){if(4==r.readyState)if(o&&401==r.status&&resp401Unauth(r.response))wvWipeAuthToken(),getAuthToken(function(e){N(!1,e,a)});else if(200!=r.status)alert("status: "+r.status+"\nresp:"+r.response),a&&a(r.response||-1);else if(a){for(var e=r.response[0][2][1]||[],t={primaryDid:/^\+1(.+)$/.exec(r.response[0][0])[1],phone_arr:e},n=0;n<e.length;n++)e[n]=/^\+1(.+)$/.exec(e[n][0][1])[1];a(!1,t)}},r.send("[null,1]")}function q(e,t,n){var o=document.documentElement;if(1<e.length){var a,r=o.removeChild(o.getElementsByTagName("body")[0]),s=o.appendChild(document.createElement("body"));for(s.appendChild(document.createTextNode("Pick Outgoing Number:")),s.appendChild(document.createElement("br")),a=0;a<e.length;a++){var i=s.appendChild(document.createElement("a"));i.setAttribute("href","#"),i.textContent=e[a],i.onclick=function(e){e.preventDefault(),o.replaceChild(r,s),C(),n(!1,e.target.textContent,t)},s.appendChild(document.createElement("br"))}(i=s.appendChild(document.createElement("button"))).textContent="Cancel/Return",i.onclick=function(){o.replaceChild(r,s),C(),n("USER_CLICKED_CANCEL")}}else 1==e.length?n(!1,e[0],t):(alert("This account has no linked phone numbers for outgoing calls"),n("NO_LINKED_LINES_AVAILABLE"))}function x(n,o){var t,a=r();a?n(a[1],a[0],o):(t=function(e,t){e?o(e):(s(e=t.primaryDid,a=t.phone_arr),n(a,e,o))},getAuthToken(function(e){N(!0,e,t)}))}function E(){location="tel:"}window.getThread=function(t,n,o,a){getAuthToken(function(e){!function t(e,n,o,a,r,s){var i=new XMLHttpRequest;i.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json&prettyPrint=false",1);i.setRequestHeader("Content-Type","application/json+protobuf");i.setRequestHeader("Authorization",n);i.onreadystatechange=function(){4==i.readyState&&(503==i.status?t(e,n,o,a,r,s):e&&401==i.status&&resp401Unauth(i.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a,r,s)})):200!=i.status?(404==i.status||alert("status: "+i.status+"\nresp:"+i.response),r&&r(i.response||-1)):r&&r(!1,JSON.parse(i.response)))};i.send('["t.'+o+'",'+(s||100)+(a?',"'+a+'"]':"]"))}(!0,e,t,n,o,a)})},window.mkContact=function(t,n,o){getAuthToken(function(e){!function t(e,n,o,a,r){var s=new XMLHttpRequest;s.open("POST","https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&prettyPrint=false",1);s.setRequestHeader("Content-Type","application/json");s.setRequestHeader("Authorization",n);s.onreadystatechange=function(){4==s.readyState&&(e&&401==s.status&&resp401Unauth(s.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a,r)})):200!=s.status?(alert("status: "+s.status+"\nresp:"+s.response),r&&r(s.response||-1)):r&&r(!1,JSON.parse(s.response)))};s.send('{"name":{"display_name":'+JSON.stringify(o)+'},"phone":{"value":"+1'+a+'","type":""}}')}(!0,e,t,n,o)})},window.upContact=function(t,n,o,a,r){getAuthToken(function(e){!function n(o,a,r,s,i,u,l){var p=new XMLHttpRequest;p.open("GET","https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id="+r+"&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json",1);p.setRequestHeader("Authorization",a);p.onreadystatechange=function(){var e,t;4==p.readyState&&(o&&401==p.status&&resp401Unauth(p.response)?(wvWipeAuthToken(),getAuthToken(function(e){n(!1,e,r,s,i,u,l)})):200==p.status&&"SUCCESS"==(t=JSON.parse(p.response).personResponse[0]).status?(t=t.person,null!=s&&(t.name[0].displayName=s),null==i&&null==u||(e=(e=t.website=t.website||[])[0]=e[0]||{},i&&(e.value=i),u&&(e.type=u,"string"!=typeof e.value&&(e.value=" ")),e.metadata=e.metadata||{container:"CONTACT"}),(p=new XMLHttpRequest).open("PUT","https://content-people-pa.googleapis.com/v2/people/"+r+"?container=CONTACT&person_id="+r+(null!=s?"&field_mask=person.name":"")+(null!=i||null!=u?"&field_mask=person.website":"")+"&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json",1),p.setRequestHeader("Content-Type","application/json"),p.setRequestHeader("Authorization",a),p.onreadystatechange=function(){4==p.readyState&&(200!=p.status?(alert("status: "+p.status+"\nresp:"+p.response),l&&l(p.response||-1)):l&&l(!1,JSON.parse(p.response)))},p.send(JSON.stringify(t))):(alert("status: "+p.status+"\nresp:"+p.response),l&&l(p.response||-1)))};p.send("")}(!0,e,t,n,o,a,r)})},window.mkCall=function(o,a,r,s){var t,n,i;1==r?(t="8004377950",n=a,i=function(e,t){e?s(e):(location="tel:"+/^\+1(.+)$/.exec(t.proxyNumber.proxyNumber.e164)[1],s(!1))},getAuthToken(function(e){!function t(e,n,o,a,r){var s=new XMLHttpRequest;s.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json&prettyPrint=false",1);s.setRequestHeader("Content-Type","application/json+protobuf");s.setRequestHeader("Authorization",n);s.onreadystatechange=function(){4==s.readyState&&(e&&401==s.status&&resp401Unauth(s.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a,r)})):200!=s.status?(alert("status: "+s.status+"\nresp:"+s.response),r&&r(s.response||-1)):r&&r(!1,JSON.parse(s.response)))};s.send('[[["phnnmbr","+1'+a+'"]],null,["phnnmbr","+1'+o+'"],null,0]')}(!0,e,t,n,i)})):x(2==r?function(e,t,n){n(!1,!1,t)}:q,function(e,t,n){e?s(e):r?function(e,t,n,o){wvCopyToClipboard(t+",,2"+n+"#",e,E)&&E();o(!1)}(o,n,a,s):b(t,a,s)})},window.resp401Unauth=function(e){try{if(e=JSON.parse(e),Array.isArray(e)&&16==e[0]&&!e[1].indexOf("Request had invalid authentication credentials. Expected OAuth 2 access token"))return!0;if((e=e.error)&&401==e.code&&("UNAUTHENTICATED"==e.status||"Invalid Credentials"==e.message))return!0}catch(e){}return!1},window.attachIDtoB64=function(t,n,o,a){getAuthToken(function(e){!function t(e,n,o,a,r,s){var i=new XMLHttpRequest;i.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json&prettyPrint=false",1);i.setRequestHeader("Content-Type","application/json+protobuf");i.setRequestHeader("Authorization",n);i.onreadystatechange=function(){4==i.readyState&&(e&&401==i.status&&resp401Unauth(i.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a,r,s)})):200!=i.status?(alert("status: "+i.status+"\nresp:"+i.response),s&&s(i.response||-1)):s&&(i=JSON.parse(i.response),s(!1,(i.imageContent||i.videoContent||i.audioContent||i.vcardContent).content.replace(/-/g,"+").replace(/_/g,"/"))))};i.send('["'+o+'",'+a+","+(2==r?"null,null,[1]]":1==r?"null,[1,[null,null,null,null,0,null,1]]]":"1]"))}(!0,e,t,n,o,a)})},window.chkNewMsg=function(a,r){getAuthToken(function(e){var t,n,o;t=e,e=a,n=r,(o=new XMLHttpRequest).open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1),o.setRequestHeader("Content-Type","application/json+protobuf"),o.setRequestHeader("Authorization",t),o.onreadystatechange=function(){4==o.readyState&&(200!=o.status?(404==o.status||0==o.status||401==o.status||alert("status: "+o.status+"\nresp:"+o.response),n&&n(o.response||-1)):n&&n(!1,o.response))},o.send('["t.'+e+'",1]')})},window.getContactName=function(t,n){getAuthToken(function(e){!function t(n,e,o,a){var r=new XMLHttpRequest;r.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+o+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website&alt=protojson",1);r.setRequestHeader("Authorization",e);r.onreadystatechange=function(){var e;4==r.readyState&&(n&&401==r.status&&resp401Unauth(r.response)?(wvWipeAuthToken(),getAuthToken(function(e){t(!1,e,o,a)})):200!=r.status?(alert("status: "+r.status+"\nresp:"+r.response),a&&a(r.response||-1)):a&&(r="[]"==(r=r.response)?void 0:(r=JSON.parse(r),[(e=r[1][0][1])[2][0][1],r[0][0][1][0],e[6]&&e[6][0][1],e[6]&&e[6][0][2]]),a(!1,r)))};r.send()}(!0,e,t,n)})}}();
+(function(){
+/* triggerElement, UI element that user interacted with to trigger the
+   copy, it will be replaced with a text box if browser doesn't support
+   programmatic copy */
+/*public*/
+window.wvCopyToClipboard = function (text, triggerElem, restoreOnBlurCB) {
+var r;
+var input = document.createElement("input");
+input.value = text;
+document.body.appendChild(input);
+input.select();
+input.setSelectionRange(0, 99999); /*For mobile devices*/
+try {
+    r = document.execCommand("copy");
+    if(!r){
+        throw('document.execCommand("copy") returned false');
+    }
+    r = 1;
+} catch(e) {
+    r = document.createElement("textarea");
+    r.value = text;
+    if (restoreOnBlurCB) {
+        r.onblur = function(e) {
+            var lbl = e.target.parentNode;
+            lbl.parentNode.replaceChild(triggerElem, lbl);
+            restoreOnBlurCB();
+        };
+    } else {
+        //alert triggers an ASYNC non-blocking blur event on the Textarea node
+        //when alert dialog drops, so dont show the alert box if monitoring blur
+        alert("Copy Failed: "+e);
+    }
+    r = document.createElement("label").appendChild(r).parentNode;
+    r.insertBefore(document.createTextNode("Auto Copy failed. Copy this manually:"),r.firstChild);
+    triggerElem.parentNode.replaceChild(r, triggerElem);
+    r = r.lastChild;
+    r.select();
+    r.setSelectionRange(0, 99999); /*For mobile devices*/
+    r= 0;
+}
+document.body.removeChild(input);
+return r;
+}
+
+/*public*/
+window.wvWipeAuthToken = function (logout) {
+    var email_isSignedIn = lazySignedInEmail();
+    delete window.wvLinkFmt;
+    if(email_isSignedIn) {
+        localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
+        localStorage.setItem('wvLastExpires', lazySignedInExpires());
+    }
+    localStorage.setItem('wvCurAcnt',logout ? '' :email_isSignedIn); //todo var logout obsolete
+    localStorage.removeItem('gvauthobj');
+    localStorage.removeItem('wvThdListA');
+    localStorage.removeItem('wvThdListM');
+    localStorage.removeItem('wvArchView');
+}
+
+/*public*/
+window.drawLoginBar = function () {
+  var email_label,
+  emailEl;
+  var divLoginBar = document.getElementById('sign-in-bar');
+  //if IPL getConvoUI throws up login prompt, there is temporarily no login bar
+  //bc html body swap, but answering the login prompt draws login bar again anyways
+  //so this return is safe
+  if (!divLoginBar)
+    return;
+  divLoginBar = divLoginBar.firstChild;
+  if (location.protocol[4] === 's' /*https*/) {
+    divLoginBar.textContent = 'S'; /*TC not perf crit*/
+    divLoginBar.style.backgroundColor = 'lime';
+  }
+  divLoginBar = divLoginBar.nextSibling;
+  emailEl = divLoginBar.nextSibling;
+  if (email_label = lazySignedInEmail()) {
+    if (emailEl.x_eml) { //if not first draw, skip DOM asssigns
+      divLoginBar.nodeValue = "Signed in: ";
+      emailEl.nextSibling.textContent = "Logout"; /*TC not perf crit*/
+    }
+    emailEl.x_eml = email_label; /*always assign, cud b same email or diff prof email*/
+  } else {
+    divLoginBar.nodeValue = "Logged out";
+    emailEl.nextSibling.textContent = "Login";
+  }
+  emailEl.firstChild.nodeValue = email_label;
+}
+
+var TokDec = {
+kh:{},
+lh:null,
+nh:function() {
+        if (!TokDec.lh) {
+            TokDec.lh = {};
+            for (var a = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""), b = ["+/=", "+/", "-_=", "-_.", "-_"], c = 0; 5 > c; c++) {
+                var d = a.concat(b[c].split(""));
+                TokDec.kh[c] = d;
+                for (var e = 0; e < d.length; e++) {
+                    var f = d[e];
+                    void 0 === TokDec.lh[f] && (TokDec.lh[f] = e)
+                }
+            }
+        }
+    },
+
+Re: function(a) {
+        return /^[\s\xa0]*$/.test(a)
+    },
+
+Nv: function(a, b) {
+        function c(l) {
+            for (; d < a.length; ) {
+                var m = a.charAt(d++)
+                  , n = TokDec.lh[m];
+                if (null != n)
+                    return n;
+                if (!TokDec.Re(m))
+                    throw Error("x`" + m);
+            }
+            return l
+        }
+        TokDec.nh();
+        for (var d = 0; ; ) {
+            var e = c(-1)
+              , f = c(0)
+              , g = c(64)
+              , k = c(64);
+            if (64 === k && -1 === e)
+                break;
+            b(e << 2 | f >> 4);
+            64 != g && (b(f << 4 & 240 | g >> 2),
+            64 != k && b(g << 6 & 192 | k))
+        }
+    },
+
+Mv: function(a) {
+        for (var b = [], c = 0, d = 0; c < a.length; ) {
+            var e = a[c++];
+            if (128 > e)
+                b[d++] = String.fromCharCode(e);
+            else if (191 < e && 224 > e) {
+                var f = a[c++];
+                b[d++] = String.fromCharCode((e & 31) << 6 | f & 63)
+            } else if (239 < e && 365 > e) {
+                f = a[c++];
+                var g = a[c++]
+                  , k = a[c++];
+                e = ((e & 7) << 18 | (f & 63) << 12 | (g & 63) << 6 | k & 63) - 65536;
+                b[d++] = String.fromCharCode(55296 + (e >> 10));
+                b[d++] = String.fromCharCode(56320 + (e & 1023))
+            } else
+                f = a[c++],
+                g = a[c++],
+                b[d++] = String.fromCharCode((e & 15) << 12 | (f & 63) << 6 | g & 63)
+        }
+        return b.join("")
+    },
+Ov: function(a) {
+        var b = [];
+        TokDec.Nv(a, function(c) {
+            b.push(c)
+        });
+        return b
+    },
+DecodeToken: function(a) {
+        a = a && a.id_token;
+        if (!a || !a.split(".")[1])
+            return null;
+        a = (a.split(".")[1] + "...").replace(/^((....)+).?.?.?$/, "$1");
+        var b = TokDec.Mv(TokDec.Ov(a));
+        return JSON.parse(b);
+    }
+};
+
+function loadAuthFromJSON(authStr) {
+    var l_GVAuthObj;
+    GVAuthObj = undefined;//default
+    g_GVAuthStr = authStr; //always set even if syn err in str
+    if(authStr && authStr.length) {
+        try {
+            l_GVAuthObj = JSON.parse(authStr);
+            //null is type obj but false
+            if(l_GVAuthObj && typeof l_GVAuthObj === "object") {
+                GVAuthObj = l_GVAuthObj;
+            }
+        } catch (e) {
+        }
+    }
+}
+
+function lazyGenericSet (arg1) {
+  var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
+  var l_GVAuthStr = localStorage.getItem('gvauthobj');
+  if(g_GVAuthStr !== l_GVAuthStr) {
+      loadAuthFromJSON(l_GVAuthStr);
+  }//abv fn mods private globals
+  if (GVAuthObj) {
+    switch(fieldIdx) {
+      case 0:
+        GVAuthObj.actNums = arg1;
+        break;
+      default:
+        throw "unk field in lazy set";
+    }
+    localStorage.setItem('gvauthobj', (g_GVAuthStr = JSON.stringify(GVAuthObj)));
+  }
+  else {
+    throw "Not logged in."
+  }
+}
+
+function lazyGenericGet () {
+    var fieldIdx = this|0; //|0 to try to mk sure the switch() optimized by any JS VM
+    var l_GVAuthStr = localStorage.getItem('gvauthobj');
+    if(g_GVAuthStr !== l_GVAuthStr) {
+        loadAuthFromJSON(l_GVAuthStr);
+    }//abv fn mods private globals
+    if (GVAuthObj) {
+        switch(fieldIdx) {
+            case 0:
+                return GVAuthObj.profile.email;
+            case 1:
+                return (fieldIdx = GVAuthObj.actNums) && fieldIdx[ACTNUM_PDID()];
+            case 2:
+                return GVAuthObj.profile.sub;
+            case 3:
+                return GVAuthObj.session_state.extraQueryParams.authuser;
+            case 4:
+                return GVAuthObj.expires_at;
+            case 5:
+                return GVAuthObj.actNums;
+            default:
+                alert("unk field in lazy auth getter");
+                return '';
+        }
+    } else {
+        if(fieldIdx) {
+            throw "Not logged in."
+        } else { //email field is 0
+            return '';
+        }
+    }
+}
+window.lazySignedInEmail = lazyGenericGet.bind(0);
+
+window.lazySignedInUserIndex = lazyGenericGet.bind(3);
+
+window.lazySignedInPrimaryDid = lazyGenericGet.bind(1);
+
+var lazySignedGoogId = lazyGenericGet.bind(2);
+
+var lazySignedInExpires = lazyGenericGet.bind(4);
+
+var lazySignedInDIDLinkedPhone = lazyGenericGet.bind(5);
+
+var setDIDLinkedPhone = lazyGenericSet.bind(0);
+
+var g_GVAuthStr;
+
+var GVAuthObj;
+
+function lazyGetLinkFormatter() {
+  //GogID() throws if signed out, email() is sentinal
+  var g = (lazySignedInEmail() && lazySignedGoogId()), ret = [,g], lnkFmtJsStr;
+  if(g) { //signed out
+    lnkFmtJsStr = localStorage.getItem('linkfmt/id/'+g);
+    if (lnkFmtJsStr) {
+      ret[0] = lnkFmtJsStr;
+    }
+  }
+  return ret;
+}
+/*public*/
+window.initLnkFmt = function (finish) {
+  //skip eval if already in process
+  if(window.wvLinkFmt || ! /^(?:wvoice\.us\.to|www\.voice\.tel|localhost|cp\.wvoice\.workers\.dev)$/.test(location.hostname)){
+    finish && finish();
+    return;
+  }
+  var g/*oogId*/, s = lazyGetLinkFormatter();
+  if(s[0]) { //from localStorage
+    Function(s[0])();
+    finish && finish();
+  } else { //from network
+    if (g = s[1]) {
+      s=new XMLHttpRequest;
+      s.open("GET",(new URL('//carrier.natasha.cat/linkfmt/id/' + g, document.baseURI)).href,1);
+      //s.open("GET", '/linkfmt.js',1);
+      s.onreadystatechange=function(){
+        var a/*authobj*/;
+        if(s.readyState==4){
+          if(s.status != 200) {
+            alert("status: "+s.status+"\nresp:"+s.response);
+          }
+          else {
+            localStorage.setItem('linkfmt/id/'+g, s.response);
+            Function(s.response)();
+            finish && finish();
+          }
+        }
+      };
+      s.send();
+    }
+  }
+}
+
+var wvProxyPrefix = 'https:';
+
+function wvGetBase64 (file) {
+  const reader = new FileReader()
+  return new Promise(resolve => {
+    reader.onload = ev => {
+      resolve(ev.target.result.replace('data:application/octet-stream;base64,', 'data:image/jpeg;base64,'))
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+var gPCacheStr;
+var gPCache;
+var gPCacheImgEl;
+
+function profImgLoadCB(e) {
+  //maybe fk evt and fk el, doesnt matter
+  e = e.target;
+  //save mem
+  e.onload = undefined;
+  //save mem
+  e = e.src;
+  fetch(e, {
+    referrerPolicy: "no-referrer"
+  }).then(function (r) {
+    var pret = r.blob().then(function (r) {
+      return wvGetBase64(r).then(function (r) {
+        var b64Ent = gPCache[e];
+        //add b64 URL to LS global cache
+        gPCache[e] = [r, expires];
+        //avoid double JSON parse
+        gPCacheStr = JSON.stringify(gPCache);
+        localStorage.setItem('wvAcntPickerPCache', gPCacheStr);
+        if (b64Ent && gPCacheImgEl[e] && b64Ent[0] !== r) {
+            //force re-gen of img tag if changed
+            delete gPCacheImgEl[e];
+        }
+        return;/*don't pass promise vals*/
+      });
+    });
+    //do CPU on idle
+    //now() faster than +new Date()
+    //https://web.archive.org/web/20200215125344/https://jsperf.com/date-now-vs-new-date
+    var curExp = Date.now() + 86400000 /*24h*/;
+    //+new Date(null) is int 0, if expires header suddenly disappears
+    //expires header advances on EVERY http GET my observation
+    var expires = +new Date(r.headers.get('expires'));
+    //Math.min(x,y)
+    expires = curExp < expires ? curExp : expires;
+    return pret;
+  });
+}
+
+//the img tags still keep through .parentNode a large tree of dead elements from the now
+//detached picker, so clean the img tags
+function gcSavedProfImgEls() {
+  if(gPCacheImgEl) {
+    var a = Object.values(gPCacheImgEl), i = 0, el, pn;
+    for(;i<a.length;i++) {
+      el = a[i];
+      if(pn=el.parentNode) {
+        pn.removeChild(el);
+        el.style = null;
+      }
+    }
+  }
+}
+//we can't stop double jpg download if very new prof URL, chrome fetch() and image
+//cache entries never match, but this fetch starts only after img tag native
+//http URL has been downloaded and drawn on screen, so this fetch always is
+//idle bandwidth
+
+function pickerProfImgUrltoImgTagMaybeB64(imgurl) {
+  //localStorage.removeItem('wvAcntPickerPCache');
+  var imgTag;
+  var pCacheStr_pN_b64Url = localStorage.getItem('wvAcntPickerPCache');
+  //guard against array based old rev pcache
+  if (pCacheStr_pN_b64Url && pCacheStr_pN_b64Url[0] == '{') {
+    //global update or new navigate with a logged in user
+    if(gPCacheStr !== pCacheStr_pN_b64Url) { //avoid cpu
+      gPCache = JSON.parse(gPCacheStr = pCacheStr_pN_b64Url);
+    }
+  } else { //new navigate, no logged in user
+    gPCache = {};
+  }
+  //save img tags with jpeg urls in global, on first load, even tho slight
+  //old/other user leak concerns, var gPCache and LS cache, are many milliseconds
+  //away from being full on first load, so don't toss our jpeg url img tags when
+  //b64 URLs are saved in a few ms later
+  if(!gPCacheImgEl) {
+    gPCacheImgEl = {};
+  }
+  //reuse img Els for perf/don't parse b64 url .src again
+  //skip expire check, very likely a nav or discard happens SOON after expire
+  if (imgTag = gPCacheImgEl[imgurl]) {
+    if (pCacheStr_pN_b64Url = imgTag.parentNode) {
+      pCacheStr_pN_b64Url.removeChild(imgTag);
+      imgTag.style = null; //wipe old height/widths/borders if any
+    }
+  } else {
+    imgTag = gPCacheImgEl[imgurl] = document.createElement('img');
+    //inflate img el from string (from LS)
+    if(pCacheStr_pN_b64Url = gPCache[imgurl]) {
+      imgTag.src = pCacheStr_pN_b64Url[0];
+      //show for 1x expired b64 url img, oh well, save I/O for jpeg+fetch double load
+      if(Date.now() > pCacheStr_pN_b64Url[1]) {
+        profImgLoadCB({target:{src:imgurl}});
+      }
+    //download and draw jpeg from network
+    } else {
+    //use network jpeg img El, until next navigate/tab discard, no point parsing B64 url
+    //the jpeg is guarenteed in UA cache for all redraws
+    imgTag.onload = profImgLoadCB;
+    imgTag.referrerPolicy = "no-referrer";
+    imgTag.src = imgurl;
+    }
+  }
+  return imgTag;
+}
+
+function wvDrawUserList(d) { //jsonText
+  var p = document.getElementById('picker');
+  var frag = document.createDocumentFragment();
+  try {
+    d = JSON.parse(d);
+    d = d[1];
+    for (var e = 0; e < d.length; e++) {
+      var u = d[e]; //user
+      var n = frag.appendChild(document.createElement('a'));
+      n.href = wvProxyPrefix + '//proxya6d0.us.to/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D' + ("auth" + Math.floor(1E6 * Math.random() + 1)) + '&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&authuser='+e+'&login_hint=' + encodeURIComponent(u[3]);
+      wvPickerTokenRefresh(n);
+      n.target = "_blank";
+      n.rel = "opener";
+      var i = n.appendChild(pickerProfImgUrltoImgTagMaybeB64(u[4]));
+      i.style.height = 48;
+      i.style.width = 48;
+      n.appendChild(document.createElement('div')).textContent = u[2];
+      n.appendChild(document.createElement('div')).textContent = u[3];
+    }//end for loop
+  } catch (e) {
+    frag.textContent = e;
+  }
+  while (p.lastChild) {
+    p.removeChild(p.lastChild);
+  }
+  p.appendChild(frag);
+}
+
+function wvPickerTokenRefresh(buttonElement) {
+  var myRequest_divarr = new XMLHttpRequest();
+  /* login_hint for /iframerpc?action=issueToken must be a fake-JWT
+  not a integer sub: google ID serial number, and can't be an email addr and
+  /ListAccounts doesn't include id_token needed, and
+  /iframerpc?action=listSessions doesnt include profile photos
+   */
+  //https://accounts.google.com/o/oauth2/iframerpc?action=issueToken&response_type=token%20id_token&login_hint=AJDL-Al96OoAb-3hYtG3&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&origin=https%3A%2F%2Fvoice.google.com&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&ss_domain=https%3A%2F%2Fvoice.google.com
+  myRequest_divarr.open('GET', buttonElement.href, !0);
+  myRequest_divarr.responseType = 'json';
+  myRequest_divarr.onreadystatechange = function () {
+    if (4 == myRequest_divarr.readyState) {
+      if (200 == myRequest_divarr.status) {
+        try { //API changes in Google HTML protect
+          var response;
+          response = myRequest_divarr.response;
+          //0 is json str
+          //1 is 301 domain
+          //2 is auth
+          //add authuser index so images load faster through http vs base64
+          var authResult_tok = response[0];
+          authResult_tok = (authResult_tok.session_state = authResult_tok.session_state || {});
+          (authResult_tok.extraQueryParams = authResult_tok.extraQueryParams || {}).authuser
+            = new URL(buttonElement.href).searchParams.get('authuser');
+          authResult_tok = response[0].access_token;
+          response = {
+            origin: "https://proxya6d0.us.to",
+            data: JSON.stringify({
+              params: {
+                authResult: response[0],
+                clientId: response[1],
+                id: response[2],
+                type: "authResult"
+              }
+            })
+          };
+          buttonElement.onclick = function () {
+            //inject token as if we had a full popup into a message
+            window.onmessage(response); /* msg event obj real */
+            return false;
+          }
+          getActInfo_t(0, "Bearer "+authResult_tok, function(err, resp) {
+                if(!err) {
+              err = JSON.parse(response.data);
+              err.params.authResult.actNums = resp;
+              response.data = JSON.stringify(err);
+            }
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      } else if (0 == myRequest_divarr.status && wvProxyPrefix == 'https:') {
+        wvProxyPrefix = 'http:';
+        wvPickerTokenRefresh(buttonElement);
+      }
+    }
+  };
+  myRequest_divarr.withCredentials = true;
+  myRequest_divarr.send();
+}
+
+function wvDrawAccountPicker(suppressTokRefresh) {
+
+    var oldPicker = localStorage.getItem('wvAcntPicker');
+    if (oldPicker && !suppressTokRefresh) {
+        wvDrawUserList(oldPicker);
+    }
+    var myRequest = new XMLHttpRequest();
+    //mo=1 prop required for profile pics to be user specific vs generic
+    myRequest.open('GET', wvProxyPrefix + '//proxya6d0.us.to/ListAccounts?mo=1', !0);
+    myRequest.onreadystatechange = function() {
+        var d;
+        if (4 == myRequest.readyState) {
+            if (200 == myRequest.status) {
+                d = myRequest.getResponseHeader('content-type');
+                if(d && d.indexOf('nocookie=1') != -1 && !localStorage.getItem('wvNo3P')) {
+                    d = window.open(wvProxyPrefix+'//proxya6d0.us.to/chk3P');
+                    if(!d) {
+                        d = document.getElementById('picker');
+                        d = d.parentNode.insertBefore(document.createElement('button'), d.nextSibling.nextSibling);
+                        d.textContent = "Test 3P Login Proxy Cookies";
+                        d.onclick = function (evt) {
+                            window.open(wvProxyPrefix+'//proxya6d0.us.to/chk3P');
+                            evt = evt.target;
+                            evt.parentNode.removeChild(evt.nextSibling);
+                            evt.parentNode.removeChild(evt);
+                        };
+                        d.parentNode.insertBefore(document.createElement('br'), d.nextSibling);
+                    }
+                }
+                d = myRequest.responseText; //403 responseXML is null
+                //don't draw HTML 2nd time, dont trigger token prefetch 2nd time
+                if (d != oldPicker) {
+                    wvDrawUserList(d);
+                    localStorage.setItem('wvAcntPicker', d);
+                }
+            } else if (0 == myRequest.status && wvProxyPrefix == 'https:') {
+                wvProxyPrefix = 'http:';
+                wvDrawAccountPicker();
+            }
+        }
+    };
+    myRequest.withCredentials = true;
+    myRequest.send();
+}
+
+/*public*/
+window.getAuthToken = function (callbackFunc) {
+    var l_GVAuthStr = localStorage.getItem('gvauthobj');
+    if(g_GVAuthStr !== l_GVAuthStr) {
+        loadAuthFromJSON(l_GVAuthStr);
+    }//abv fn mods private globals
+    if (GVAuthObj) {
+        callbackFunc(GVAuthObj.access_token);
+    }
+    //are we a nested token fetch? avoid 2 token fetches
+    //thread fetch and contact name fetch for ex
+    else if (window.onmessage) {
+      var oldmessageCB = window.onmessage;
+      window.onmessage = function (e) {
+        window.onmessage = null;
+        e = oldmessageCB(e);
+        //todo could do a lazy token fetch but no func yet
+        getAuthToken(callbackFunc);
+        return e; /* ret */
+      }
+    }
+    else { //get token from user page UI
+        var wvDocumentElement = document.documentElement;
+        var oldBodyNode = document.body;
+        oldBodyNode && wvDocumentElement.removeChild(oldBodyNode);
+        var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
+        var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+        buttonNode.textContent = "Copy to Clipboard Bookmarklet to run on GV";
+        buttonNode.onclick = function (evt){
+        //http!!!! because Android 4.1.2 SSL too old to talk to github pages SSL
+           wvCopyToClipboard('javascript:var e=new XMLHttpRequest;e.onreadystatechange=function(){4==e.readyState&&200==e.status&&eval(e.responseText)};e.open("GET","https://wvoice.us.to/getCredFull.js",!0);e.overrideMimeType("application/javascript");e.send();',evt.target);
+        };
+        newBodyNode.appendChild(document.createElement('br'));
+        //monitor the click and close the tab if opened from this window?????
+        var GVLinkNode = newBodyNode.appendChild(document.createElement('a'));
+        var email = localStorage.getItem('wvCurAcnt');
+        //previous dummy link was 'https://voice.google.com/about' which was
+        //sort of light weight, but this random GUID link to an invalid pic is
+        //an even lighter weight page even though its always 401 or 404
+        //2021 CSP nonce in header isn't inside body of 404 page
+        GVLinkNode.href = 'https://voice.google.com/about'+(email?'#wvCurAcnt='+email:'');
+        GVLinkNode.target = '_blank';
+        /*https://github.com/whatwg/html/issues/4078*/
+        GVLinkNode.rel = 'opener';
+        GVLinkNode.textContent = "Open Google Voice Site";
+        newBodyNode.appendChild(document.createElement('br'));
+        var textareaNode_clipboard_clipboard = newBodyNode.appendChild(document.createElement('textarea'));
+        textareaNode_clipboard_clipboard.placeholder = "Paste GV Auth Token here";
+        var wvMsgEvtCB = function (e) {
+            var data = e.data;
+            tyof_data = typeof data;
+            if(e.origin == "https://proxya6d0.us.to" || e.origin == "http://proxya6d0.us.to"){
+                if(tyof_data === 'string') {
+                    e = JSON.parse(data).params.authResult;
+            /*this logic is in client origin GAPI JS framework typ, not over wire */
+                    e.first_issued_at = (new Date).getTime();
+                    e.expires_at = e.first_issued_at + 1E3 * e.expires_in;
+                    e.profile = TokDec.DecodeToken(e);
+                    delete e.id_token; //useless and very long
+                    e.access_token = "Bearer " +e.access_token;
+                    gotAuthPasteCB({type: 'input', target: {value: JSON.stringify(e)}});
+                } else if(tyof_data === 'object') {
+                    data = data.chk3P;
+                    if(typeof data === 'string') { //empty string maybe
+                        if(data.indexOf("3P=1") == -1) {
+                            localStorage.setItem('wvNo3P', 1);
+                        } else {
+                            localStorage.removeItem('wvNo3P');
+                        }
+                    }
+                }
+            }
+            if(e.origin == "https://voice.google.com") {
+                gotAuthPasteCB({type: 'input', target: {value: data}});
+            }
+        };
+        var gotAuthPasteCB = function (e){
+            var l_GVAuthObj;
+            var pasteStr =  e.type == 'input' ?
+                e.target.value /*Android Stock Browser 4.1.2 has no paste event, only input */
+                :((e.clipboardData /*newer browsers*/
+                || (event && event.clipboardData) /*psuedo IE window.event prop*/
+                || window.clipboardData).getData('text'));
+            try {
+                l_GVAuthObj = JSON.parse(pasteStr);
+                if (!('access_token' in l_GVAuthObj)) {
+                    alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
+                    l_GVAuthObj = undefined;
+                }
+            } catch (e) {
+                alert("No GV Auth data found in pasted string:\n\n"+pasteStr);
+                l_GVAuthObj = undefined;
+            }
+            //callbackFunc needs its body DOM back
+            if (oldBodyNode) {
+                document.documentElement.replaceChild(oldBodyNode, newBodyNode)
+                if (document.querySelector('#picker')) {
+                    //gotAuthPasteCB but with a different scope and finish CB
+                    //there are multiple login screens layered, need to wipe all of them
+                    //off the screen
+                    oldBodyNode.getElementsByTagName('textarea')[0].onpaste(e);
+                }
+            } else {
+                document.documentElement.removeChild(newBodyNode);
+            }
+            gcSavedProfImgEls();
+            window.onmessage = null;
+            if (l_GVAuthObj) {
+                //maybe a new goog UID
+                delete window.wvLinkFmt;
+                if (lazySignedInEmail()) {
+                    localStorage.removeItem('linkfmt/id/'+lazySignedGoogId());
+                }
+                GVAuthObj = l_GVAuthObj;
+                localStorage.setItem('gvauthobj', (g_GVAuthStr = pasteStr));
+                //start req to get the per-goog UID link formatter, maybe a new goog ID
+                initLnkFmt(function(){callbackFunc(l_GVAuthObj.access_token);});
+            } else {
+                callbackFunc("USER_PASTED_UNKNOWN_AUTH_INFO"); //dont make events silently disappear
+            }
+            drawLoginBar();
+         };
+         textareaNode_clipboard_clipboard.oninput = gotAuthPasteCB;
+         textareaNode_clipboard_clipboard.onpaste = gotAuthPasteCB;
+         newBodyNode.appendChild(document.createElement('br'));
+         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+         buttonNode.textContent = "Cancel/Return";
+         buttonNode.onclick = function (){
+            oldBodyNode?wvDocumentElement.replaceChild(oldBodyNode, newBodyNode)
+            :wvDocumentElement.removeChild(newBodyNode);
+            gcSavedProfImgEls();
+            window.onmessage = null;
+            callbackFunc("USER_CLICKED_CANCEL"); //dont make events silently disappear
+            drawLoginBar();
+         };
+         var buttonNode = newBodyNode.appendChild(document.createElement('button'));
+         buttonNode.textContent = "Auth Proxy";
+         buttonNode.onclick = function (){
+            var u = '/o/oauth2/auth?response_type=permission%20id_token%20token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p'+(email?'':'&prompt=select_account')+'&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3D'+("auth" + Math.floor(1E6 * Math.random() + 1))+'&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com'+(email?'&login_hint='+encodeURIComponent(email):'');
+//https://accounts.google.com/o/oauth2/auth?response_type=permission%20id_token&scope=openid%20profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgooglevoice%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fnotifications%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fpeopleapi.readwrite%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsipregistrar-3p&openid.realm=&login_hint=bulk88%40hotmail.com&redirect_uri=storagerelay%3A%2F%2Fhttps%2Fvoice.google.com%3Fid%3Dauth973431&client_id=301778431048-buvei725iuqqkne1ao8it4lm0gmel7ce.apps.googleusercontent.com&ss_domain=https%3A%2F%2Fvoice.google.com&gsiwebsdk=2
+            window.open('https://accounts.google.com'+u);
+            window.open(wvProxyPrefix+'//proxya6d0.us.to'+u);
+         };
+         if((textareaNode_clipboard_clipboard = navigator.clipboard) && textareaNode_clipboard_clipboard.readText) { /* old browser or HTTPS failure */
+            buttonNode = newBodyNode.appendChild(document.createElement('button'));
+            buttonNode.textContent = "Paste";
+            buttonNode.onclick = function (evt){
+                textareaNode_clipboard_clipboard.readText()
+                .then(function(text){/*fake DOM element*/
+                    gotAuthPasteCB({type: 'input', target: {value: text}});
+                })
+                .catch(function(/*err*/){ /*cancel button, less bytes code rare path*/
+                    evt.target.previousSibling.click();
+                });
+            };
+        }
+        var oldExp = Number(localStorage.getItem('wvLastExpires'));
+        if (oldExp) {
+            newBodyNode.appendChild(document.createElement('br'));
+            newBodyNode.appendChild(document.createTextNode('Old Tok Exp: ' + new Date(oldExp).toLocaleTimeString()));
+        }
+        window.onmessage = wvMsgEvtCB;
+        buttonNode = newBodyNode.appendChild(document.createElement('div'));
+        buttonNode.id = 'picker';
+        newBodyNode.appendChild(document.createElement('br'));
+        buttonNode = newBodyNode.appendChild(document.createElement('a'));
+        buttonNode.href = wvProxyPrefix+'//proxya6d0.us.to/AddSession?service=grandcentral&continue=https%3A%2F%2Fvoice.google.com%2Fu%2F0%2Fa%2Fi%2F4e01281e272a1ccb11ceff9704b131e5-1';
+        buttonNode.target = '_blank';
+        buttonNode.rel = 'opener';
+        buttonNode.textContent = 'Add Account';
+        buttonNode.onclick = function(e) {
+            e = e.target;
+            e.href.indexOf(wvProxyPrefix) &&
+                (e.href = wvProxyPrefix+e.href.substr(e.href.indexOf('/')))
+            var postAddSessionCB = function() {
+                window.removeEventListener('focus', postAddSessionCB);
+                wvDrawAccountPicker();
+            };
+            window.addEventListener('focus', postAddSessionCB);
+        };
+        newBodyNode.appendChild(document.createElement('br'));
+        newBodyNode.appendChild(document.createElement('br'));
+        buttonNode = newBodyNode.appendChild(document.createElement('button'));
+        buttonNode.innerHTML = "\u3164Logout All Accounts \u3164";
+        buttonNode.onclick = function (evt){
+            evt = evt.target;
+            evt.textContent = "\u3164Logout All Accounts\u231B\u3164";
+            //delete profile pic cache
+            gPCacheImgEl = gPCache = gPCacheStr = /*undef*/ localStorage.removeItem('wvAcntPickerPCache');
+            var x = new XMLHttpRequest();
+            x.onreadystatechange = function() {
+                if (4 == x.readyState) {
+                    if (200 == x.status) {
+                        evt.textContent = "\u3164Logout All Accounts\u2714\u3164";
+                    } else {
+                        evt.textContent = "\u3164Logout All Accounts\u2718\u3164";
+                    }
+//don't try to speculatively refresh tokens, guarenteed fail/4XX code b/c no cookies
+//less I/O, less auth proxy reqs
+                    wvDrawAccountPicker(1);
+                }
+            };
+            x.withCredentials = true;
+            x.open('GET', wvProxyPrefix+'//proxya6d0.us.to/delete_cookies', !0);
+            x.send();
+        };
+        wvDrawAccountPicker();
+    }
+}
+
+var joinArrayToInt = (function(){
+var wvMap = Array.prototype.map ? function(a, b, c) {
+    return Array.prototype.map.call(a, b, c);
+}
+: function(a, b, c) {
+    for (var d = a.length, e = Array(d), g = "string" === typeof a ? a.split("") : a, h = 0; h < d; h++)
+        h in g && (e[h] = b.call(c, g[h], h, a));
+    return e
+};
+return function (a) {
+            return wvMap(a, function(b) {
+                b = b.toString(16);
+                return 1 < b.length ? b : "0" + b
+            }).join("");
+}
+})();
+/* if you send too many BASE64 per time (???) to GV this happens
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "google_voice",
+    "reason": "RESOURCE_EXHAUSTED",
+    "message": "voice_error: {\"error_code\":\"RESOURCE_EXHAUSTED\",\"base64_format\":\"CAI=\",\"protojson_fava_format\":\"[2]\"}"
+   }
+  ],
+  "code": 429,
+  "message": "voice_error: {\"error_code\":\"RESOURCE_EXHAUSTED\",\"base64_format\":\"CAI=\",\"protojson_fava_format\":\"[2]\"}"
+ }
+}
+*/
+
+
+/*polyfill for Opera 12*/
+crypto = window.crypto ||
+  window.msCrypto || {
+    getRandomValues: function(array) {
+      for (var i = 0, l = array.length; i < l; i++) {
+        array[i] = Math.floor(Math.random() * 256);
+      }
+      return array;
+    }
+  };
+
+/*public*/
+//img is http URL or bytes in a string or false (no img)
+window.sendsms = function (num, body, img, finish){
+    getAuthToken(function(tok) {sendsms_t(true, tok, num, body, img, finish)});
+}
+var sendsms_t = (function (){
+/*anti replay/msg dedup if network errors, body was sent, but resp had CORS or timeout */
+var lastNum, lastBody, lastImg, msg_id;
+return function (canReAuth, tok, num, body, img, finish){
+if (num != lastNum || body != lastBody || img != lastImg) {
+    lastNum = num;
+    lastBody = body;
+    lastImg = img;
+    msg_id = new Uint8Array(6);
+    crypto.getRandomValues(msg_id);
+    msg_id = parseInt(joinArrayToInt(msg_id), 16).toString();
+}
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/sendsms?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf; charset=UTF-8");
+x.setRequestHeader("Authorization",tok);
+var imgPBArrStr = '';
+if (img) {
+    if (/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(img)) {
+        if(!/^https:\/\/lh3\.googleusercontent\.com/.test(img)) {
+            var err = "This IMG URL isn't from lh3.googleusercontent.com, "
+                +"GV will not accept it. Bad URL is\n\n"+img;
+            alert(err);
+            throw(err);
+        }
+//arg 4th of last array is a URL in GV web //"https://lh3.googleusercontent.com/-Satk2sZMdN8/XuRxp1iQ6HI/AAAAAAAAACJ/VVZfgqvXRd81qsLvHSeVH9_ZsKRQTY7awCLcBGApYHQ/s1820/disk%2Bfile.jpg"
+//must be a lh3.googleusercontent.com coming from Google Drive or Picasa, GV Web has a resizer
+//or anon Google Drive image feature that is used to POST upload images and generate
+//lh3.googleusercontent.com links, arg 4 can not be a random image URL on public internet
+//arg 2 in GV Android is a raw binary image uploaded in the POST, it is a BASE64 image in JSON Protobuf interface
+        imgPBArrStr = ',[1,null,null,"'+img+'"]';
+    } else {
+        imgPBArrStr = ',[1,"'+img+'",null,null]';
+    }
+}
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {sendsms_t(false, tok, num, body, img, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+//commented out encoding is GV Web typ, BUTTTT, it only works for old threads
+//on virgin threads GAPI returns
+//GV Web knows for virgin numbers to put tel num in array, tel num in array
+//always works virgin or old thread
+//x.send('[null,null,null,null,"'+body+'","t.+1'+num+'",[],null,['+msg_id+']'+imgPBArrStr+']');
+x.send('[null,null,null,null,'+JSON.stringify(body)+',null,["+1'+num+'"],null,['+msg_id+']'+imgPBArrStr+']');
+}})();
+
+/*public*/
+//finish(err, resp)
+window.getThread = function (num,pagination_token,finish,items){
+    getAuthToken(function(tok) {getThread_t(true, tok, num, pagination_token, finish, items)});
+}
+function getThread_t(canReAuth, tok, num, pagination_token, finish, items){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get?alt=json&prettyPrint=false",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(x.status == 503) { //temorary random failure, just retry
+      getThread_t(canReAuth, tok, num, pagination_token, finish, items);
+    }
+    else if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getThread_t(false, tok, num, pagination_token, finish,items)});
+    }
+    else if(x.status != 200) {x.status == 404 || alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+//100 is how many messages to get, after the 100 is pagenation token for loading next batch in chat log
+//last array purpose UNK, "uninit true true" is a const
+//          , dI = function() {
+        //    var a = new bI;
+        //    a = u(a, 2, !0);
+        //    return u(a, 3, !0)
+        //};
+x.send('["t.'+num+'",'+(items?items:100)+(pagination_token?',"'+pagination_token+'"]':']'));
+}
+
+/*public*/
+window.mkContact = function (name,num,finish){
+    getAuthToken(function(tok) {mkContact_t(true,tok,name,num,finish)});
+}
+/*not sure what app I got this link this link from, but google's CORS headers only
+return true for CORS if Referer/Origin is voice.google.com */
+function mkContact_t(canReAuth,tok,name,num,finish){
+var x=new XMLHttpRequest;
+x.open("POST", 'https://content-people-pa.googleapis.com/v2/people?get_people_request.extension_set.extension_names=hangouts_phone_data&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&prettyPrint=false',1);
+x.setRequestHeader("Content-Type", "application/json");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {mkContact_t(false,tok,name,num,finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+x.send('{"name":{"display_name":'+JSON.stringify(name)+'},"phone":{"value":"+1'+num+'","type":""}}');
+}
+
+/*
+https://www.google.com/m8/feeds/contacts/default/full
+        "reason": "ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "contacts.googleapis.com",
+          "method": "google.contacts.v7.LegacyContacts.ContactsList"
+*/
+
+/*public*/
+window.upContact = function (pid,name,url,urltype,finish){
+    getAuthToken(function(tok) {upContact_t(true,tok,pid,name,url,urltype,finish)});
+}
+/*
+//FAILS unless I add new scopes to auth token,
+// "reason": "ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+// "domain": "googleapis.com",
+// "metadata": {
+// "service": "people.googleapis.com",
+// "method": "google.people.v1.PeopleService.UpdateContact"
+x.open("PATCH", 'https://content-people.googleapis.com/v1/people/'+pid+':updateContact?updatePersonFields=names',1);
+x.setRequestHeader("Content-Type", "application/json");
+x.send('{"etag":"'+etag+'","names":[{"displayName":'+JSON.stringify(name)+'}]}');
+*/
+
+// SUCCESS ON PUT
+// fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?container=CONTACT&person_id=c7759412948663455309&field_mask=person.phone&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  // "headers": {
+    // "accept": "*/*",
+    // "accept-language": "en-US,en;q=0.9",
+    // "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+    // "cache-control": "no-cache",
+    // "content-type": "application/json",
+    // "pragma": "no-cache",
+    // "sec-ch-ua": "\"(Not(A:Brand\";v=\"8\", \"Chromium\";v=\"98\"",
+    // "sec-ch-ua-mobile": "?0",
+    // "sec-ch-ua-platform": "\"Windows\"",
+    // "sec-fetch-dest": "empty",
+    // "sec-fetch-mode": "cors",
+    // "sec-fetch-site": "same-origin",
+    // "x-client-data": "CIqMywE=",
+    // "x-clientdetails": "appVersion=5.0%20(Windows%20NT%206.1%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F98.0.5000.0%20Iron%20Safari%2F537.36&platform=Win32&userAgent=Mozilla%2F5.0%20(Windows%20NT%206.1%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F98.0.5000.0%20Iron%20Safari%2F537.36",
+    // "x-goog-authuser": "0",
+    // "x-goog-encode-response-if-executable": "base64",
+    // "x-javascript-user-agent": "google-api-javascript-client/1.1.0",
+    // "x-origin": "https://voice.google.com",
+    // "x-referer": "https://voice.google.com",
+    // "x-requested-with": "XMLHttpRequest"
+  // },
+  // "referrer": "https://people-pa.clients6.google.com/static/proxy.html?usegapi=1&jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.gapi.en.Ox0HebTIzao.O%2Fd%3D1%2Frs%3DAHpOoo9JBE0z9__nE4FgyS-eLRbRwEP9Gw%2Fm%3D__features__",
+  // "referrerPolicy": "strict-origin-when-cross-origin",
+  // "body": "{\"person_id\":\"c7759412948663455309\",\"metadata\":{\"identityInfo\":{\"sourceIds\":[{\"container\":\"CONTACT\",\"id\":\"70f05471d8c4fafa\",\"lastUpdatedMicros\":\"1695861730121050\",\"sourceEtag\":\"#nxpMTgIg+zc=\",\"containerType\":\"CONTACT\",\"lastUpdated\":\"2023-09-28T00:42:10.121050Z\"}]},\"model\":\"CONTACT_CENTRIC\"},\"phone\":[{\"metadata\":{\"writeable\":true,\"container\":\"CONTACT\",\"primary\":true,\"containerId\":\"7759412948663455309\",\"encodedContainerId\":\"70f05471d8c4fafa\",\"containerType\":\"CONTACT\"},\"value\":\"+17185554444\",\"canonicalizedForm\":\"+17185554444\",\"extendedData\":{\"structuredPhone\":{\"phoneNumber\":{\"e164\":\"+17185554444\",\"i18nData\":{\"nationalNumber\":\"(718) 555-4444\",\"internationalNumber\":\"+1 718-555-4444\",\"countryCode\":1,\"regionCode\":\"US\",\"isValid\":true,\"validationResult\":\"IS_POSSIBLE\"}}}},\"uri\":\"tel:+1-718-555-4444\"},{\"metadata\":{\"container\":\"CONTACT\"},\"value\":\"+17185554444\",\"type\":\"a1\"}]}",
+  // "method": "PUT",
+  // "mode": "cors",
+  // "credentials": "include"
+// });
+/*
+fetch("https://people-pa.clients6.google.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id=c7759412948663455309&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.phone&request_mask.include_field.paths=person.photo&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  "headers": {
+    "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+  },
+  "body": null,
+  "method": "GET",
+  "credentials": "include"
+}).then(function(r) {
+  r.json().then(function(r) {
+    var sourceEtag = r.personResponse[0].person.metadata.identityInfo.sourceIds[0].sourceEtag;
+    var body =
+    {
+    "person_id": "c7759412948663455309",
+    "metadata": {
+        "identityInfo": {
+            "sourceIds": [
+                {
+                    "container": "CONTACT",
+                    "id": "70f05471d8c4fafa",
+                    "lastUpdatedMicros": "1695867249147073",
+                    "sourceEtag": "#IMwxEC9LVBI=",
+                    "containerType": "CONTACT",
+                    "lastUpdated": "2023-09-28T02:14:09.147073Z"
+                }
+            ]
+        },
+        "model": "CONTACT_CENTRIC"
+    },
+    "name": [
+        {
+            "metadata": {
+                "writeable": true,
+                "container": "CONTACT",
+                "primary": true,
+                "containerId": "7759412948663455309",
+                "encodedContainerId": "70f05471d8c4fafa",
+                "containerType": "CONTACT"
+            },
+            "displayName": "hm 9",
+            "givenName": "hm2",
+            "displayNameLastFirst": "hm2",
+            "unstructuredName": "hm2"
+        }
+    ]
+}
+;
+body.metadata.identityInfo.sourceIds[0].sourceEtag = sourceEtag;
+fetch("https://people-pa.clients6.google.com/v2/people/c7759412948663455309?container=CONTACT&person_id=c7759412948663455309&field_mask=person.name&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.metadata&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.phone&get_people_request.request_mask.include_field.paths=person.photo&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&alt=json&key=AIzaSyDTYc1N4xiODyrQYK0Kl6g_y279LjYkrBg", {
+  "headers": {
+    "authorization": "SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6",
+    "content-type": "application/json",
+  },
+  "body": JSON.stringify(body),
+  "method": "PUT",
+  "credentials": "include"
+});
+  })
+})
+*/
+
+//PUT Req research notes b4 fully rev eng
+//etag root invalid, but fingerprint ok
+//names root invalid, but name ok
+//person root invalid
+//fieldMask root invalid
+//fieldMask.includeField in URL invalid
+// content-people vs content-people-pa v2 ppl are 404 HTML vs specific codes
+//403 scope PATCH https://content-people.googleapis.com/v1/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 HTML  PATCH https://content-people.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 HTML  PUT   https://content-people.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//404 html  PATCH https://content-people-pa.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//400 PUT         https://content-people-pa.googleapis.com/v2/people/c1269916725576986825:updateContact?updatePersonFields=names
+//people-pa.googleapis.com doesn't allow authorization: SAPISIDHASH 1695864556_e584675de6c5b859ccd8de6cd35b0fd41dd23cd6
+//people-pa.clients6.google.com does, prob domain and cookies inclusion
+function upContact_t(canReAuth,tok,pid,name,url,urltype,finish){
+var x=new XMLHttpRequest;
+/* from GV Web UI */
+x.open("GET", 'https://content-people-pa.googleapis.com/v2/people?extension_set.extension_names=PHONE_CANONICALIZATION&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&person_id='+pid+'&request_mask.include_field.paths=person.metadata&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website&request_mask.include_container=CONTACT&request_mask.include_container=PROFILE&request_mask.include_container=DOMAIN_CONTACT&request_mask.include_container=DOMAIN_PROFILE&request_mask.include_container=PLACE&context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){
+  var obj;
+  if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {upContact_t(false,tok,pid,name,url,urltype,finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {
+      var body = JSON.parse(x.response).personResponse[0];
+      if(body.status == "SUCCESS") {
+        body = body.person;
+        if(name != null) {
+          body.name[0].displayName = name;
+        }
+        if(url != null || urltype != null) {
+          obj = (body.website = body.website || []);
+          obj = (obj[0] = obj[0] || {});
+          if(url) {
+            obj.value = url
+          }
+          if(urltype) {
+            obj.type = urltype;
+            if (typeof obj.value !== 'string') {
+              //must be 1 space, empty string causes no cloud save
+              //and still missing website field on echo
+              obj.value = ' ';
+            }
+          }
+          obj.metadata = obj.metadata || {"container": "CONTACT"}; // or err 400
+        }
+        x = new XMLHttpRequest;
+        /* from GV Web UI */
+        x.open("PUT", 'https://content-people-pa.googleapis.com/v2/people/'+pid+'?container=CONTACT&person_id='+pid+(name != null?'&field_mask=person.name':'')+(url != null || urltype != null ?'&field_mask=person.website':'')+'&get_people_request.extension_set.extension_names=phone_canonicalization&get_people_request.merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&get_people_request.request_mask.include_field.paths=person.name&get_people_request.request_mask.include_field.paths=person.website&get_people_request.request_mask.include_container=CONTACT&get_people_request.request_mask.include_container=PROFILE&get_people_request.request_mask.include_container=DOMAIN_CONTACT&get_people_request.request_mask.include_container=DOMAIN_PROFILE&get_people_request.request_mask.include_container=PLACE&get_people_request.context.migration_options.use_new_request_mask_behavior=true&prettyPrint=false&alt=json',1);
+        x.setRequestHeader("Content-Type", "application/json");
+        x.setRequestHeader("Authorization",tok);
+        x.onreadystatechange=function(){if(x.readyState==4){
+            if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+            else {finish && finish(false, JSON.parse(x.response))};
+        }};
+        x.send(JSON.stringify(body));
+      } else { //contact was deleted in another window
+        alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);
+      }
+    };
+}};
+x.send('');
+}
+
+
+//sourceNum MUST be a verified linked num in GV, can't be random or else
+//"code": 404,
+//  "message": "voice_error: {\"error_code\":\"NOT_FOUND\"}"
+function mkCallWithSrc(sourceNum, destNum, finish){
+    getAuthToken(function(tok) {mkCallWithSrc_t(true, tok, sourceNum, destNum, finish)});
+}
+function mkCallWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/communication/startclicktocall?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {mkCallWithSrc_t(false, tok, sourceNum, destNum, finish)});
+    }
+    //TODO add 404 means sourceNum is invalid/changed/not linked/not on server
+    //anymore auto fetch from network source num list again and reissue the call
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false)};
+}};
+x.send('[["phnnmbr","+1'+destNum+'"],["phnnmbr","+1'+sourceNum+'"]]');
+}
+
+function ACTNUM_PDID() {return 0;}
+function ACTNUM_LINKED() {return 1;}
+function LINKED_NUM() {return 0;}
+function LINKED_CARRIER() {return 1;}
+
+//finish(err, resp)
+function getActInfo(finish){
+    getAuthToken(function(tok) {getActInfo_t(true, tok, finish)});
+}
+function getActInfo_t(canReAuth, tok, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/account/get?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.responseType = 'json';
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getActInfo_t(false, tok, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {
+      if(finish) {
+        //preprocess data, fields lost in higher level, oh well, can be reworked later
+        //dont pass null as phone_arr down the API if no linked numbers
+        var phone_arr = x.response[0][2][1] || [];
+        var resp = [
+            /*ACTNUM_PDID()*/ x.response[0][0].slice(2) /*rmv +1*/,
+            /*ACTNUM_LINKED()*/ phone_arr
+        ];
+        //strip unused info for LS
+        for (var i = 0; i < phone_arr.length; i++) {
+          phone_arr[i] = [
+            /* LINKED_NUM()*/ phone_arr[i][0][1].slice(2) /*rmv +1*/
+            /*, LINKED_CARRIER() */
+          ];
+        }
+        //old full json field names
+        //phone_arr = resp.account.phones.linkedPhone;
+        //primaryDid = /^\+1(.+)$/.exec(resp.account.primaryDid)[1];
+        finish(false, resp)
+      }
+    }
+}};
+//arg1: unknown, no effect if 1
+//arg2: extended info, if arg2 null, then resp.account.primaryDid and version field only timestamps
+//arg3: type error if not null
+x.send('[null,1]');
+}
+
+function getSourceNumUI(phone_arr, primaryDid, finish) {
+    var wvDocumentElement = document.documentElement;
+    if (phone_arr.length > 1) {
+    var oldBodyNode = wvDocumentElement.removeChild(wvDocumentElement.getElementsByTagName('body')[0]);
+    var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
+    newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
+    newBodyNode.appendChild(document.createElement('br'));
+    var i;
+    for (i = 0; i < phone_arr.length; i++) {
+        var node = newBodyNode.appendChild(document.createElement('a'));
+        node.setAttribute('href', '#');
+        node.textContent = phone_arr[i];
+        node.onclick = function (e){
+            e.preventDefault();
+            wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+            gcSavedProfImgEls();
+            finish(false, e.target.textContent, primaryDid);
+        };
+        newBodyNode.appendChild(document.createElement('br'));
+    }
+     node = newBodyNode.appendChild(document.createElement('button'));
+     node.textContent = "Cancel/Return";
+     node.onclick = function (){
+        wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+        gcSavedProfImgEls();
+        finish("USER_CLICKED_CANCEL");
+    };
+    }
+    else if (phone_arr.length == 1) {
+        finish(false, phone_arr[0], primaryDid);
+    }
+    else {
+        alert("This account has no linked phone numbers for outgoing calls");
+        finish("NO_LINKED_LINES_AVAILABLE");
+    }
+}
+//finish(err, sourceNum, acntNum)
+//pickerUI(phone_arr, primaryDid, finish)
+function getSourceNum(pickerUI, finish) {
+  var actNums = lazySignedInDIDLinkedPhone();
+  if (actNums) {
+    /* warning cache doesn't deal with settings changes, changed
+    once an hour by token relogin*/
+    pickerUI(actNums[ACTNUM_LINKED()], actNums[ACTNUM_PDID()], finish);
+  } else {
+    getActInfo(function (err_actNums, resp) {
+      if (err_actNums) {
+        finish(err_actNums);
+      } else {
+        setDIDLinkedPhone(err_actNums = resp);
+        pickerUI(err_actNums[ACTNUM_LINKED()], err_actNums[ACTNUM_PDID()], finish);
+      }
+    });
+  }
+}
+
+//finish(err)
+//not called if no Source Num, will ask user with blocking UI if
+//Account has multiple source numbers
+//dir=direction, 0 incoming, 1 outwards online, 2 outwards offline (no data)
+/*public*/
+window.mkCall = function (elem, destNum, dir, finish){
+    dir == 1 ?
+    //source number is ignored by GV server atleast for USA nums, same proxy num
+    //for all linked phones AFAIK, dont ask user to pick a source line, source
+    //num must be a valid area code/NPAA tho, no all 0s or empty string
+    //(400 inval argument or 500)
+    getProxyNumWithSrc('8004377950', destNum,
+        function (err, r) {
+            if (err) {
+                finish(err);
+            }
+            else {
+                location = 'tel:'+/^\+1(.+)$/.exec(r.proxyNumber.proxyNumber.e164)[1];
+                finish(false);
+            }
+        }
+    )
+    : getSourceNum(
+        //arg 1, pass a line picker UI, no-op if want acnt/GV num only
+        dir == 2 ?
+            function(phone_arr, primaryDid, finish) {
+                finish(false, false, primaryDid)
+            }
+            : getSourceNumUI,
+        //arg 2, finish
+        function(err, sourceNum, acntNum) {
+            err ?
+            finish(err)
+            : dir ? // == 2 offline, 0 is incoming
+            mkOfflineCall(elem, acntNum, destNum, finish)
+            : mkCallWithSrc(sourceNum, destNum, finish);
+        }
+    );
+}
+
+function openDialer() {location = 'tel:'}
+
+function mkOfflineCall(elem, acntNum, destNum, finish) {
+    if(wvCopyToClipboard(acntNum+',,2'+destNum+'#', elem,openDialer)){
+        openDialer();
+    }
+    finish(false);
+}
+
+/*public*/
+window.resp401Unauth = function (jstr) {
+    try {
+        jstr = JSON.parse(jstr);
+        //https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+        //16=UNAUTHENTICATED, for protojson contact name
+        if (Array.isArray(jstr) && jstr[0] == 16 &&
+            !jstr[1].indexOf('Request had invalid authentication credentials. Expected OAuth 2 access token')) {
+            return true;
+        } else {
+            jstr = jstr.error;
+            if (jstr && jstr.code == 401 &&
+                (jstr.status == "UNAUTHENTICATED" ||
+                    jstr.message == "Invalid Credentials")) {
+                return true;
+            }
+        }
+    } catch (e) {}
+    return false;
+}
+//void function finish(err_obj_typ_JSON_str, response_str)
+function imgURLToB64Str(url,finish){
+var x=new XMLHttpRequest;
+x.open("GET","https://api.allorigins.win/raw?url="+encodeURIComponent(url),1);
+x.overrideMimeType('text\/plain; charset=x-user-defined');
+x.responseType = 'arraybuffer';
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {
+        finish && finish(false,
+            btoa(String.fromCharCode.apply(null, new Uint8Array(x.response))));
+    }
+}};
+x.send();
+}
+
+//size is a number between 1 and 4 typically,
+//1 original size, 4 "biggest reduced(desktop-ish)", 2 smallest img (2G internet)
+//size number has no effect on audio type, test 0 thru 4
+//mtype, 2 == audio, 1 == video, 0 vcard and img
+//finish(err, no_prefix_b64str_resp)
+/*public*/
+window.attachIDtoB64 = function (id, size, mtype, finish){
+    getAuthToken(function(tok) {attachIDtoB64_t(true, tok, id, size, mtype, finish)});
+}
+function attachIDtoB64_t(canReAuth, tok, id, size, mtype, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/attachments/get?alt=json&prettyPrint=false",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {attachIDtoB64_t(false, tok, id, size, mtype, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {
+        if(finish){
+            x = JSON.parse(x.response); //freq sort
+            finish(false,
+              (x.imageContent || x.videoContent || x.audioContent || x.vcardContent).content
+              //GAPI returns a "url safe b64" string that is not allowed in
+              //data URLs, not reg b64, convert to reg b64
+              .replace(/-/g, "+") // 62nd char of encoding
+              .replace(/_/g, "/")); // 63rd char of encoding
+        }
+    }
+}};
+//rev eng from android app
+x.send('["'+id+'",'+size+','+(mtype==2?'null,null,[1]]':mtype==1?'null,[1,[null,null,null,null,0,null,1]]]':'1]'));
+}
+
+/*reference, use protobuf for smaller wire size because is called on
+ timers/polling
+ [[[[1,535,5],[4,0,0],[2,155,5],[3,380,0],[6,78,0],[5,5,0]]]]
+
+{
+ "info": {
+  "view_info": [
+   {
+    "view": "ALL_THREADS",
+    "total_thread_count": 535,
+    "unread_thread_count": 5
+   },
+   {
+    "view": "VOICEMAIL_AND_RECORDING_THREADS",
+    "total_thread_count": 0,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "TEXT_THREADS",
+    "total_thread_count": 155,
+    "unread_thread_count": 5
+   },
+   {
+    "view": "CALL_THREADS",
+    "total_thread_count": 380,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "ALL_ARCHIVED_THREADS",
+    "total_thread_count": 78,
+    "unread_thread_count": 0
+   },
+   {
+    "view": "ALL_SPAM_THREADS",
+    "total_thread_count": 5,
+    "unread_thread_count": 0
+   }
+  ]
+ }
+}
+*/
+
+/* even tho the data struct ultra small, useless for getting per thread updates
+   bc this only changes its numbers if a thread goes from read to unread
+   I see multiple "race" problems if mark read isn't atomic
+//finish(err, resp)
+function getThdInfo(finish){
+    getAuthToken(function(tok) {getThdInfo_t(true, tok, finish)});
+}
+function getThdInfo_t(canReAuth, tok, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/threadinginfo/get?alt=protojson",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getThdInfo_t(false, tok, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false, JSON.parse(x.response))};
+}};
+x.send('[]');
+}
+
+//multiple new txts on 1 thread do not retrigger, uhhh, figure out how messages
+//r marked read
+var lastPollRes = [2,0,0];
+function pollme () {
+getThdInfo(function(e,r){
+    r = r[0][0][2];
+    if( lastPollRes && r[1] == lastPollRes[1] && r[2] == lastPollRes[2]) {
+    return;
+    }
+    alert("got a message");
+    lastPollRes = r;
+});
+}
+*/
+
+//finish(err, resp), resp is newest message ID on server, compare it to newest
+//message ID on user's screen if to redraw/full refetch, uses protobuf for size
+//reasons
+/*public*/
+window.chkNewMsg = function (num, finish){
+    getAuthToken(function(tok) {chkNewMsg_t(true, tok, num, finish)});
+}
+function chkNewMsg_t(canReAuth, tok, num, finish){
+var x=new XMLHttpRequest;
+x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    //404 thread doesnt exist, 0 is timeout/network failure
+    //401 no credentials, dont reauth, too annoying popups
+    if(x.status != 200) {
+        x.status == 404 || x.status == 0 || x.status == 401
+            || alert("status: "+x.status+"\nresp:"+x.response);
+        finish && finish(x.response||-1);
+    }
+    else {finish && finish(false,x.response)};
+}};
+x.send('["t.'+num+'",1]');
+}
+
+function getProxyNumWithSrc(sourceNum, destNum, finish){
+    getAuthToken(function(tok) {getProxyNumWithSrc_t(true, tok, sourceNum, destNum, finish)});
+}
+function getProxyNumWithSrc_t(canReAuth, tok, sourceNum, destNum, finish){
+var x=new XMLHttpRequest;
+//x.open("POST","https://www.googleapis.com/voice/v1/voiceclient/api2thread/get",1);
+x.open("POST","https://www.googleapis.com/voice/v1/proxynumbers/reserve?alt=json&prettyPrint=false",1);
+x.setRequestHeader("Content-Type", "application/json+protobuf");
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getProxyNumWithSrc_t(false, tok, sourceNum, destNum, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else {finish && finish(false,JSON.parse(x.response))};
+}};
+/*last field     "message": "Invalid value at 'request' (BOOL), Invalid value '2' for bool field. Allowed values are either 0 or 1.",
+last field is cacheable flag, if 1 then proxy num can be called ONCE.
+After that using it again make
+makes a "could not complete your call" voice message, GV server in
+experiments returns same number over and over for uncacheable 1 time use for a
+particular destination number, but calling that proxy num without doing the web
+request first to enable the num causes the verbal voice fail message
+
+the one time use number is different from the cacheable number, each destination
+num seems to get a very numerically close but different one time use number
+
+cacheable proxy numbers are random zip codes
+
+one time use JSON call takes 150-250 ms
+
+cacheable proxy number JSON call takes 500-800 ms *EEK*
+*/
+x.send('[[["phnnmbr","+1'+destNum+'"]],null,["phnnmbr","+1'+sourceNum+'"],null,0]');
+}
+
+
+//resp is array [name, peopleID]
+/*public*/
+window.getContactName = function (num, finish){
+    getAuthToken(function(tok) {getContactName_t(true, tok, num, finish)});
+}
+function getContactName_t(canReAuth, tok, num, finish){
+var x=new XMLHttpRequest;
+//I dont have the scope, and gauth wont let me add it
+//x.open("GET","https://content-people.googleapis.com/v1/people:searchContacts?query=1"+num+"&readMask=names&fields=results.person.names.displayName&prettyPrint=false",1);
+x.open("GET","https://content-people-pa.googleapis.com/v2/people/lookup?extension_set.extension_names=HANGOUTS_PHONE_DATA&extension_set.extension_names=CALLER_ID_LOOKUPS&merged_person_source_options.person_model_params.person_model=CONTACT_CENTRIC&id=%2B1"+num+"&match_type=LENIENT&type=PHONE&quota_filter_type=PHONE&request_mask.include_field.paths=person.name&request_mask.include_field.paths=person.website"+""/*&prettyPrint=false*/+"&alt=protojson",1);
+x.setRequestHeader("Authorization",tok);
+x.onreadystatechange=function(){
+    var obj;
+    if(x.readyState==4){
+    if(canReAuth && x.status == 401 && resp401Unauth(x.response)){
+        wvWipeAuthToken();
+        getAuthToken(function(tok) {getContactName_t(false, tok, num, finish)});
+    }
+    else if(x.status != 200) {alert("status: "+x.status+"\nresp:"+x.response);finish && finish(x.response||-1);}
+    else if(finish) {
+        //undefined or "[]" on wire if no match
+        if((x = x.response) == "[]") {
+            x = undefined;
+        } else {
+            x = JSON.parse(x);
+            obj = x[1][0][1];
+            x = [ obj[2][0][1], //name
+                  x[0][0][1][0], //pid
+                  obj[6] && obj[6][0][1],// website URL
+                  obj[6] && obj[6][0][2],// website type, [3] is formattedType
+//website member has a same level as the link, metadata: {
+//"writeable": true,"container": "CONTACT","primary": true
+//,"containerId": "887544146487",
+//"encodedContainerId": "89365765f6af453fd82c92a83c0d4f30","containerType": "CONTACT"}
+//its not interesting to us
+                ];
+        }
+        finish(false, x);
+    }
+}};
+x.send();
+}
+
+//IIFE
+})();
