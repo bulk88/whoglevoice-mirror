@@ -411,10 +411,13 @@ function hashChangeHandler () {
                 });
               }
             }
-            carrierUpdate = null; //free memory just in case
-          };
+            //rmv script tag, they build up if SPA
+            (i=carrierUpdate.script).parentNode.removeChild(i);
+            //free memory of window. global 1x use function
+            carrierUpdate = null;
+          }
           carrierUpdate.wvnode = f.appendChild(document.createElement('span')).appendChild(carrierTextNode);
-          e = document.createElement('script');
+          carrierUpdate.script = e = document.createElement('script');
           e.src = '//carrier.natasha.cat/'+t.substring(0,7);
           f.appendChild(e);
         } //if tel is 10 chars long (not a short code)

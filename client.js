@@ -1183,41 +1183,90 @@ x.onreadystatechange=function(){if(x.readyState==4){
 x.send('[null,1]');
 }
 
+//returns a CB to run later manually
+function getCarrierForLinked(numIdx, node, nextCarrierCB) {
+  return function () {
+    carrierUpdate = function (s) {
+      //this obj is window obj
+      var i = 1, actInfo_rPid = s.match(/(CINGULAR)|(CELLCO PARTNERSHIP)|(OMNIPOINT|T-MOBILE USA|METROPCS)|(BANDWIDTH.COM)|(SPRINT SPECTRUM)|(Inteliquent)|(PEERLESS NETWORK OF NEW YORK)/);
+      if(actInfo_rPid) {
+        //7 total
+        for (; i < 8; i++) {
+          if (actInfo_rPid[i]) {
+            s = [,
+              'ATTW',
+              'VZW',
+              'TM',
+              'BCOM',
+              'SPCS',
+              'ITQL',
+              'PLSNY'
+            ][i];
+            break;
+          }
+        }
+      }
+      actInfo_rPid = lazySignedInDIDLinkedPhone();
+      carrierUpdate.wvnode.nodeValue = actInfo_rPid[ACTNUM_LINKED()][numIdx][LINKED_CARRIER()] = "\xa0"+s;
+      setDIDLinkedPhone(actInfo_rPid);
+      //rmv script tag, they build up if SPA
+      (i=carrierUpdate.script).parentNode.removeChild(i);
+      //free memory of window. global 1x use function
+      i = carrierUpdate.next;
+      carrierUpdate = null; //wipe global
+      i && i(); //run next carrier getter, note the JSONP api only allows 1 cb at a time
+    }
+    carrierUpdate.wvnode = node;
+    carrierUpdate.next = nextCarrierCB;
+    (carrierUpdate.script = document.head.appendChild(document.createElement('script'))).src = '//carrier.natasha.cat/'+lazySignedInDIDLinkedPhone()[ACTNUM_LINKED()][numIdx][LINKED_NUM()].substring(0,7);
+  };
+}
+
 function getSourceNumUI(phone_arr, primaryDid, finish) {
-    var wvDocumentElement = document.documentElement;
-    if (phone_arr.length > 1) {
+  var numLinkedInfo;
+  var carrierCB;
+  var wvDocumentElement = document.documentElement;
+  if (phone_arr.length > 1) {
     var oldBodyNode = wvDocumentElement.removeChild(wvDocumentElement.getElementsByTagName('body')[0]);
     var newBodyNode = wvDocumentElement.appendChild(document.createElement('body'));
     newBodyNode.appendChild(document.createTextNode("Pick Outgoing Number:"));
     newBodyNode.appendChild(document.createElement('br'));
     var i;
     for (i = 0; i < phone_arr.length; i++) {
-        var node = newBodyNode.appendChild(document.createElement('a'));
-        node.setAttribute('href', '#');
-        node.textContent = phone_arr[i];
-        node.onclick = function (e){
-            e.preventDefault();
-            wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
-            gcSavedProfImgEls();
-            finish(false, e.target.textContent, primaryDid);
-        };
-        newBodyNode.appendChild(document.createElement('br'));
+      numLinkedInfo = phone_arr[i];
+      var node = newBodyNode.appendChild(document.createElement('a'));
+      node.setAttribute('href', '#');
+      node.textContent = numLinkedInfo[LINKED_NUM()];
+      node.onclick = function (e){
+          e.preventDefault();
+          wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+          gcSavedProfImgEls();
+          finish(false, e.target.textContent, primaryDid);
+      };
+      numLinkedInfo = numLinkedInfo[LINKED_CARRIER()];
+      //undef to empty string
+      node = newBodyNode.appendChild(document.createTextNode([numLinkedInfo]));
+      if(!numLinkedInfo) {
+        carrierCB = getCarrierForLinked(i,node,carrierCB);
+      }
+      newBodyNode.appendChild(document.createElement('br'));
     }
-     node = newBodyNode.appendChild(document.createElement('button'));
-     node.textContent = "Cancel/Return";
-     node.onclick = function (){
-        wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
-        gcSavedProfImgEls();
-        finish("USER_CLICKED_CANCEL");
+    carrierCB && carrierCB();
+    node = newBodyNode.appendChild(document.createElement('button'));
+    node.textContent = "Cancel/Return";
+    node.onclick = function (){
+      wvDocumentElement.replaceChild(oldBodyNode, newBodyNode);
+      gcSavedProfImgEls();
+      finish("USER_CLICKED_CANCEL");
     };
-    }
-    else if (phone_arr.length == 1) {
-        finish(false, phone_arr[0], primaryDid);
-    }
-    else {
-        alert("This account has no linked phone numbers for outgoing calls");
-        finish("NO_LINKED_LINES_AVAILABLE");
-    }
+  }
+  else if (phone_arr.length == 1) {
+      finish(false, phone_arr[0][LINKED_NUM()], primaryDid);
+  }
+  else {
+      alert("This account has no linked phone numbers for outgoing calls");
+      finish("NO_LINKED_LINES_AVAILABLE");
+  }
 }
 //finish(err, sourceNum, acntNum)
 //pickerUI(phone_arr, primaryDid, finish)
